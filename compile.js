@@ -4,6 +4,7 @@ const htmlparser = window.htmlparser2;
 const html2hyperscript = (input, stream) => {
 	let indentLevel = 0;
 	let attrOpen = false;
+	let textWritten = false;
 	let justClosed = false;
 	let size = 0;
 	const streamWrite = stream.write;
@@ -14,6 +15,10 @@ const html2hyperscript = (input, stream) => {
 			onopentag(name, attr) {
 				if (justClosed) {
 					justClosed = false;
+				}
+				if (textWritten) {
+					stream.write(", ");
+					textWritten = false;
 				}
 				stream.write("\n" + "\t".repeat(indentLevel++) + `${name}`);
 				let attrKeys = Object.keys(attr);
@@ -47,6 +52,10 @@ const html2hyperscript = (input, stream) => {
 
 			ontext(text) {
 				if (!text.trim()) return;
+				if (textWritten) {
+					stream.write(", ");
+					textWritten = false;
+				}
 				if (attrOpen) attrOpen = false;
 				justClosed = false;
 				stream.write(`\`${text.replace(/`/g, String.raw`\``)}\``);
