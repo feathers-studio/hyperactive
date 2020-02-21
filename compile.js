@@ -2,6 +2,7 @@
 const htmlparser = window.htmlparser2;
 
 const html2hyperscript = (input, stream) => {
+	const elements = new Set();
 	let indentLevel = 0;
 	let attrOpen = false;
 	let textWritten = false;
@@ -13,6 +14,7 @@ const html2hyperscript = (input, stream) => {
 	const parser = new htmlparser.Parser(
 		{
 			onopentag(name, attr) {
+				elements.add(name);
 				if (justClosed) {
 					justClosed = false;
 				}
@@ -20,6 +22,7 @@ const html2hyperscript = (input, stream) => {
 					stream.write(", ");
 					textWritten = false;
 				}
+				if (attrOpen) attrOpen = false;
 				stream.write("\n" + "\t".repeat(indentLevel++) + `${name}`);
 				let attrKeys = Object.keys(attr);
 				if (attrKeys.length) {
@@ -29,7 +32,10 @@ const html2hyperscript = (input, stream) => {
 					if (selector) stream.write(`["${selector}"]`);
 					stream.write("(");
 
-					attrKeys = attrKeys.filter(name => !["class", "id"].includes(name));
+					delete attr.class;
+					delete attr.id;
+
+					attrKeys = Object.keys(attr);
 					if (attrKeys.length) {
 						stream.write(JSON.stringify(attr), ", ");
 						attrOpen = true;
@@ -42,12 +48,11 @@ const html2hyperscript = (input, stream) => {
 			oncomment(comments) {
 				justClosed = false;
 				(comments = comments.trim()) &&
-					comments.split("\n").forEach(comment =>
-						stream.write(
-							"\n// " + "\t".repeat(indentLevel) + comment.trim(),
-							// Strip whitespace and prepend ; to every line of comment
-						),
-					);
+					comments
+						.split("\n")
+						.forEach(comment =>
+							stream.write("\n// " + "\t".repeat(indentLevel) + comment.trim()),
+						);
 			},
 
 			ontext(text) {
@@ -58,11 +63,17 @@ const html2hyperscript = (input, stream) => {
 				}
 				if (attrOpen) attrOpen = false;
 				justClosed = false;
-				stream.write(`\`${text.replace(/`/g, String.raw`\``)}\``);
+				const escapedTick = String.raw`\``;
+				text = text.replace(/`/g, escapedTick);
+				stream.write(`m.trust(String.raw\`${text}\`)`);
+				textWritten = true;
 			},
 
 			onclosetag() {
 				if (justClosed) stream.pop();
+				if (textWritten) {
+					textWritten = false;
+				}
 				if (attrOpen) {
 					stream.pop();
 					stream.pop();
@@ -84,7 +95,7 @@ const html2hyperscript = (input, stream) => {
 
 	parser.write(input);
 	parser.end();
-	return stream;
+	return { elements, stream };
 };
 
 window.compile = html2hyperscript;
