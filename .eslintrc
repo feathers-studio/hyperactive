@@ -1,0 +1,25 @@
+{
+	"env": {
+		"es6": true,
+		"node": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 2020,
+		"sourceType": "module",
+		"project": "./tsconfig.json"
+	},
+	"extends": ["eslint:recommended"],
+	"rules": {
+		"indent": ["error", "tab"],
+		"camelcase": ["error", {"properties": "never"}],
+		"linebreak-style": ["error", "unix"],
+		"no-constant-condition": "error",
+		"quotes": ["error", "double"],
+		"semi": "error",
+		"no-extra-semi": "error",
+		"prefer-const": "error",
+		"eol-last": "error",
+		"no-unused-vars": 0,
+		"no-console": 0
+	}
+}

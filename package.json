@@ -1,0 +1,10 @@
+{
+	"name": "hyperactive",
+	"version": "0.0.0",
+	"description": "The hyperactive suite of web application development tools",
+	"author": "Muthu Kumar <@MKRhere> (https://mkr.pw)",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^13.7.6"
+	}
+}
