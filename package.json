@@ -4,6 +4,9 @@
 	"description": "The hyperactive suite of web application development tools",
 	"author": "Muthu Kumar <@MKRhere> (https://mkr.pw)",
 	"license": "MIT",
+	"scripts": {
+		"preinstall": "node -e \"!process.env.npm_config_user_agent.startsWith('pnpm/') && !console.log('Use \\`npm i -g pnpm\\` and \\`pnpm --recursive install\\` to install dependencies in this repository\\n') && process.exit(1)\""
+	},
 	"devDependencies": {
 		"@types/node": "^13.7.6"
 	}

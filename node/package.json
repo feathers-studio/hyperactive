@@ -1,7 +1,10 @@
 {
 	"name": "@hyperactive/node",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"description": "Node utility for hyperactive",
 	"author": "Muthu Kumar <@MKRhere> (https://mkr.pw)",
-	"license": "MIT"
+	"license": "MIT",
+	"scripts": {
+		"preinstall": "node -e \"!process.env.npm_config_user_agent.startsWith('pnpm/') && !console.log('Use \\`npm i -g pnpm\\` and \\`pnpm install\\` to install dependencies in this package\\n') && process.exit(1)\""
+	}
 }
