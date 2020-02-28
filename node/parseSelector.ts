@@ -16,6 +16,7 @@ export const parseSelector = (selector: string) => {
 
 	const flush = () => {
 		if (buffer) {
+			buffer = buffer.trim();
 			if (bufferType) {
 				if (bufferType === "id" && attrs.id)
 					throw new Error(`Cannot declare multiple IDs: ${attrs.id} ${buffer}`);
