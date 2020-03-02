@@ -1,20 +1,16 @@
-type attrs = {
-	tag?: string;
-	id?: string;
-	class?: string[];
-};
+import { Attrs } from "./types";
 
 const digits = new Set<string>(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
 
-export const parseSelector = (selector: string) => {
+export const parseSelector = (selector: string, { tagMode = false } = {}) => {
 	selector = selector.trim();
 
-	const attrs: attrs = { tag: undefined, id: undefined };
+	const attrs: Attrs & { tag?: string } = { tag: undefined, id: undefined };
 	const classlist = new Set<string>();
 
 	let started = false,
 		buffer = "",
-		bufferType: keyof attrs | undefined = undefined;
+		bufferType: keyof Attrs | "tag" | undefined = undefined;
 
 	const flush = () => {
 		if (buffer) {
@@ -54,7 +50,7 @@ export const parseSelector = (selector: string) => {
 			flush();
 			bufferType = "id";
 		} else if (!started && char) {
-			update(char, "tag");
+			update(char, tagMode ? "tag" : "class");
 		} else if (bufferType) {
 			update(char);
 		} else {
@@ -68,7 +64,10 @@ export const parseSelector = (selector: string) => {
 
 	attrs.class = [...classlist];
 
+	if (!attrs.tag) {
+		if (tagMode) attrs.tag = "div";
+		else attrs.tag = "";
+	}
+
 	return attrs;
 };
-
-console.log(parseSelector(process.argv[2]));
