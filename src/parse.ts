@@ -1,11 +1,26 @@
-import { Attrs } from "./types";
+export type Attrs = {
+	tag: string;
+	id: string;
+	class: string[];
+};
 
-const digits = new Set<string>(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+const digits = new Set<string>([
+	"0",
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+]);
 
 export const parseSelector = (selector: string, { tagMode = false } = {}) => {
 	selector = selector.trim();
 
-	const attrs: Attrs & { tag?: string } = { tag: undefined, id: undefined };
+	const attrs: Partial<Attrs> = { tag: undefined, id: undefined };
 	const classlist = new Set<string>();
 
 	let started = false,
@@ -17,8 +32,11 @@ export const parseSelector = (selector: string, { tagMode = false } = {}) => {
 			buffer = buffer.trim();
 			if (bufferType) {
 				if (bufferType === "id" && attrs.id)
-					throw new Error(`Cannot declare multiple IDs: ${attrs.id} ${buffer}`);
-				if (bufferType === "tag" || bufferType == "id") attrs[bufferType] = buffer;
+					throw new Error(
+						`Cannot declare multiple IDs: ${attrs.id} ${buffer}`,
+					);
+				if (bufferType === "tag" || bufferType == "id")
+					attrs[bufferType] = buffer;
 				else classlist.add(buffer);
 			}
 		}
@@ -31,7 +49,9 @@ export const parseSelector = (selector: string, { tagMode = false } = {}) => {
 		if (!buffer)
 			if (char === "-" || char === "_" || digits.has(char))
 				// if match starts with -_0-9, error
-				throw new Error(`${bufferType || type} cannot start with char: ${char}`);
+				throw new Error(
+					`${bufferType || type} cannot start with char: ${char}`,
+				);
 		buffer += char;
 		if (type) bufferType = type;
 	};
