@@ -8,7 +8,7 @@ const isFalsy = (n: any): n is Falsy => Falsy.has(n);
 
 type Attr = Record<string, string>;
 
-class Node<Tag extends Element = Element, Attrs extends Attr = Attr> {
+export class Node<Tag extends Element = Element, Attrs extends Attr = Attr> {
 	constructor(
 		public tag: Tag,
 		public attrs: Attrs,
@@ -19,29 +19,29 @@ class Node<Tag extends Element = Element, Attrs extends Attr = Attr> {
 // deno-lint-ignore no-explicit-any
 const isNode = (n: any): n is Node => n instanceof Node;
 
-function h<Tag extends Element = Element, Attrs extends Attr = Attr>(
+export function h<Tag extends Element = Element, Attrs extends Attr = Attr>(
 	elem: Tag,
 	props?: Attrs | Falsy,
 ): Node<Tag>;
 
-function h<Tag extends Element = Element>(
+export function h<Tag extends Element = Element>(
 	elem: Tag,
 	...children: (Node | Falsy)[]
 ): Node<Tag>;
 
-function h<Tag extends Element, Attrs extends Attr = Attr>(
+export function h<Tag extends Element, Attrs extends Attr = Attr>(
 	elem: Tag,
 	props: Attr,
 	...children: Node[]
 ): Node<Tag>;
 
-function h<Tag extends Element, Attrs extends Attr = Attr>(
+export function h<Tag extends Element, Attrs extends Attr = Attr>(
 	elem: Tag,
 	props?: Attrs | Node | Falsy,
 	...children: (Node | Falsy)[]
 ): Node<Tag>;
 
-function h(
+export function h(
 	elem: Element,
 	props?: Attr | Node | Falsy,
 	...childNodes: (Node | Falsy)[]
