@@ -1,3 +1,19 @@
 # hyperactive
 
-Hyperactive is a suite of tools for webapps. It's still in development, so check back later.
+Hyperactive is a suite of tools to build smart webapps. As of 1.0, only server-side render is supported.
+
+## Usage example
+
+```TypeScript
+import { elements, renderHTML } from "https://deno.land/x/hyperactive/mod.ts";
+
+assertEquals(
+  renderHTML(
+    div(
+      { id: "hello", class: "world" },
+      p(h1({ class: "hello" }, "hello world", br())),
+    ),
+  ),
+  `<div id="hello" class="world"><p><h1 class="hello">hello world<br /></h1></p></div>`,
+);
+```
