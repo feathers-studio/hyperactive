@@ -1,19 +1,13 @@
 import { Element } from "./elements.ts";
-
-export type Falsy = false | "" | 0 | 0n | undefined | null;
-
-export const Falsy = new Set([false, "", 0, 0n, undefined, null]);
-// deno-lint-ignore no-explicit-any
-export const isFalsy = (n: any): n is Falsy => Falsy.has(n);
+import { Falsy, isFalsy } from "./util.ts";
 
 export type Attr = Record<string, string>;
 
 export type TextNode = string;
 
-export type Nodeish<Tag extends Element = Element> =
-	| Node<Tag>
-	| TextNode
-	| Falsy;
+export class HTMLNode {
+	constructor(public htmlString: string) {}
+}
 
 export class Node<Tag extends Element = Element, Attrs extends Attr = Attr> {
 	constructor(
@@ -23,9 +17,15 @@ export class Node<Tag extends Element = Element, Attrs extends Attr = Attr> {
 	) {}
 }
 
+export type Nodeish<Tag extends Element = Element> =
+	| Node<Tag>
+	| TextNode
+	| HTMLNode
+	| Falsy;
+
 // deno-lint-ignore no-explicit-any
-export const isNode = (n: any): n is Node | TextNode =>
-	n instanceof Node || typeof n === "string";
+export const isNode = (n: any): n is Node | HTMLNode | TextNode =>
+	n instanceof Node || n instanceof HTMLNode || typeof n === "string";
 
 export function h<Tag extends Element = Element, Attrs extends Attr = Attr>(
 	elem: Tag,
@@ -71,7 +71,7 @@ export function h(
 export type hElement<Tag extends Element = Element> =
 	//
 	((props?: Attr) => Node<Tag>) &
-		(<TNodeish extends Nodeish>(childNode: TNodeish) => Node<Tag>) &
+		((...childNodes: Nodeish[]) => Node<Tag>) &
 		((props: Attr, ...childNodes: Nodeish[]) => Node<Tag>);
 
 export const elements = <Elems extends Element[]>(...elems: Elems) => {
@@ -86,3 +86,7 @@ export const elements = <Elems extends Element[]>(...elems: Elems) => {
 		>;
 	};
 };
+
+export function trust(html: string) {
+	return new HTMLNode(html);
+}

@@ -1,8 +1,10 @@
-import { Nodeish, isFalsy } from "./Node.ts";
+import { Nodeish, HTMLNode } from "./Node.ts";
+import { isFalsy, escapeHTML } from "./util.ts";
 
 export function renderHTML(node: Nodeish) {
-	if (typeof node === "string") return node;
 	if (isFalsy(node)) return "";
+	if (typeof node === "string") return escapeHTML(node);
+	if (node instanceof HTMLNode) return node.htmlString;
 
 	let stringified = "<" + node.tag;
 

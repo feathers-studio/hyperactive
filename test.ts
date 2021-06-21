@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
 
-import { elements, renderHTML } from "./mod.ts";
+import { elements, trust, renderHTML } from "./mod.ts";
 
 const [div, p, h1, br] = elements("div", "p", "h1", "br");
 
@@ -26,5 +26,19 @@ Deno.test({
 			),
 			`<div id="hello" class="world"><p><h1 class="hello">hello world<br /></h1></p></div>`,
 		);
+	},
+});
+
+Deno.test({
+	name: "renderHTML with HTML characters",
+	fn: () => {
+		assertEquals(renderHTML(p("<test />")), `<p>&lt;test /&gt;</p>`);
+	},
+});
+
+Deno.test({
+	name: "renderHTML with trusted HTML",
+	fn: () => {
+		assertEquals(renderHTML(p(trust("<test />"))), `<p><test /></p>`);
 	},
 });
