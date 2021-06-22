@@ -1,4 +1,4 @@
-import { Element } from "./elements.ts";
+import { Element, CustomTag } from "./elements.ts";
 import { Falsy, isFalsy } from "./util.ts";
 
 export type Attr = Record<string, string>;
@@ -74,7 +74,7 @@ export type hElement<Tag extends Element = Element> =
 		((...childNodes: Nodeish[]) => Node<Tag>) &
 		((props: Attr, ...childNodes: Nodeish[]) => Node<Tag>);
 
-export const elements = <Elems extends Element[]>(...elems: Elems) => {
+const _elements = <Elems extends Element[]>(...elems: Elems) => {
 	return elems.map(
 		(elem): hElement<typeof elem> =>
 			(props?: Attr | Nodeish, ...childNodes: Nodeish[]) =>
@@ -86,6 +86,13 @@ export const elements = <Elems extends Element[]>(...elems: Elems) => {
 		>;
 	};
 };
+
+export const elements = new Proxy(_elements, {
+	get<E extends Element>(_: unknown, elem: E): hElement<E> {
+		return (props?: Attr | Nodeish, ...childNodes: Nodeish[]) =>
+			h(elem, props, ...childNodes);
+	},
+}) as typeof _elements & { [k in Exclude<Element, CustomTag>]: hElement<k> };
 
 export function trust(html: string) {
 	return new HTMLNode(html);

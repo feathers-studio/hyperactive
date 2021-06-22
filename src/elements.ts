@@ -1,4 +1,7 @@
+export type CustomTag = `${string}-${string}`;
+
 export type Element =
+	| CustomTag
 	| "a"
 	| "abbr"
 	| "address"

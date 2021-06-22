@@ -2,7 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
 
 import { elements, trust, renderHTML } from "./mod.ts";
 
-const [div, p, h1, br] = elements("div", "p", "h1", "br");
+const { div, p, h1, br } = elements;
 
 Deno.test({
 	name: "renderHTML simple",
@@ -40,5 +40,25 @@ Deno.test({
 	name: "renderHTML with trusted HTML",
 	fn: () => {
 		assertEquals(renderHTML(p(trust("<test />"))), `<p><test /></p>`);
+	},
+});
+
+Deno.test({
+	name: "elements() - elements[] equivalence",
+	fn: () => {
+		const { div, p } = elements;
+		const [div2, p2] = elements("div", "p");
+		assertEquals(
+			renderHTML(div(p("Hello"))),
+			renderHTML(div2(p2("Hello"))),
+		);
+	},
+});
+
+Deno.test({
+	name: "renderHTML with custom element",
+	fn: () => {
+		const [el] = elements("custom-element");
+		assertEquals(renderHTML(el()), `<custom-element />`);
 	},
 });
