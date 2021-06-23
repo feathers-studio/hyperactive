@@ -74,25 +74,28 @@ export type hElement<Tag extends Element = Element> =
 		((...childNodes: Nodeish[]) => Node<Tag>) &
 		((props: Attr, ...childNodes: Nodeish[]) => Node<Tag>);
 
-const _elements = <Elems extends Element[]>(...elems: Elems) => {
-	return elems.map(
-		(elem): hElement<typeof elem> =>
-			(props?: Attr | Nodeish, ...childNodes: Nodeish[]) =>
-				h(elem, props, ...childNodes),
-	) as {
-		[Index in keyof Elems]: hElement<
-			// @ts-ignore TypeScript pls
-			Elems[Index]
-		>;
+function getHElement<Elem extends Element>(elem: Elem): hElement<typeof elem> {
+	return function hElement(props?: Attr | Nodeish, ...childNodes: Nodeish[]) {
+		return h(elem, props, ...childNodes);
 	};
-};
+}
 
-export const elements = new Proxy(_elements, {
-	get<E extends Element>(_: unknown, elem: E): hElement<E> {
-		return (props?: Attr | Nodeish, ...childNodes: Nodeish[]) =>
-			h(elem, props, ...childNodes);
+export type ElementsToHElements<Elements extends [...Element[]]> = {
+	[Index in keyof Elements]: hElement<
+		// @ts-ignore TypeScript pls
+		Elements[Index]
+	>;
+} & { length: Elements["length"] };
+
+function mapElements<Elements extends Element[]>(...elements: Elements) {
+	return elements.map(getHElement) as ElementsToHElements<Elements>;
+}
+
+export const elements = new Proxy(mapElements, {
+	get<E extends Element>(_: unknown, element: E): hElement<E> {
+		return getHElement(element);
 	},
-}) as typeof _elements & { [k in Exclude<Element, CustomTag>]: hElement<k> };
+}) as typeof mapElements & { [k in Exclude<Element, CustomTag>]: hElement<k> };
 
 export function trust(html: string) {
 	return new HTMLNode(html);
