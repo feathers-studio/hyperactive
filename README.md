@@ -7,7 +7,7 @@ Hyperactive is a suite of tools to build smart webapps. As of 1.0, only server-s
 ```TypeScript
 import { elements, renderHTML } from "https://deno.land/x/hyperactive/mod.ts";
 
-const [ div, p, h1 ] = elements("div", "p", "h1");
+const { div, p, h1 } = elements;
 
 assertEquals(
   renderHTML(
