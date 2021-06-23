@@ -3,9 +3,9 @@
 
 import { elements, renderDOM, State } from "./mod.ts";
 
-const { div, input, p } = elements;
+const { div, input, h3, p } = elements;
 
-const state = State.simple("hello");
+const state = State.simple("1");
 
 setTimeout(() => {
 	document.querySelector("#input-el")?.addEventListener("input", e => {
@@ -17,7 +17,8 @@ renderDOM(
 	document.getElementById("root")!,
 	div(
 		{ class: "container" },
+		h3("Enter a number, it should double below"),
 		input({ id: "input-el", value: state.init }),
-		p(state),
+		p(state.map(v => String(parseFloat(v) * 2))),
 	),
 );

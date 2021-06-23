@@ -3,7 +3,7 @@ import { Nodeish, Attr, Node, h } from "./Node.ts";
 
 export type hElement<Tag extends Element = Element> =
 	//
-	((props?: Attr) => Node<Tag>) &
+	((props?: Attr | Nodeish) => Node<Tag>) &
 		((...childNodes: Nodeish[]) => Node<Tag>) &
 		((props: Attr, ...childNodes: Nodeish[]) => Node<Tag>);
 
