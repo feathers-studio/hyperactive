@@ -56,6 +56,26 @@ Deno.test({
 });
 
 Deno.test({
+	name: "elements() - elements[] equality",
+	fn: () => {
+		const { div, p } = elements;
+		const { div: div2, p: p2 } = elements;
+
+		const [div3, p3] = elements("div", "p");
+		const [div4, p4] = elements("div", "p");
+
+		assertEquals(div, div2);
+		assertEquals(p, p2);
+
+		assertEquals(div, div3);
+		assertEquals(p, p3);
+
+		assertEquals(div, div4);
+		assertEquals(p, p4);
+	},
+});
+
+Deno.test({
 	name: "renderHTML with custom element",
 	fn: () => {
 		const [el] = elements("custom-element");

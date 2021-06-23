@@ -74,10 +74,18 @@ export type hElement<Tag extends Element = Element> =
 		((...childNodes: Nodeish[]) => Node<Tag>) &
 		((props: Attr, ...childNodes: Nodeish[]) => Node<Tag>);
 
-function getHElement<Elem extends Element>(elem: Elem): hElement<typeof elem> {
-	return function hElement(props?: Attr | Nodeish, ...childNodes: Nodeish[]) {
-		return h(elem, props, ...childNodes);
-	};
+const hElementCache = new Map<Element, hElement>();
+
+function getHElement<Elem extends Element>(element: Elem): hElement<Elem> {
+	const fromCache = hElementCache.get(element);
+	if (fromCache) return fromCache as hElement<Elem>;
+
+	function hElement(props?: Attr | Nodeish, ...childNodes: Nodeish[]) {
+		return h(element, props, ...childNodes);
+	}
+
+	hElementCache.set(element, hElement);
+	return hElement;
 }
 
 export type ElementsToHElements<Elements extends [...Element[]]> = {
