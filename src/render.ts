@@ -2,12 +2,14 @@
 ///<reference path="https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts" />
 
 import { Node, Nodeish, HTMLNode } from "./Node.ts";
+import { isState } from "./State.ts";
 import { Falsy, isFalsy, escapeHTML, guessEnv } from "./util.ts";
 
-export function renderHTML(node: Nodeish) {
+export function renderHTML(node: Nodeish): string {
 	if (isFalsy(node)) return "";
 	if (typeof node === "string") return escapeHTML(node);
 	if (node instanceof HTMLNode) return node.htmlString;
+	if (isState(node)) return renderHTML(node.init);
 
 	let stringified = "<" + node.tag;
 
@@ -28,15 +30,45 @@ export function renderHTML(node: Nodeish) {
 type NodeishtoDOM<N extends Nodeish> = N extends Falsy
 	? ""
 	: N extends string
-	? string
+	? ChildNode | ""
 	: N extends HTMLNode
-	? { innerHTML: string }
+	? ChildNode | ""
 	: HTMLElement;
 
-const toDOM = function toDOM<N extends Nodeish>(node: N) {
+function htmlStringToElement(html: string) {
+	var template = document.createElement("template");
+	html = html.trim(); // Never return a text node of whitespace as the result
+	template.innerHTML = html;
+
+	return template.content.firstChild || "";
+}
+
+const toDOM = function toDOM<N extends Nodeish>(
+	node: N,
+	parent: HTMLElement,
+	opts: { emptyTextNodes?: boolean } = {},
+): "" | ChildNode | HTMLElement {
+	if (typeof node === "string" && (node !== "" || opts.emptyTextNodes))
+		return document.createTextNode(escapeHTML(node));
 	if (isFalsy(node)) return "";
-	if (typeof node === "string") return escapeHTML(node);
-	if (node instanceof HTMLNode) return { innerHTML: node.htmlString };
+	if (node instanceof HTMLNode) return htmlStringToElement(node.htmlString);
+	if (isState(node)) {
+		let stateNode = toDOM(node.init, parent, { emptyTextNodes: true });
+
+		node.subscribe(val => {
+			const newStateNode = toDOM(val, parent, { emptyTextNodes: true });
+
+			if (newStateNode === "" || stateNode === "") {
+				//
+			} else {
+				parent.replaceChild(newStateNode, stateNode);
+				stateNode = newStateNode;
+			}
+			return newStateNode;
+		});
+
+		return stateNode;
+	}
 
 	const el = document.createElement(node.tag);
 
@@ -45,14 +77,14 @@ const toDOM = function toDOM<N extends Nodeish>(node: N) {
 	}
 
 	for (const child of node.children) {
-		const childNode = toDOM(child);
-		if (typeof childNode !== "string" && "innerHTML" in childNode)
-			el.insertAdjacentHTML("beforeend", childNode.innerHTML);
-		else el.append(childNode);
+		const childNode = toDOM(child, el);
+		if (childNode === "") {
+			//
+		} else el.append(childNode);
 	}
 
 	return el;
-} as <N extends Nodeish>(node: N) => NodeishtoDOM<N>;
+} as <N extends Nodeish>(node: N, parent: HTMLElement) => NodeishtoDOM<N>;
 
 export function renderDOM<
 	HyNode extends Node | string,
@@ -65,6 +97,5 @@ export function renderDOM<
 				` Found: '${env || "unknown"}'`,
 		);
 
-	const domNode = toDOM(hyNode);
-	return rootNode.append(domNode);
+	return rootNode.append(toDOM(hyNode, rootNode));
 }

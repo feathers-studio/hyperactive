@@ -1,5 +1,6 @@
 import { Element } from "./elements.ts";
 import { Falsy, isFalsy } from "./util.ts";
+import { SimpleState, SimpleStateRO, isState } from "./State.ts";
 
 export type Attr = Record<string, string>;
 
@@ -21,7 +22,9 @@ export type Nodeish<Tag extends Element = Element> =
 	| Node<Tag>
 	| TextNode
 	| HTMLNode
-	| Falsy;
+	| Falsy
+	| SimpleState<Node<Tag> | TextNode | HTMLNode | Falsy>
+	| SimpleStateRO<Node<Tag> | TextNode | HTMLNode | Falsy>;
 
 // deno-lint-ignore no-explicit-any
 export const isNode = (n: any): n is Node | HTMLNode | TextNode =>
@@ -55,7 +58,7 @@ export function h(
 	...childNodes: Nodeish[]
 ): Node {
 	const [attrs, children] =
-		isNode(props) || isFalsy(props)
+		isNode(props) || isFalsy(props) || isState(props)
 			? [{}, [props, ...childNodes]]
 			: [props || {}, childNodes || []];
 
@@ -64,7 +67,7 @@ export function h(
 		attrs,
 		children
 			// filter falsy nodes
-			.filter((child): child is Node => (child ? true : false)),
+			.filter((child): child is Node => Boolean(child)),
 	);
 }
 
