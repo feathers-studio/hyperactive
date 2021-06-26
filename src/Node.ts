@@ -1,6 +1,10 @@
-import { Element } from "./elements.ts";
+import { Element as Active } from "./elements.ts";
+import { Element as Deprecated } from "./elements.deprecated.ts";
 import { Falsy, isFalsy } from "./util.ts";
 import { SimpleState, SimpleStateRO, isState } from "./State.ts";
+
+export type Element = Active | Deprecated;
+export type { CustomTag } from "./elements.ts";
 
 export type Attr = Record<string, string>;
 

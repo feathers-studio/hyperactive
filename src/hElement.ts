@@ -1,5 +1,4 @@
-import { Element, CustomTag } from "./elements.ts";
-import { Nodeish, Attr, Node, h } from "./Node.ts";
+import { Element, CustomTag, Nodeish, Attr, Node, h } from "./Node.ts";
 
 export type hElement<Tag extends Element = Element> =
 	//
