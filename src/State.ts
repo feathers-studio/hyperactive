@@ -5,7 +5,7 @@ export type Subscriber<T> = (val: T) => void;
 export type SimpleStateRO<T = unknown> = {
 	init: T;
 	subscribe: (f: Subscriber<T>) => void;
-	map: <U, Mapper extends (t: T) => U>(
+	transform: <U, Mapper extends (t: T) => U>(
 		f: Mapper,
 	) => ReturnType<SimpleState<U>["readonly"]>;
 	[STATE]: true;
@@ -30,7 +30,7 @@ const SimpleState = <T>(init: T): SimpleState<T> => {
 
 	const subscribe: SimpleState<T>["subscribe"] = f => subscribers.push(f);
 
-	const map: SimpleState<T>["map"] = f => {
+	const transform: SimpleState<T>["transform"] = f => {
 		const s = SimpleState<ReturnType<typeof f>>(
 			f(init) as ReturnType<typeof f>,
 		);
@@ -41,11 +41,11 @@ const SimpleState = <T>(init: T): SimpleState<T> => {
 	const readonly: SimpleState<T>["readonly"] = () => ({
 		init,
 		subscribe,
-		map,
+		transform,
 		[STATE]: true,
 	});
 
-	return { init, publish, subscribe, map, readonly, [STATE]: true };
+	return { init, publish, subscribe, transform, readonly, [STATE]: true };
 };
 
 export const State = { simple: SimpleState };
