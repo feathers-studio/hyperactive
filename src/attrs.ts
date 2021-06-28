@@ -132,5 +132,7 @@ type AttrKeys =
 	| "width"
 	| "wrap";
 
-export type Attr = { [data in DataAttr]?: string } &
+export type Attr =
+	// TODO(mkr): will work in TS 4.4
+	// { [data in DataAttr]?: string } &
 	Partial<Record<AttrKeys, string>>;

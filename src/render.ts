@@ -1,7 +1,7 @@
 ///<reference path="https://raw.githubusercontent.com/denoland/deno/main/cli/dts/lib.deno.ns.d.ts" />
 ///<reference path="https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts" />
 
-import { Node, Nodeish, HTMLNode } from "./Node.ts";
+import { Node, Nodeish, HTMLNode, Attr } from "./Node.ts";
 import { isState } from "./State.ts";
 import { Falsy, isFalsy, escapeHTML, guessEnv } from "./util.ts";
 
@@ -73,7 +73,8 @@ const toDOM = function toDOM<N extends Nodeish>(
 	const el = document.createElement(node.tag);
 
 	for (const attr in node.attrs) {
-		el.setAttribute(attr, node.attrs[attr]);
+		const value = node.attrs[attr as keyof Attr];
+		if (value) el.setAttribute(attr, value);
 	}
 
 	for (const child of node.children) {
