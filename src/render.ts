@@ -1,8 +1,9 @@
 ///<reference path="https://raw.githubusercontent.com/denoland/deno/main/cli/dts/lib.deno.ns.d.ts" />
 ///<reference path="https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts" />
 
-import { Node, Nodeish, HTMLNode, Attr } from "./Node.ts";
-import { isState } from "./State.ts";
+import { Node, Nodeish, HTMLNode } from "./node.ts";
+import { Attr } from "./attributes.ts";
+import { isState } from "./state.ts";
 import { Falsy, isFalsy, escapeHTML, guessEnv } from "./util.ts";
 
 export function renderHTML(node: Nodeish): string {

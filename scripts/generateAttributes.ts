@@ -6,34 +6,71 @@ const html = await fetch(
 
 const document = new DOMParser().parseFromString(html, "text/html");
 
-const attrs = [
-	...document?.querySelector("article table.standard-table tbody")
-		?.childNodes!,
-]
-	.filter(tr => tr.nodeName === "TR")
-	// .filter((_, i) => i <= 2) // limit to 3 elements
-	.map(tr => [...tr.childNodes!].map(each => each.textContent))
-	.map(([, attr, , elements]) => ({
-		attr: attr.trim(),
-		elements: elements.replaceAll(/<|>/g, "").split(/,\s+/),
-	}))
-	.filter(each => each.attr !== "data-*");
+type Attribute = { attr: string; elements: string[] };
 
-const prelude = "type DataAttr = `data-${string}`;\n\n";
+const groupByList = (xs: Attribute[]) =>
+	xs.reduce((acc, curr) => {
+		for (const element of curr.elements) {
+			(acc[element] || (acc[element] = [])).push({
+				attr: curr.attr,
+				type: "string",
+			});
+		}
 
-const prologue = `
-export type Attr =
+		return acc;
+	}, {} as Record<string, { attr: string; type: string }[]>);
+
+const { "Global attribute": globalAttr, ...elements } = groupByList(
+	[
+		...document?.querySelector("article table.standard-table tbody")
+			?.childNodes!,
+	]
+		.filter(tr => tr.nodeName === "TR")
+		.map(tr => [...tr.childNodes!].map(each => each.textContent))
+		.map(([, attr, , elements]) => ({
+			attr: attr.trim(),
+			elements: elements
+				.replaceAll(/<|>/g, "")
+				.split(/,\s+/)
+				.map(e => e.trim()),
+		}))
+		.filter(each => each.attr !== "data-*")
+		.sort((a, b) => a.attr.localeCompare(b.attr)),
+);
+
+const elementToType = (
+	el: string,
+	attrs: { attr: string; type: string }[],
+	{ root }: { root?: boolean } = {},
+) =>
+	`${el}${root ? " =" : ":"} Record<${attrs
+		.map(attr => `"${attr.attr}"`)
+		.join(" | ")}, string>;`;
+
+const globalTypes = elementToType("GlobalAttrs", globalAttr, {
+	root: true,
+});
+
+const elementTypes = Object.keys(elements)
+	.sort((a, b) => a.localeCompare(b))
+	.map(element => elementToType(element, elements[element]))
+	.join("\n\t");
+
+const types = `import { Element } from "./elements.ts";
+
+type ${globalTypes}
+
+type ElementAttrs = {
+	${elementTypes}
+	[k: string]: unknown;
+}
+
+type DataAttr = ${"`data-${string}`"};
+
+export type Attr<E extends Element = Element> =
 	// TODO(mkr): will work in TS 4.4
-	// { [data in DataAttr]?: string } &
-	Partial<Record<AttrKeys, string>>;
+	// { [data in DataAttr]?: string }
+	Partial<GlobalAttrs & ElementAttrs[E]>;
 `;
 
-// TODO(mkr): group by element
-Deno.writeTextFileSync(
-	"./src/attrs.ts",
-	prelude +
-		"type AttrKeys =\n\t| " +
-		attrs.map(each => `"${each.attr}"`).join("\n\t| ") +
-		";\n" +
-		prologue,
-);
+Deno.writeTextFileSync("./src/attrs.ts", types);

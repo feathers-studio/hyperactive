@@ -1,13 +1,7 @@
-import { Element as Active } from "./elements.ts";
-import { Element as Deprecated } from "./elements.deprecated.ts";
-import { Attr } from "./attrs.ts";
+import { Element } from "./elements.ts";
+import { Attr } from "./attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
-import { SimpleState, SimpleStateRO, isState } from "./State.ts";
-
-export type Element = Active | Deprecated;
-export type { CustomTag } from "./elements.ts";
-
-export type { Attr };
+import { SimpleState, SimpleStateRO, isState } from "./state.ts";
 
 export type TextNode = string;
 
@@ -45,13 +39,13 @@ export function h<Tag extends Element = Element>(
 	...children: Nodeish[]
 ): Node<Tag>;
 
-export function h<Tag extends Element, Attrs extends Attr = Attr>(
+export function h<Tag extends Element, Attrs extends Attr<Tag> = Attr<Tag>>(
 	elem: Tag,
 	props: Attr,
 	...children: Nodeish[]
 ): Node<Tag>;
 
-export function h<Tag extends Element, Attrs extends Attr = Attr>(
+export function h<Tag extends Element, Attrs extends Attr<Tag> = Attr<Tag>>(
 	elem: Tag,
 	props?: Attrs | Nodeish | Falsy,
 	...children: Nodeish[]

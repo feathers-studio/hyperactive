@@ -1,5 +1,3 @@
-import config from "./config.ts";
-
 const rootUrl = "https://api.github.com/repos/mdn/content/contents/";
 
 const elementsUrl = rootUrl + "files/en-us/web/html/element";
@@ -7,7 +5,6 @@ const elementsUrl = rootUrl + "files/en-us/web/html/element";
 const opts = {
 	headers: new Headers({
 		Accept: "application/vnd.github.v3+json",
-		Authorization: `Token ${config.apiToken}`,
 	}),
 };
 
@@ -75,11 +72,6 @@ fetch(elementsUrl, opts)
 					deprecated: false,
 				})),
 			);
-		const deprecated = elements.filter(e => e.deprecated);
 
 		Deno.writeTextFileSync("./src/elements.ts", constructTypes(active));
-		Deno.writeTextFileSync(
-			"./src/elements.deprecated.ts",
-			constructTypes(deprecated),
-		);
 	});
