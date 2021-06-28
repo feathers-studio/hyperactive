@@ -1,10 +1,10 @@
 import { Element, CustomTag, Nodeish, Attr, Node, h } from "./Node.ts";
 
-export type hElement<Tag extends Element = Element> =
+export type hElement<Tag extends Element = Element, Attrs extends Attr = Attr> =
 	//
-	((props?: Attr | Nodeish) => Node<Tag>) &
+	((props?: Attrs | Nodeish) => Node<Tag>) &
 		((...childNodes: Nodeish[]) => Node<Tag>) &
-		((props: Attr, ...childNodes: Nodeish[]) => Node<Tag>);
+		((props: Attrs, ...childNodes: Nodeish[]) => Node<Tag>);
 
 const hElementCache = new Map<Element, hElement>();
 
