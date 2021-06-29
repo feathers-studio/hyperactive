@@ -26,6 +26,11 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 			?.childNodes!,
 	]
 		.filter(tr => tr.nodeName === "TR")
+		.filter(
+			tr =>
+				// @ts-ignore: innerHTML exists, but isn't typed
+				!(tr.innerHTML as string).includes(`"icon icon-deprecated"`),
+		)
 		.map(tr => [...tr.childNodes!].map(each => each.textContent))
 		.map(([, attr, , elements]) => ({
 			attr: attr.trim(),

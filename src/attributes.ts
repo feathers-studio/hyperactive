@@ -108,7 +108,6 @@ type ElementAttrs = {
 		string
 	>;
 	hr: Record<"align" | "color", string>;
-	html: Record<"manifest", string>;
 	iframe: Record<
 		| "align"
 		| "allow"
@@ -132,7 +131,6 @@ type ElementAttrs = {
 		| "decoding"
 		| "height"
 		| "importance"
-		| "intrinsicsize"
 		| "ismap"
 		| "loading"
 		| "referrerpolicy"
@@ -231,7 +229,6 @@ type ElementAttrs = {
 		| "defer"
 		| "importance"
 		| "integrity"
-		| "language"
 		| "referrerpolicy"
 		| "src"
 		| "type",
@@ -249,11 +246,8 @@ type ElementAttrs = {
 		string
 	>;
 	source: Record<"media" | "sizes" | "src" | "srcset" | "type", string>;
-	style: Record<"media" | "scoped" | "type", string>;
-	table: Record<
-		"align" | "background" | "bgcolor" | "border" | "summary",
-		string
-	>;
+	style: Record<"media" | "type", string>;
+	table: Record<"align" | "background" | "bgcolor" | "border", string>;
 	tbody: Record<"align" | "bgcolor", string>;
 	td: Record<
 		"align" | "background" | "bgcolor" | "colspan" | "headers" | "rowspan",
