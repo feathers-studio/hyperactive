@@ -1,6 +1,5 @@
 import { Element } from "./elements.ts";
-
-type Aria = `aria-${string}`;
+import { AriaRoles, AriaAttributes } from "./aria.ts";
 
 type GlobalAttrs = Record<
 	| "accesskey"
@@ -311,9 +310,14 @@ type ElementAttrs = {
 	[k: string]: unknown;
 };
 
-type DataAttr = `data-${string}`;
+export type DataAttr = `data-${string}`;
 
 export type Attr<E extends Element = Element> =
 	// TODO(mkr): will work in TS 4.4
 	// { [data in DataAttr]?: string }
-	Partial<GlobalAttrs & ElementAttrs[E]>;
+	Partial<
+		GlobalAttrs & {
+			role?: AriaRoles;
+			aria?: AriaAttributes;
+		} & ElementAttrs[E]
+	>;

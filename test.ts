@@ -14,6 +14,21 @@ Deno.test({
 	},
 });
 
+assertEquals(
+	renderHTML(
+		div(
+			{
+				id: "hello",
+				class: "world",
+				role: "note",
+				aria: { disabled: "true" },
+			},
+			p(h1({ class: "hello" }, "hello world", br())),
+		),
+	),
+	`<div id="hello" class="world" role="note" aria-disabled="true"><p><h1 class="hello">hello world<br /></h1></p></div>`,
+);
+
 Deno.test({
 	name: "renderHTML complex",
 	fn: () => {
@@ -25,6 +40,23 @@ Deno.test({
 				),
 			),
 			`<div id="hello" class="world"><p><h1 class="hello">hello world<br /></h1></p></div>`,
+		);
+	},
+});
+
+Deno.test({
+	name: "renderHTML ARIA props",
+	fn: () => {
+		assertEquals(
+			renderHTML(
+				div({
+					id: "hello",
+					class: "world",
+					role: "note",
+					aria: { disabled: "true" },
+				}),
+			),
+			`<div id="hello" class="world" role="note" aria-disabled="true" />`,
 		);
 	},
 });

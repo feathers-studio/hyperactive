@@ -4,7 +4,7 @@ const html = await fetch(
 	"https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes",
 ).then(res => res.text());
 
-const document = new DOMParser().parseFromString(html, "text/html");
+const document = new DOMParser().parseFromString(html, "text/html")!;
 
 type Attribute = { attr: string; elements: string[] };
 
@@ -22,7 +22,7 @@ const groupByList = (xs: Attribute[]) =>
 
 const { "Global attribute": globalAttr, ...elements } = groupByList(
 	[
-		...document?.querySelector("article table.standard-table tbody")
+		...document.querySelector("article table.standard-table tbody")
 			?.childNodes!,
 	]
 		.filter(tr => tr.nodeName === "TR")
@@ -57,6 +57,7 @@ const elementTypes = Object.keys(elements)
 	.join("\n\t");
 
 const types = `import { Element } from "./elements.ts";
+import { AriaRoles, AriaAttributes } from "./aria.ts";
 
 type ${globalTypes}
 
@@ -65,12 +66,17 @@ type ElementAttrs = {
 	[k: string]: unknown;
 }
 
-type DataAttr = ${"`data-${string}`"};
+export type DataAttr = ${"`data-${string}`"};
 
 export type Attr<E extends Element = Element> =
 	// TODO(mkr): will work in TS 4.4
 	// { [data in DataAttr]?: string }
-	Partial<GlobalAttrs & ElementAttrs[E]>;
+	Partial<
+		GlobalAttrs & {
+			role?: AriaRoles;
+			aria?: AriaAttributes;
+		} & ElementAttrs[E]
+	>;
 `;
 
-Deno.writeTextFileSync("./src/attrs.ts", types);
+Deno.writeTextFileSync("./src/attributes.ts", types);

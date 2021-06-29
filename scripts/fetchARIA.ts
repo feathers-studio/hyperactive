@@ -15,7 +15,7 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-w
 		.map(each => `"${each}"`);
 
 	const types = [
-		"export type ariaRoles =",
+		"export type AriaRoles =",
 		`	| ${roles.join("\n\t| ")};\n\n`,
 	].join("\n");
 
@@ -32,12 +32,14 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-w
 	const attributes = [...document.querySelectorAll("#index_state_prop code")]
 		.map(each => each.textContent.trim())
 		.filter(Boolean)
-		.map(each => `"${each}"`);
+		.map(each => `"${each.replace("aria-", "")}"`);
 
 	const types = [
-		"export type ariaAttributes = Record<",
-		`	| ${attributes.join("\n\t| ")},`,
-		"	string",
+		"export type AriaAttributes = Partial<",
+		"	Record<",
+		`		| ${attributes.join("\n\t\t| ")},`,
+		"		string",
+		"	>",
 		">;\n",
 	].join("\n");
 

@@ -6,6 +6,20 @@ import { Attr } from "./attributes.ts";
 import { isState } from "./state.ts";
 import { Falsy, isFalsy, escapeHTML, guessEnv } from "./util.ts";
 
+function attrifyHTML(
+	attrs: Record<string, string | Record<string, string>>,
+	prefix = "",
+): string {
+	return Object.entries(attrs)
+		.map(([attr, value]) => {
+			if (value === "") return value;
+			if (typeof value === "object")
+				return attrifyHTML(value, attr + "-");
+			return `${prefix + attr}="${value}"`;
+		})
+		.join(" ");
+}
+
 export function renderHTML(node: Nodeish): string {
 	if (isFalsy(node)) return "";
 	if (typeof node === "string") return escapeHTML(node);
@@ -14,9 +28,7 @@ export function renderHTML(node: Nodeish): string {
 
 	let stringified = "<" + node.tag;
 
-	const attr = Object.entries(node.attrs)
-		.map(([attr, val]) => (val ? `${attr}="${val}"` : attr))
-		.join(" ");
+	const attr = attrifyHTML(node.attrs);
 
 	if (attr) stringified += " " + attr;
 
@@ -42,6 +54,19 @@ function htmlStringToElement(html: string) {
 	template.innerHTML = html;
 
 	return template.content.firstChild || "";
+}
+
+function attrifyDOM(
+	el: HTMLElement,
+	attrs: Record<string, string | Record<string, string>>,
+	prefix = "",
+) {
+	for (const attr in attrs) {
+		const value = attrs[attr as keyof Attr];
+		if (value === "") el.setAttribute(prefix + attr, "");
+		else if (typeof value === "object") attrifyDOM(el, value, attr + "-");
+		else if (value) el.setAttribute(prefix + attr, value);
+	}
 }
 
 const toDOM = function toDOM<N extends Nodeish>(
@@ -73,10 +98,7 @@ const toDOM = function toDOM<N extends Nodeish>(
 
 	const el = document.createElement(node.tag);
 
-	for (const attr in node.attrs) {
-		const value = node.attrs[attr as keyof Attr];
-		if (value) el.setAttribute(attr, value);
-	}
+	attrifyDOM(el, node.attrs);
 
 	for (const child of node.children) {
 		const childNode = toDOM(child, el);
