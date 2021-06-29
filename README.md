@@ -2,6 +2,8 @@
 
 Hyperactive is a suite of tools to build smart webapps. As of 1.0, only server-side render is supported.
 
+You're on the experimental branch where interesting things are happening!
+
 ## Usage example
 
 ```TypeScript
