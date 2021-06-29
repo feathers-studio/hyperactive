@@ -43,14 +43,23 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 		.sort((a, b) => a.attr.localeCompare(b.attr)),
 );
 
+const getKeyStr = (key: string) => (key.includes("-") ? `["${key}"]` : key);
+
 const elementToType = (
 	el: string,
 	attrs: { attr: string; type: string }[],
 	{ root }: { root?: boolean } = {},
-) =>
-	`${el}${root ? " =" : ":"} Record<${attrs
-		.map(attr => `"${attr.attr}"`)
-		.join(" | ")}, string>;`;
+) => {
+	const indent = "\t".repeat(root ? 1 : 2);
+	return [
+		`${el}${root ? " =" : ":"} {`,
+		indent +
+			attrs
+				.map(attr => `${getKeyStr(attr.attr)}: string;`)
+				.join("\n" + indent),
+		"\t".repeat(root ? 0 : 1) + "};",
+	].join("\n");
+};
 
 const globalTypes = elementToType("GlobalAttrs", globalAttr, {
 	root: true,
@@ -69,7 +78,7 @@ type ${globalTypes}
 type ElementAttrs = {
 	${elementTypes}
 	[k: string]: unknown;
-}
+};
 
 export type DataAttr = ${"`data-${string}`"};
 

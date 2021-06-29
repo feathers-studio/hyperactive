@@ -1,306 +1,437 @@
 import { Element } from "./elements.ts";
 import { AriaRoles, AriaAttributes } from "./aria.ts";
 
-type GlobalAttrs = Record<
-	| "accesskey"
-	| "autocapitalize"
-	| "class"
-	| "contenteditable"
-	| "contextmenu"
-	| "dir"
-	| "draggable"
-	| "hidden"
-	| "id"
-	| "itemprop"
-	| "lang"
-	| "slot"
-	| "spellcheck"
-	| "style"
-	| "tabindex"
-	| "title"
-	| "translate",
-	string
->;
+type GlobalAttrs = {
+	accesskey: string;
+	autocapitalize: string;
+	class: string;
+	contenteditable: string;
+	contextmenu: string;
+	dir: string;
+	draggable: string;
+	hidden: string;
+	id: string;
+	itemprop: string;
+	lang: string;
+	slot: string;
+	spellcheck: string;
+	style: string;
+	tabindex: string;
+	title: string;
+	translate: string;
+};
 
 type ElementAttrs = {
-	a: Record<
-		| "download"
-		| "href"
-		| "hreflang"
-		| "media"
-		| "ping"
-		| "referrerpolicy"
-		| "rel"
-		| "shape"
-		| "target",
-		string
-	>;
-	applet: Record<"align" | "alt" | "code" | "codebase", string>;
-	area: Record<
-		| "alt"
-		| "coords"
-		| "download"
-		| "href"
-		| "hreflang"
-		| "media"
-		| "ping"
-		| "referrerpolicy"
-		| "rel"
-		| "shape"
-		| "target",
-		string
-	>;
-	audio: Record<
-		| "autoplay"
-		| "buffered"
-		| "controls"
-		| "crossorigin"
-		| "loop"
-		| "muted"
-		| "preload"
-		| "src",
-		string
-	>;
-	base: Record<"href" | "target", string>;
-	basefont: Record<"color", string>;
-	bgsound: Record<"loop", string>;
-	blockquote: Record<"cite", string>;
-	body: Record<"background" | "bgcolor", string>;
-	button: Record<
-		| "autofocus"
-		| "disabled"
-		| "form"
-		| "formaction"
-		| "formenctype"
-		| "formmethod"
-		| "formnovalidate"
-		| "formtarget"
-		| "name"
-		| "type"
-		| "value",
-		string
-	>;
-	canvas: Record<"height" | "width", string>;
-	caption: Record<"align", string>;
-	col: Record<"align" | "bgcolor" | "span", string>;
-	colgroup: Record<"align" | "bgcolor" | "span", string>;
-	command: Record<
-		"checked" | "disabled" | "icon" | "radiogroup" | "type",
-		string
-	>;
-	contenteditable: Record<"enterkeyhint" | "inputmode", string>;
-	data: Record<"value", string>;
-	del: Record<"cite" | "datetime", string>;
-	details: Record<"open", string>;
-	embed: Record<"height" | "src" | "type" | "width", string>;
-	fieldset: Record<"disabled" | "form" | "name", string>;
-	font: Record<"color", string>;
-	form: Record<
-		| "accept"
-		| "accept-charset"
-		| "action"
-		| "autocomplete"
-		| "enctype"
-		| "method"
-		| "name"
-		| "novalidate"
-		| "target",
-		string
-	>;
-	hr: Record<"align" | "color", string>;
-	iframe: Record<
-		| "align"
-		| "allow"
-		| "csp"
-		| "height"
-		| "importance"
-		| "loading"
-		| "name"
-		| "referrerpolicy"
-		| "sandbox"
-		| "src"
-		| "srcdoc"
-		| "width",
-		string
-	>;
-	img: Record<
-		| "align"
-		| "alt"
-		| "border"
-		| "crossorigin"
-		| "decoding"
-		| "height"
-		| "importance"
-		| "ismap"
-		| "loading"
-		| "referrerpolicy"
-		| "sizes"
-		| "src"
-		| "srcset"
-		| "usemap"
-		| "width",
-		string
-	>;
-	input: Record<
-		| "accept"
-		| "alt"
-		| "autocomplete"
-		| "autofocus"
-		| "capture"
-		| "checked"
-		| "dirname"
-		| "disabled"
-		| "form"
-		| "formaction"
-		| "formenctype"
-		| "formmethod"
-		| "formnovalidate"
-		| "formtarget"
-		| "height"
-		| "list"
-		| "max"
-		| "maxlength"
-		| "min"
-		| "minlength"
-		| "multiple"
-		| "name"
-		| "pattern"
-		| "placeholder"
-		| "readonly"
-		| "required"
-		| "size"
-		| "src"
-		| "step"
-		| "type"
-		| "usemap"
-		| "value"
-		| "width",
-		string
-	>;
-	ins: Record<"cite" | "datetime", string>;
-	keygen: Record<
-		"autofocus" | "challenge" | "disabled" | "form" | "keytype" | "name",
-		string
-	>;
-	label: Record<"for" | "form", string>;
-	li: Record<"value", string>;
-	link: Record<
-		| "crossorigin"
-		| "href"
-		| "hreflang"
-		| "importance"
-		| "integrity"
-		| "media"
-		| "referrerpolicy"
-		| "rel"
-		| "sizes",
-		string
-	>;
-	map: Record<"name", string>;
-	marquee: Record<"bgcolor" | "loop", string>;
-	menu: Record<"type", string>;
-	meta: Record<"charset" | "content" | "http-equiv" | "name", string>;
-	meter: Record<
-		"form" | "high" | "low" | "max" | "min" | "optimum" | "value",
-		string
-	>;
-	object: Record<
-		| "border"
-		| "data"
-		| "form"
-		| "height"
-		| "name"
-		| "type"
-		| "usemap"
-		| "width",
-		string
-	>;
-	ol: Record<"reversed" | "start", string>;
-	optgroup: Record<"disabled" | "label", string>;
-	option: Record<"disabled" | "label" | "selected" | "value", string>;
-	output: Record<"for" | "form" | "name", string>;
-	param: Record<"name" | "value", string>;
-	progress: Record<"form" | "max" | "value", string>;
-	q: Record<"cite", string>;
-	script: Record<
-		| "async"
-		| "charset"
-		| "crossorigin"
-		| "defer"
-		| "importance"
-		| "integrity"
-		| "referrerpolicy"
-		| "src"
-		| "type",
-		string
-	>;
-	select: Record<
-		| "autocomplete"
-		| "autofocus"
-		| "disabled"
-		| "form"
-		| "multiple"
-		| "name"
-		| "required"
-		| "size",
-		string
-	>;
-	source: Record<"media" | "sizes" | "src" | "srcset" | "type", string>;
-	style: Record<"media" | "type", string>;
-	table: Record<"align" | "background" | "bgcolor" | "border", string>;
-	tbody: Record<"align" | "bgcolor", string>;
-	td: Record<
-		"align" | "background" | "bgcolor" | "colspan" | "headers" | "rowspan",
-		string
-	>;
-	textarea: Record<
-		| "autocomplete"
-		| "autofocus"
-		| "cols"
-		| "dirname"
-		| "disabled"
-		| "enterkeyhint"
-		| "form"
-		| "inputmode"
-		| "maxlength"
-		| "minlength"
-		| "name"
-		| "placeholder"
-		| "readonly"
-		| "required"
-		| "rows"
-		| "wrap",
-		string
-	>;
-	tfoot: Record<"align" | "bgcolor", string>;
-	th: Record<
-		| "align"
-		| "background"
-		| "bgcolor"
-		| "colspan"
-		| "headers"
-		| "rowspan"
-		| "scope",
-		string
-	>;
-	thead: Record<"align", string>;
-	time: Record<"datetime", string>;
-	tr: Record<"align" | "bgcolor", string>;
-	track: Record<"default" | "kind" | "label" | "src" | "srclang", string>;
-	video: Record<
-		| "autoplay"
-		| "buffered"
-		| "controls"
-		| "crossorigin"
-		| "height"
-		| "loop"
-		| "muted"
-		| "poster"
-		| "preload"
-		| "src"
-		| "width",
-		string
-	>;
+	a: {
+		download: string;
+		href: string;
+		hreflang: string;
+		media: string;
+		ping: string;
+		referrerpolicy: string;
+		rel: string;
+		shape: string;
+		target: string;
+	};
+	applet: {
+		align: string;
+		alt: string;
+		code: string;
+		codebase: string;
+	};
+	area: {
+		alt: string;
+		coords: string;
+		download: string;
+		href: string;
+		hreflang: string;
+		media: string;
+		ping: string;
+		referrerpolicy: string;
+		rel: string;
+		shape: string;
+		target: string;
+	};
+	audio: {
+		autoplay: string;
+		buffered: string;
+		controls: string;
+		crossorigin: string;
+		loop: string;
+		muted: string;
+		preload: string;
+		src: string;
+	};
+	base: {
+		href: string;
+		target: string;
+	};
+	basefont: {
+		color: string;
+	};
+	bgsound: {
+		loop: string;
+	};
+	blockquote: {
+		cite: string;
+	};
+	body: {
+		background: string;
+		bgcolor: string;
+	};
+	button: {
+		autofocus: string;
+		disabled: string;
+		form: string;
+		formaction: string;
+		formenctype: string;
+		formmethod: string;
+		formnovalidate: string;
+		formtarget: string;
+		name: string;
+		type: string;
+		value: string;
+	};
+	canvas: {
+		height: string;
+		width: string;
+	};
+	caption: {
+		align: string;
+	};
+	col: {
+		align: string;
+		bgcolor: string;
+		span: string;
+	};
+	colgroup: {
+		align: string;
+		bgcolor: string;
+		span: string;
+	};
+	command: {
+		checked: string;
+		disabled: string;
+		icon: string;
+		radiogroup: string;
+		type: string;
+	};
+	contenteditable: {
+		enterkeyhint: string;
+		inputmode: string;
+	};
+	data: {
+		value: string;
+	};
+	del: {
+		cite: string;
+		datetime: string;
+	};
+	details: {
+		open: string;
+	};
+	embed: {
+		height: string;
+		src: string;
+		type: string;
+		width: string;
+	};
+	fieldset: {
+		disabled: string;
+		form: string;
+		name: string;
+	};
+	font: {
+		color: string;
+	};
+	form: {
+		accept: string;
+		["accept-charset"]: string;
+		action: string;
+		autocomplete: string;
+		enctype: string;
+		method: string;
+		name: string;
+		novalidate: string;
+		target: string;
+	};
+	hr: {
+		align: string;
+		color: string;
+	};
+	iframe: {
+		align: string;
+		allow: string;
+		csp: string;
+		height: string;
+		importance: string;
+		loading: string;
+		name: string;
+		referrerpolicy: string;
+		sandbox: string;
+		src: string;
+		srcdoc: string;
+		width: string;
+	};
+	img: {
+		align: string;
+		alt: string;
+		border: string;
+		crossorigin: string;
+		decoding: string;
+		height: string;
+		importance: string;
+		ismap: string;
+		loading: string;
+		referrerpolicy: string;
+		sizes: string;
+		src: string;
+		srcset: string;
+		usemap: string;
+		width: string;
+	};
+	input: {
+		accept: string;
+		alt: string;
+		autocomplete: string;
+		autofocus: string;
+		capture: string;
+		checked: string;
+		dirname: string;
+		disabled: string;
+		form: string;
+		formaction: string;
+		formenctype: string;
+		formmethod: string;
+		formnovalidate: string;
+		formtarget: string;
+		height: string;
+		list: string;
+		max: string;
+		maxlength: string;
+		min: string;
+		minlength: string;
+		multiple: string;
+		name: string;
+		pattern: string;
+		placeholder: string;
+		readonly: string;
+		required: string;
+		size: string;
+		src: string;
+		step: string;
+		type: string;
+		usemap: string;
+		value: string;
+		width: string;
+	};
+	ins: {
+		cite: string;
+		datetime: string;
+	};
+	keygen: {
+		autofocus: string;
+		challenge: string;
+		disabled: string;
+		form: string;
+		keytype: string;
+		name: string;
+	};
+	label: {
+		for: string;
+		form: string;
+	};
+	li: {
+		value: string;
+	};
+	link: {
+		crossorigin: string;
+		href: string;
+		hreflang: string;
+		importance: string;
+		integrity: string;
+		media: string;
+		referrerpolicy: string;
+		rel: string;
+		sizes: string;
+	};
+	map: {
+		name: string;
+	};
+	marquee: {
+		bgcolor: string;
+		loop: string;
+	};
+	menu: {
+		type: string;
+	};
+	meta: {
+		charset: string;
+		content: string;
+		["http-equiv"]: string;
+		name: string;
+	};
+	meter: {
+		form: string;
+		high: string;
+		low: string;
+		max: string;
+		min: string;
+		optimum: string;
+		value: string;
+	};
+	object: {
+		border: string;
+		data: string;
+		form: string;
+		height: string;
+		name: string;
+		type: string;
+		usemap: string;
+		width: string;
+	};
+	ol: {
+		reversed: string;
+		start: string;
+	};
+	optgroup: {
+		disabled: string;
+		label: string;
+	};
+	option: {
+		disabled: string;
+		label: string;
+		selected: string;
+		value: string;
+	};
+	output: {
+		for: string;
+		form: string;
+		name: string;
+	};
+	param: {
+		name: string;
+		value: string;
+	};
+	progress: {
+		form: string;
+		max: string;
+		value: string;
+	};
+	q: {
+		cite: string;
+	};
+	script: {
+		async: string;
+		charset: string;
+		crossorigin: string;
+		defer: string;
+		importance: string;
+		integrity: string;
+		referrerpolicy: string;
+		src: string;
+		type: string;
+	};
+	select: {
+		autocomplete: string;
+		autofocus: string;
+		disabled: string;
+		form: string;
+		multiple: string;
+		name: string;
+		required: string;
+		size: string;
+	};
+	source: {
+		media: string;
+		sizes: string;
+		src: string;
+		srcset: string;
+		type: string;
+	};
+	style: {
+		media: string;
+		type: string;
+	};
+	table: {
+		align: string;
+		background: string;
+		bgcolor: string;
+		border: string;
+	};
+	tbody: {
+		align: string;
+		bgcolor: string;
+	};
+	td: {
+		align: string;
+		background: string;
+		bgcolor: string;
+		colspan: string;
+		headers: string;
+		rowspan: string;
+	};
+	textarea: {
+		autocomplete: string;
+		autofocus: string;
+		cols: string;
+		dirname: string;
+		disabled: string;
+		enterkeyhint: string;
+		form: string;
+		inputmode: string;
+		maxlength: string;
+		minlength: string;
+		name: string;
+		placeholder: string;
+		readonly: string;
+		required: string;
+		rows: string;
+		wrap: string;
+	};
+	tfoot: {
+		align: string;
+		bgcolor: string;
+	};
+	th: {
+		align: string;
+		background: string;
+		bgcolor: string;
+		colspan: string;
+		headers: string;
+		rowspan: string;
+		scope: string;
+	};
+	thead: {
+		align: string;
+	};
+	time: {
+		datetime: string;
+	};
+	tr: {
+		align: string;
+		bgcolor: string;
+	};
+	track: {
+		default: string;
+		kind: string;
+		label: string;
+		src: string;
+		srclang: string;
+	};
+	video: {
+		autoplay: string;
+		buffered: string;
+		controls: string;
+		crossorigin: string;
+		height: string;
+		loop: string;
+		muted: string;
+		poster: string;
+		preload: string;
+		src: string;
+		width: string;
+	};
 	[k: string]: unknown;
 };
 
