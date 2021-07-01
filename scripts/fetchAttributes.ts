@@ -6,19 +6,21 @@ const html = await fetch(
 
 const document = new DOMParser().parseFromString(html, "text/html")!;
 
-type Attribute = { attr: string; elements: string[] };
+type Attribute = { attr: string; elements: string[]; desc: string };
 
 const groupByList = (xs: Attribute[]) =>
 	xs.reduce((acc, curr) => {
 		for (const element of curr.elements) {
 			(acc[element] || (acc[element] = [])).push({
 				attr: curr.attr,
+				elements: curr.elements,
 				type: "string",
+				desc: curr.desc,
 			});
 		}
 
 		return acc;
-	}, {} as Record<string, { attr: string; type: string }[]>);
+	}, {} as Record<string, (Attribute & { type: string })[]>);
 
 const { "Global attribute": globalAttr, ...elements } = groupByList(
 	[
@@ -32,22 +34,41 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 				!(tr.innerHTML as string).includes(`"icon icon-deprecated"`),
 		)
 		.map(tr => [...tr.childNodes!].map(each => each.textContent))
-		.map(([, attr, , elements]) => ({
+		.map(([, attr, , elements, , desc]) => ({
 			attr: attr.trim(),
 			elements: elements
 				.replaceAll(/<|>/g, "")
 				.split(/,\s+/)
 				.map(e => e.trim()),
+			desc: desc.trim(),
 		}))
 		.filter(each => each.attr !== "data-*")
 		.sort((a, b) => a.attr.localeCompare(b.attr)),
 );
 
+console.log({ elements });
+
 const getKeyStr = (key: string) => (key.includes("-") ? `["${key}"]` : key);
+
+const globalOrElems = (elements: string[]) =>
+	elements.includes("Global attribute")
+		? "Global attribute"
+		: "Applies to " + elements.map(e => "`" + e + "`").join(", ");
+
+const docLine = (line: string) => {
+	line = line.trim();
+	if (!line) return "";
+	line = line.replace(
+		/<|>/g,
+		s => ({ "<": "`<", ">": ">`" }[s as "<" | ">"]),
+	);
+	if (line.startsWith("Note")) line = "> " + line;
+	return " * " + line;
+};
 
 const elementToType = (
 	el: string,
-	attrs: { attr: string; type: string }[],
+	attrs: (Attribute & { type: string })[],
 	{ root }: { root?: boolean } = {},
 ) => {
 	const indent = "\t".repeat(root ? 1 : 2);
@@ -55,7 +76,25 @@ const elementToType = (
 		`${el}${root ? " =" : ":"} {`,
 		indent +
 			attrs
-				.map(attr => `${getKeyStr(attr.attr)}: string;`)
+				.map(
+					attr =>
+						(attr.desc &&
+							"/**\n" +
+								indent +
+								[
+									globalOrElems(attr.elements),
+									...attr.desc
+										.replace("\n\n", "\n")
+										.split("\n"),
+								]
+									.map(docLine)
+									.filter(Boolean)
+									.join("\n" + indent + " *\n" + indent) +
+								"\n" +
+								indent +
+								" */\n" +
+								indent) + `${getKeyStr(attr.attr)}: string;`,
+				)
 				.join("\n" + indent),
 		"\t".repeat(root ? 0 : 1) + "};",
 	].join("\n");
