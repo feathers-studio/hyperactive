@@ -1,18 +1,20 @@
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-wasm.ts";
 
+import { propsToType } from "./codegen.ts";
+
 const html = await fetch(
 	"https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes",
 ).then(res => res.text());
 
 const document = new DOMParser().parseFromString(html, "text/html")!;
 
-type Attribute = { attr: string; elements: string[]; desc: string };
+type Attribute = { prop: string; elements: string[]; desc: string };
 
 const groupByList = (xs: Attribute[]) =>
 	xs.reduce((acc, curr) => {
 		for (const element of curr.elements) {
 			(acc[element] || (acc[element] = [])).push({
-				attr: curr.attr,
+				prop: curr.prop,
 				elements: curr.elements,
 				type: "string",
 				desc: curr.desc,
@@ -21,6 +23,11 @@ const groupByList = (xs: Attribute[]) =>
 
 		return acc;
 	}, {} as Record<string, (Attribute & { type: string })[]>);
+
+const globalOrElems = (elements: string[]) =>
+	elements.includes("Global attribute")
+		? "Global attribute"
+		: "Applies to " + elements.map(e => "`" + e + "`").join(", ");
 
 const { "Global attribute": globalAttr, ...elements } = groupByList(
 	[
@@ -34,72 +41,29 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 				!(tr.innerHTML as string).includes(`"icon icon-deprecated"`),
 		)
 		.map(tr => [...tr.childNodes!].map(each => each.textContent))
-		.map(([, attr, , elements, , desc]) => ({
-			attr: attr.trim(),
-			elements: elements
+		.map(([, attr, , elems, , desc]) => {
+			const elements = elems
 				.replaceAll(/<|>/g, "")
 				.split(/,\s+/)
-				.map(e => e.trim()),
-			desc: desc.trim(),
-		}))
-		.filter(each => each.attr !== "data-*")
-		.sort((a, b) => a.attr.localeCompare(b.attr)),
+				.map(e => e.trim());
+
+			return {
+				prop: attr.trim(),
+				elements,
+				desc: [globalOrElems(elements), desc.trim()].join("\n"),
+			};
+		})
+		.filter(each => each.prop !== "data-*")
+		.sort((a, b) => a.prop.localeCompare(b.prop)),
 );
 
-const getKeyStr = (key: string) => (key.includes("-") ? `["${key}"]` : key);
-
-const globalOrElems = (elements: string[]) =>
-	elements.includes("Global attribute")
-		? "Global attribute"
-		: "Applies to " + elements.map(e => "`" + e + "`").join(", ");
-
-const docLine = (line: string) => {
-	line = line.trim();
-	if (!line) return "";
-	line = line.replace(
-		/<|>/g,
-		s => ({ "<": "`<", ">": ">`" }[s as "<" | ">"]),
-	);
-	if (line.startsWith("Note")) line = "> " + line;
-	return " * " + line;
-};
-
-const getDesc = (attr: Attribute & { type: string }, indent: string) =>
-	attr.desc &&
-	indent +
-		"/**\n" +
-		indent +
-		[globalOrElems(attr.elements)]
-			.concat(attr.desc.replace("\n\n", "\n").split("\n"))
-			.map(docLine)
-			.filter(Boolean)
-			.join("\n" + indent + " *\n" + indent) +
-		("\n" + indent + " */\n");
-
-const transformAttr =
-	(indent: string) => (attr: Attribute & { type: string }) =>
-		getDesc(attr, indent) + `${indent}${getKeyStr(attr.attr)}: string;`;
-
-const elementToType = (
-	el: string,
-	attrs: (Attribute & { type: string })[],
-	{ root }: { root?: boolean } = {},
-) => {
-	const indent = "\t".repeat(root ? 1 : 2);
-	return [
-		`${el}${root ? " =" : ":"} {`,
-		attrs.map(transformAttr(indent)).join("\n"),
-		"\t".repeat(root ? 0 : 1) + "};",
-	].join("\n");
-};
-
-const globalTypes = elementToType("GlobalAttrs", globalAttr, {
+const globalTypes = propsToType("GlobalAttrs", globalAttr, {
 	root: true,
 });
 
 const elementTypes = Object.keys(elements)
 	.sort((a, b) => a.localeCompare(b))
-	.map(element => elementToType(element, elements[element]))
+	.map(element => propsToType(element, elements[element]))
 	.join("\n\t");
 
 const types = `import { Element } from "./elements.ts";
@@ -119,7 +83,22 @@ export type Attr<E extends Element = Element> =
 	// { [data in DataAttr]?: string }
 	Partial<
 		GlobalAttrs & {
+			/**
+			 * When the element lacks suitable ARIA-semantics, authors must
+			 * assign an ARIA-role. Addition of ARIA semantics only exposes
+			 * extra information to a browser's accessibility API, and does
+			 * not affect a page's DOM.
+			 * 
+			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
+			 */
 			role?: AriaRoles;
+			/**
+			 * ARIA is a set of attributes that define ways to make web content
+			 * and web applications (especially those developed with JavaScript)
+			 * more accessible to people with disabilities.
+			 * 
+			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
+			 */
 			aria?: AriaAttributes;
 		} & ElementAttrs[E]
 	>;

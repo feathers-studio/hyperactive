@@ -56,6 +56,9 @@ type GlobalAttrs = {
 	 * Often used with CSS to style a specific element. The value of this attribute must be unique.
 	 */
 	id: string;
+	/**
+	 * Global attribute
+	 */
 	itemprop: string;
 	/**
 	 * Global attribute
@@ -145,6 +148,9 @@ type ElementAttrs = {
 		 * Specifies the relationship of the target object to the link object.
 		 */
 		rel: string;
+		/**
+		 * Applies to `a`, `area`
+		 */
 		shape: string;
 		/**
 		 * Applies to `a`, `area`, `base`, `form`
@@ -234,6 +240,9 @@ type ElementAttrs = {
 		 * Specifies the relationship of the target object to the link object.
 		 */
 		rel: string;
+		/**
+		 * Applies to `a`, `area`
+		 */
 		shape: string;
 		/**
 		 * Applies to `a`, `area`, `base`, `form`
@@ -459,6 +468,9 @@ type ElementAttrs = {
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
+		/**
+		 * Applies to `col`, `colgroup`
+		 */
 		span: string;
 	};
 	colgroup: {
@@ -476,6 +488,9 @@ type ElementAttrs = {
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
+		/**
+		 * Applies to `col`, `colgroup`
+		 */
 		span: string;
 	};
 	command: {
@@ -497,6 +512,9 @@ type ElementAttrs = {
 		 * Specifies a picture which represents the command.
 		 */
 		icon: string;
+		/**
+		 * Applies to `command`
+		 */
 		radiogroup: string;
 		/**
 		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
@@ -746,6 +764,9 @@ type ElementAttrs = {
 		 * The URL of the embeddable content.
 		 */
 		src: string;
+		/**
+		 * Applies to `iframe`
+		 */
 		srcdoc: string;
 		/**
 		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
@@ -823,6 +844,9 @@ type ElementAttrs = {
 		 * Specifies which referrer is sent when fetching the resource.
 		 */
 		referrerpolicy: string;
+		/**
+		 * Applies to `link`, `img`, `source`
+		 */
 		sizes: string;
 		/**
 		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
@@ -836,6 +860,9 @@ type ElementAttrs = {
 		 * One or more responsive image candidates.
 		 */
 		srcset: string;
+		/**
+		 * Applies to `img`, `input`, `object`
+		 */
 		usemap: string;
 		/**
 		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
@@ -883,6 +910,9 @@ type ElementAttrs = {
 		 * Indicates whether the element should be checked on page load.
 		 */
 		checked: string;
+		/**
+		 * Applies to `input`, `textarea`
+		 */
 		dirname: string;
 		/**
 		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
@@ -1012,6 +1042,9 @@ type ElementAttrs = {
 		 * The URL of the embeddable content.
 		 */
 		src: string;
+		/**
+		 * Applies to `input`
+		 */
 		step: string;
 		/**
 		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
@@ -1019,6 +1052,9 @@ type ElementAttrs = {
 		 * Defines the type of the element.
 		 */
 		type: string;
+		/**
+		 * Applies to `img`, `input`, `object`
+		 */
 		usemap: string;
 		/**
 		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
@@ -1158,6 +1194,9 @@ type ElementAttrs = {
 		 * Specifies the relationship of the target object to the link object.
 		 */
 		rel: string;
+		/**
+		 * Applies to `link`, `img`, `source`
+		 */
 		sizes: string;
 	};
 	map: {
@@ -1303,6 +1342,9 @@ type ElementAttrs = {
 		 * Defines the type of the element.
 		 */
 		type: string;
+		/**
+		 * Applies to `img`, `input`, `object`
+		 */
 		usemap: string;
 		/**
 		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
@@ -1542,6 +1584,9 @@ type ElementAttrs = {
 		 * Specifies a hint of the media for which the linked resource was designed.
 		 */
 		media: string;
+		/**
+		 * Applies to `link`, `img`, `source`
+		 */
 		sizes: string;
 		/**
 		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
@@ -1685,6 +1730,9 @@ type ElementAttrs = {
 		 * Defines the number of columns in a textarea.
 		 */
 		cols: string;
+		/**
+		 * Applies to `input`, `textarea`
+		 */
 		dirname: string;
 		/**
 		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
@@ -1880,6 +1928,9 @@ type ElementAttrs = {
 		 * The URL of the embeddable content.
 		 */
 		src: string;
+		/**
+		 * Applies to `track`
+		 */
 		srclang: string;
 	};
 	video: {
@@ -1964,7 +2015,22 @@ export type Attr<E extends Element = Element> =
 	// { [data in DataAttr]?: string }
 	Partial<
 		GlobalAttrs & {
+			/**
+			 * When the element lacks suitable ARIA-semantics, authors must
+			 * assign an ARIA-role. Addition of ARIA semantics only exposes
+			 * extra information to a browser's accessibility API, and does
+			 * not affect a page's DOM.
+			 * 
+			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
+			 */
 			role?: AriaRoles;
+			/**
+			 * ARIA is a set of attributes that define ways to make web content
+			 * and web applications (especially those developed with JavaScript)
+			 * more accessible to people with disabilities.
+			 * 
+			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
+			 */
 			aria?: AriaAttributes;
 		} & ElementAttrs[E]
 	>;
