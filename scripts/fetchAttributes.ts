@@ -1,6 +1,7 @@
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-wasm.ts";
 
 import { propsToType } from "./codegen.ts";
+import { getSplType } from "./getSplType.ts";
 
 const html = await fetch(
 	"https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes",
@@ -24,11 +25,6 @@ const groupByList = (xs: Attribute[]) =>
 		return acc;
 	}, {} as Record<string, (Attribute & { type: string })[]>);
 
-const globalOrElems = (elements: string[]) =>
-	elements.includes("Global attribute")
-		? "Global attribute"
-		: "Applies to " + elements.map(e => "`" + e + "`").join(", ");
-
 const { "Global attribute": globalAttr, ...elements } = groupByList(
 	[
 		...document.querySelector("article table.standard-table tbody")
@@ -50,20 +46,38 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 			return {
 				prop: attr.trim(),
 				elements,
-				desc: [globalOrElems(elements), desc.trim()].join("\n"),
+				desc: desc.trim(),
 			};
 		})
 		.filter(each => each.prop !== "data-*")
 		.sort((a, b) => a.prop.localeCompare(b.prop)),
 );
 
-const globalTypes = propsToType("GlobalAttrs", globalAttr, {
-	root: true,
-});
+const customDesc: Record<string, string | undefined> = {
+	height: "Specifies the height of the element.",
+	width: "Specifies the width of the element.",
+};
+
+const composeCustom = (attr: Attribute & { type: string }, element?: string) =>
+	Object.assign(attr, {
+		desc: customDesc[attr.prop] || attr.desc,
+		type: getSplType(attr.prop)(element || "global") || "string",
+	});
+
+const globalTypes = propsToType(
+	"GlobalAttrs",
+	globalAttr.map(attr => composeCustom(attr)),
+	{ root: true },
+);
 
 const elementTypes = Object.keys(elements)
 	.sort((a, b) => a.localeCompare(b))
-	.map(element => propsToType(element, elements[element]))
+	.map(element =>
+		propsToType(
+			element,
+			elements[element].map(attr => composeCustom(attr, element)),
+		),
+	)
 	.join("\n\t");
 
 const types = `import { Element } from "./elements.ts";
@@ -73,8 +87,16 @@ type ${globalTypes}
 
 type ElementAttrs = {
 	${elementTypes}
-	[k: string]: unknown;
 };
+
+type PropOr<T, P extends string | symbol | number, D> =
+	T extends Record<P, infer V> ? V : D;
+
+type Deunionize<T> =
+	| ([undefined] extends [T] ? undefined : never)
+	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined>; };
+
+export type AllAttrs = Partial<Deunionize<ElementAttrs[keyof ElementAttrs]>>;
 
 export type DataAttr = ${"`data-${string}`"};
 
@@ -91,7 +113,7 @@ export type Attr<E extends Element = Element> =
 			 * 
 			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
 			 */
-			role?: AriaRoles;
+			role: AriaRoles;
 			/**
 			 * ARIA is a set of attributes that define ways to make web content
 			 * and web applications (especially those developed with JavaScript)
@@ -99,8 +121,8 @@ export type Attr<E extends Element = Element> =
 			 * 
 			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
 			 */
-			aria?: AriaAttributes;
-		} & ElementAttrs[E]
+			aria: AriaAttributes;
+		} & (ElementAttrs & { [k: string]: unknown })[E]
 	>;
 `;
 

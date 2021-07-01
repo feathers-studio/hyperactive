@@ -2,7 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
 
 import { elements, trust, renderHTML } from "./mod.ts";
 
-const { div, p, h1, br } = elements;
+const { div, p, h1, br, input } = elements;
 
 Deno.test({
 	name: "renderHTML simple",
@@ -112,5 +112,24 @@ Deno.test({
 	fn: () => {
 		const [el] = elements("custom-element");
 		assertEquals(renderHTML(el()), `<custom-element />`);
+	},
+});
+
+Deno.test({
+	name: "renderHTML with boolean attributes",
+	fn: () => {
+		assertEquals(
+			renderHTML(input({ disabled: true })),
+			`<input disabled />`,
+		);
+
+		assertEquals(renderHTML(input({ disabled: false })), `<input />`);
+	},
+});
+
+Deno.test({
+	name: "renderHTML with numeric attributes",
+	fn: () => {
+		assertEquals(renderHTML(input({ step: 5 })), `<input step="5" />`);
 	},
 });

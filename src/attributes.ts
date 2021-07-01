@@ -3,322 +3,215 @@ import { AriaRoles, AriaAttributes } from "./aria.ts";
 
 type GlobalAttrs = {
 	/**
-	 * Global attribute
-	 *
 	 * Keyboard shortcut to activate or add focus to the element.
 	 */
 	accesskey: string;
 	/**
-	 * Global attribute
-	 *
 	 * Sets whether input is automatically capitalized when entered by user
 	 */
-	autocapitalize: string;
+	autocapitalize: "on" | "off" | "none" | "sentences" | "words" | "characters";
 	/**
-	 * Global attribute
-	 *
 	 * Often used with CSS to style elements with common properties.
 	 */
 	class: string;
 	/**
-	 * Global attribute
-	 *
 	 * Indicates whether the element's content is editable.
 	 */
-	contenteditable: string;
+	contenteditable: "true" | "false";
 	/**
-	 * Global attribute
-	 *
 	 * Defines the ID of a `<menu>` element which will serve as the element's context menu.
 	 */
 	contextmenu: string;
 	/**
-	 * Global attribute
-	 *
 	 * Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 	 */
-	dir: string;
+	dir: "ltr" | "rtl" | "auto";
 	/**
-	 * Global attribute
-	 *
 	 * Defines whether the element can be dragged.
 	 */
-	draggable: string;
+	draggable: "true" | "false";
 	/**
-	 * Global attribute
-	 *
 	 * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 	 */
-	hidden: string;
+	hidden: boolean;
 	/**
-	 * Global attribute
-	 *
 	 * Often used with CSS to style a specific element. The value of this attribute must be unique.
 	 */
 	id: string;
-	/**
-	 * Global attribute
-	 */
 	itemprop: string;
 	/**
-	 * Global attribute
-	 *
 	 * Defines the language used in the element.
 	 */
 	lang: string;
 	/**
-	 * Global attribute
-	 *
 	 * Assigns a slot in a shadow DOM shadow tree to an element.
 	 */
 	slot: string;
 	/**
-	 * Global attribute
-	 *
 	 * Indicates whether spell checking is allowed for the element.
 	 */
-	spellcheck: string;
+	spellcheck: "true" | "false";
 	/**
-	 * Global attribute
-	 *
 	 * Defines CSS styles which will override styles previously set.
 	 */
 	style: string;
 	/**
-	 * Global attribute
-	 *
 	 * Overrides the browser's default tab order and follows the one specified instead.
 	 */
 	tabindex: string;
 	/**
-	 * Global attribute
-	 *
 	 * Text to be displayed in a tooltip when hovering over the element.
 	 */
 	title: string;
 	/**
-	 * Global attribute
-	 *
 	 * Specify whether an element’s attribute values and the values of its Text node children are to be translated when the page is localized, or whether to leave them unchanged.
 	 */
-	translate: string;
+	translate: "yes" | "no";
 };
 
 type ElementAttrs = {
 	a: {
 		/**
-		 * Applies to `a`, `area`
-		 *
 		 * Indicates that the hyperlink is to be used for downloading a resource.
 		 */
 		download: string;
 		/**
-		 * Applies to `a`, `area`, `base`, `link`
-		 *
 		 * The URL of a linked resource.
 		 */
 		href: string;
 		/**
-		 * Applies to `a`, `area`, `link`
-		 *
 		 * Specifies the language of the linked resource.
 		 */
 		hreflang: string;
 		/**
-		 * Applies to `a`, `area`, `link`, `source`, `style`
-		 *
 		 * Specifies a hint of the media for which the linked resource was designed.
 		 */
 		media: string;
 		/**
-		 * Applies to `a`, `area`
-		 *
 		 * The ping attribute specifies a space-separated list of URLs to be notified if a user follows the hyperlink.
 		 */
 		ping: string;
 		/**
-		 * Applies to `a`, `area`, `iframe`, `img`, `link`, `script`
-		 *
 		 * Specifies which referrer is sent when fetching the resource.
 		 */
 		referrerpolicy: string;
 		/**
-		 * Applies to `a`, `area`, `link`
-		 *
 		 * Specifies the relationship of the target object to the link object.
 		 */
 		rel: string;
+		shape: "circle" | "default" | "poly" | "rect";
 		/**
-		 * Applies to `a`, `area`
-		 */
-		shape: string;
-		/**
-		 * Applies to `a`, `area`, `base`, `form`
-		 *
 		 * Specifies where to open the linked document (in the case of an `<a>` element) or where to display the response received (in the case of a `<form>` element)
 		 */
 		target: string;
 	};
 	applet: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `applet`, `area`, `img`, `input`
-		 *
 		 * Alternative text in case an image can't be displayed.
 		 */
 		alt: string;
 		/**
-		 * Applies to `applet`
-		 *
 		 * Specifies the URL of the applet's class file to be loaded and executed.
 		 */
 		code: string;
 		/**
-		 * Applies to `applet`
-		 *
 		 * This attribute gives the absolute or relative URL of the directory where applets' .class files referenced by the code attribute are stored.
 		 */
 		codebase: string;
 	};
 	area: {
 		/**
-		 * Applies to `applet`, `area`, `img`, `input`
-		 *
 		 * Alternative text in case an image can't be displayed.
 		 */
 		alt: string;
 		/**
-		 * Applies to `area`
-		 *
 		 * A set of values specifying the coordinates of the hot-spot region.
 		 */
 		coords: string;
 		/**
-		 * Applies to `a`, `area`
-		 *
 		 * Indicates that the hyperlink is to be used for downloading a resource.
 		 */
 		download: string;
 		/**
-		 * Applies to `a`, `area`, `base`, `link`
-		 *
 		 * The URL of a linked resource.
 		 */
 		href: string;
 		/**
-		 * Applies to `a`, `area`, `link`
-		 *
 		 * Specifies the language of the linked resource.
 		 */
 		hreflang: string;
 		/**
-		 * Applies to `a`, `area`, `link`, `source`, `style`
-		 *
 		 * Specifies a hint of the media for which the linked resource was designed.
 		 */
 		media: string;
 		/**
-		 * Applies to `a`, `area`
-		 *
 		 * The ping attribute specifies a space-separated list of URLs to be notified if a user follows the hyperlink.
 		 */
 		ping: string;
 		/**
-		 * Applies to `a`, `area`, `iframe`, `img`, `link`, `script`
-		 *
 		 * Specifies which referrer is sent when fetching the resource.
 		 */
 		referrerpolicy: string;
 		/**
-		 * Applies to `a`, `area`, `link`
-		 *
 		 * Specifies the relationship of the target object to the link object.
 		 */
 		rel: string;
+		shape: "circle" | "default" | "poly" | "rect";
 		/**
-		 * Applies to `a`, `area`
-		 */
-		shape: string;
-		/**
-		 * Applies to `a`, `area`, `base`, `form`
-		 *
 		 * Specifies where to open the linked document (in the case of an `<a>` element) or where to display the response received (in the case of a `<form>` element)
 		 */
 		target: string;
 	};
 	audio: {
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * The audio or video should play as soon as possible.
 		 */
-		autoplay: string;
+		autoplay: boolean;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Contains the time range of already buffered media.
 		 */
 		buffered: string;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Indicates whether the browser should show playback controls to the user.
 		 */
-		controls: string;
+		controls: boolean;
 		/**
-		 * Applies to `audio`, `img`, `link`, `script`, `video`
-		 *
 		 * How the element handles cross-origin requests
 		 */
-		crossorigin: string;
+		crossorigin: "anonymous" | "use-credentials";
 		/**
-		 * Applies to `audio`, `bgsound`, `marquee`, `video`
-		 *
 		 * Indicates whether the media should start playing from the start when it's finished.
 		 */
-		loop: string;
+		loop: boolean;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Indicates whether the audio will be initially silenced on page load.
 		 */
-		muted: string;
+		muted: boolean;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Indicates whether the whole resource, parts of it or nothing should be preloaded.
 		 */
-		preload: string;
+		preload: "none" | "metadata" | "auto";
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
 	};
 	base: {
 		/**
-		 * Applies to `a`, `area`, `base`, `link`
-		 *
 		 * The URL of a linked resource.
 		 */
 		href: string;
 		/**
-		 * Applies to `a`, `area`, `base`, `form`
-		 *
 		 * Specifies where to open the linked document (in the case of an `<a>` element) or where to display the response received (in the case of a `<form>` element)
 		 */
 		target: string;
 	};
 	basefont: {
 		/**
-		 * Applies to `basefont`, `font`, `hr`
-		 *
 		 * This attribute sets the text color using either a named color or a color specified in the hexadecimal #RRGGBB format.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS color property instead.
@@ -327,32 +220,24 @@ type ElementAttrs = {
 	};
 	bgsound: {
 		/**
-		 * Applies to `audio`, `bgsound`, `marquee`, `video`
-		 *
 		 * Indicates whether the media should start playing from the start when it's finished.
 		 */
-		loop: string;
+		loop: boolean;
 	};
 	blockquote: {
 		/**
-		 * Applies to `blockquote`, `del`, `ins`, `q`
-		 *
 		 * Contains a URI which points to the source of the quote or change.
 		 */
 		cite: string;
 	};
 	body: {
 		/**
-		 * Applies to `body`, `table`, `td`, `th`
-		 *
 		 * Specifies the URL of an image file.
 		 *
 		 * > Note: Although browsers and email clients may still support this attribute, it is obsolete. Use CSS background-image instead.
 		 */
 		background: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
@@ -361,266 +246,177 @@ type ElementAttrs = {
 	};
 	button: {
 		/**
-		 * Applies to `button`, `input`, `keygen`, `select`, `textarea`
-		 *
 		 * The element should be automatically focused after the page loaded.
 		 */
-		autofocus: string;
+		autofocus: boolean;
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `input`, `button`
-		 *
 		 * Indicates the action of the element, overriding the action defined in the `<form>`.
 		 */
 		formaction: string;
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this attribute sets the encoding type to use during form submission. If this attribute is specified, it overrides the enctype attribute of the button's form owner.
 		 */
-		formenctype: string;
+		formenctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this attribute sets the submission method to use during form submission (GET, POST, etc.). If this attribute is specified, it overrides the method attribute of the button's form owner.
 		 */
-		formmethod: string;
+		formmethod: "GET" | "POST" | "dialog";
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner.
 		 */
-		formnovalidate: string;
+		formnovalidate: boolean;
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this attribute specifies the browsing context (for example, tab, window, or inline frame) in which to display the response that is received after submitting the form. If this attribute is specified, it overrides the target attribute of the button's form owner.
 		 */
 		formtarget: string;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
-		type: string;
+		type: "submit" | "reset" | "button";
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 	};
 	canvas: {
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * Specifies the height of elements listed here. For all other elements, use the CSS height property.
-		 *
-		 * > Note: In some instances, such as `<div>`, this is a legacy attribute, in which case the CSS height property should be used instead.
+		 * Specifies the height of the element.
 		 */
 		height: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * For the elements listed here, this establishes the element's width.
-		 *
-		 * > Note: For all other instances, such as `<div>`, this is a legacy attribute, in which case the CSS width property should be used instead.
+		 * Specifies the width of the element.
 		 */
 		width: string;
 	};
 	caption: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 	};
 	col: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
-		/**
-		 * Applies to `col`, `colgroup`
-		 */
 		span: string;
 	};
 	colgroup: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
-		/**
-		 * Applies to `col`, `colgroup`
-		 */
 		span: string;
 	};
 	command: {
 		/**
-		 * Applies to `command`, `input`
-		 *
 		 * Indicates whether the element should be checked on page load.
 		 */
-		checked: string;
+		checked: boolean;
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `command`
-		 *
 		 * Specifies a picture which represents the command.
 		 */
 		icon: string;
-		/**
-		 * Applies to `command`
-		 */
 		radiogroup: string;
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
 		type: string;
 	};
 	contenteditable: {
 		/**
-		 * Applies to `textarea`, `contenteditable`
-		 *
 		 * The enterkeyhint specifies what action label (or icon) to present for the enter key on virtual keyboards. The attribute can be used with form controls (such as the value of textarea elements), or in elements in an editing host (e.g., using contenteditable attribute).
 		 */
-		enterkeyhint: string;
+		enterkeyhint: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
 		/**
-		 * Applies to `textarea`, `contenteditable`
-		 *
 		 * Provides a hint as to the type of data that might be entered by the user while editing the element or its contents. The attribute can be used with form controls (such as the value of textarea elements), or in elements in an editing host (e.g., using contenteditable attribute).
 		 */
-		inputmode: string;
+		inputmode: "none" | "text" | "tel" | "email" | "url" | "numeric" | "decimal" | "search";
 	};
 	data: {
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 	};
 	del: {
 		/**
-		 * Applies to `blockquote`, `del`, `ins`, `q`
-		 *
 		 * Contains a URI which points to the source of the quote or change.
 		 */
 		cite: string;
 		/**
-		 * Applies to `del`, `ins`, `time`
-		 *
 		 * Indicates the date and time associated with the element.
 		 */
 		datetime: string;
 	};
 	details: {
 		/**
-		 * Applies to `details`
-		 *
 		 * Indicates whether the details will be shown on page load.
 		 */
-		open: string;
+		open: boolean;
 	};
 	embed: {
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * Specifies the height of elements listed here. For all other elements, use the CSS height property.
-		 *
-		 * > Note: In some instances, such as `<div>`, this is a legacy attribute, in which case the CSS height property should be used instead.
+		 * Specifies the height of the element.
 		 */
 		height: string;
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
-		type: string;
+		type: `${string}/${string}`;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * For the elements listed here, this establishes the element's width.
-		 *
-		 * > Note: For all other instances, such as `<div>`, this is a legacy attribute, in which case the CSS width property should be used instead.
+		 * Specifies the width of the element.
 		 */
 		width: string;
 	};
 	fieldset: {
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 	};
 	font: {
 		/**
-		 * Applies to `basefont`, `font`, `hr`
-		 *
 		 * This attribute sets the text color using either a named color or a color specified in the hexadecimal #RRGGBB format.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS color property instead.
@@ -629,70 +425,48 @@ type ElementAttrs = {
 	};
 	form: {
 		/**
-		 * Applies to `form`, `input`
-		 *
 		 * List of types the server accepts, typically a file type.
 		 */
 		accept: string;
 		/**
-		 * Applies to `form`
-		 *
 		 * List of supported charsets.
 		 */
-		["accept-charset"]: string;
+		["accept-charset"]: "UTF-8";
 		/**
-		 * Applies to `form`
-		 *
 		 * The URI of a program that processes the information submitted via the form.
 		 */
 		action: string;
 		/**
-		 * Applies to `form`, `input`, `select`, `textarea`
-		 *
 		 * Indicates whether controls in this form can by default have their values automatically completed by the browser.
 		 */
-		autocomplete: string;
+		autocomplete: "on" | "off";
 		/**
-		 * Applies to `form`
-		 *
 		 * Defines the content type of the form data when the method is POST.
 		 */
-		enctype: string;
+		enctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
 		/**
-		 * Applies to `form`
-		 *
 		 * Defines which HTTP method to use when submitting the form. Can be GET (default) or POST.
 		 */
-		method: string;
+		method: "GET" | "POST" | "dialog";
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `form`
-		 *
 		 * This attribute indicates that the form shouldn't be validated when submitted.
 		 */
-		novalidate: string;
+		novalidate: boolean;
 		/**
-		 * Applies to `a`, `area`, `base`, `form`
-		 *
 		 * Specifies where to open the linked document (in the case of an `<a>` element) or where to display the response received (in the case of a `<form>` element)
 		 */
 		target: string;
 	};
 	hr: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `basefont`, `font`, `hr`
-		 *
 		 * This attribute sets the text color using either a named color or a color specified in the hexadecimal #RRGGBB format.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS color property instead.
@@ -701,952 +475,631 @@ type ElementAttrs = {
 	};
 	iframe: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `iframe`
-		 *
 		 * Specifies a feature-policy for the iframe.
 		 */
 		allow: string;
 		/**
-		 * Applies to `iframe`
-		 *
 		 * Specifies the Content Security Policy that an embedded document must agree to enforce upon itself.
 		 */
 		csp: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * Specifies the height of elements listed here. For all other elements, use the CSS height property.
-		 *
-		 * > Note: In some instances, such as `<div>`, this is a legacy attribute, in which case the CSS height property should be used instead.
+		 * Specifies the height of the element.
 		 */
 		height: string;
 		/**
-		 * Applies to `iframe`, `img`, `link`, `script`
-		 *
 		 * Indicates the relative fetch priority for the resource.
 		 */
 		importance: string;
 		/**
-		 * Applies to `img`, `iframe`
-		 *
 		 * Indicates if the element should be loaded lazily (loading="lazy") or loaded immediately (loading="eager").
 		 *
 		 * WIP: WHATWG PR #3752
 		 */
-		loading: string;
+		loading: "lazy" | "eager";
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `a`, `area`, `iframe`, `img`, `link`, `script`
-		 *
 		 * Specifies which referrer is sent when fetching the resource.
 		 */
 		referrerpolicy: string;
 		/**
-		 * Applies to `iframe`
-		 *
 		 * Stops a document loaded in an iframe from using certain features (such as submitting forms or opening new windows).
 		 */
-		sandbox: string;
+		sandbox: "allow-forms" | "allow-modals" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-popups-to-escape-sandbox" | "allow-presentation" | "allow-same-origin" | "allow-scripts" | "allow-top-navigation";
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
-		/**
-		 * Applies to `iframe`
-		 */
 		srcdoc: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * For the elements listed here, this establishes the element's width.
-		 *
-		 * > Note: For all other instances, such as `<div>`, this is a legacy attribute, in which case the CSS width property should be used instead.
+		 * Specifies the width of the element.
 		 */
 		width: string;
 	};
 	img: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `applet`, `area`, `img`, `input`
-		 *
 		 * Alternative text in case an image can't be displayed.
 		 */
 		alt: string;
 		/**
-		 * Applies to `img`, `object`, `table`
-		 *
 		 * The border width.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS border property instead.
 		 */
 		border: string;
 		/**
-		 * Applies to `audio`, `img`, `link`, `script`, `video`
-		 *
 		 * How the element handles cross-origin requests
 		 */
-		crossorigin: string;
+		crossorigin: "anonymous" | "use-credentials";
 		/**
-		 * Applies to `img`
-		 *
 		 * Indicates the preferred method to decode the image.
 		 */
-		decoding: string;
+		decoding: "sync" | "async" | "auto";
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * Specifies the height of elements listed here. For all other elements, use the CSS height property.
-		 *
-		 * > Note: In some instances, such as `<div>`, this is a legacy attribute, in which case the CSS height property should be used instead.
+		 * Specifies the height of the element.
 		 */
 		height: string;
 		/**
-		 * Applies to `iframe`, `img`, `link`, `script`
-		 *
 		 * Indicates the relative fetch priority for the resource.
 		 */
 		importance: string;
 		/**
-		 * Applies to `img`
-		 *
 		 * Indicates that the image is part of a server-side image map.
 		 */
-		ismap: string;
+		ismap: boolean;
 		/**
-		 * Applies to `img`, `iframe`
-		 *
 		 * Indicates if the element should be loaded lazily (loading="lazy") or loaded immediately (loading="eager").
 		 *
 		 * WIP: WHATWG PR #3752
 		 */
-		loading: string;
+		loading: "lazy" | "eager";
 		/**
-		 * Applies to `a`, `area`, `iframe`, `img`, `link`, `script`
-		 *
 		 * Specifies which referrer is sent when fetching the resource.
 		 */
 		referrerpolicy: string;
-		/**
-		 * Applies to `link`, `img`, `source`
-		 */
 		sizes: string;
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
 		/**
-		 * Applies to `img`, `source`
-		 *
 		 * One or more responsive image candidates.
 		 */
 		srcset: string;
-		/**
-		 * Applies to `img`, `input`, `object`
-		 */
 		usemap: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * For the elements listed here, this establishes the element's width.
-		 *
-		 * > Note: For all other instances, such as `<div>`, this is a legacy attribute, in which case the CSS width property should be used instead.
+		 * Specifies the width of the element.
 		 */
 		width: string;
 	};
 	input: {
 		/**
-		 * Applies to `form`, `input`
-		 *
 		 * List of types the server accepts, typically a file type.
 		 */
 		accept: string;
 		/**
-		 * Applies to `applet`, `area`, `img`, `input`
-		 *
 		 * Alternative text in case an image can't be displayed.
 		 */
 		alt: string;
 		/**
-		 * Applies to `form`, `input`, `select`, `textarea`
-		 *
 		 * Indicates whether controls in this form can by default have their values automatically completed by the browser.
 		 */
-		autocomplete: string;
+		autocomplete: "on" | "off";
 		/**
-		 * Applies to `button`, `input`, `keygen`, `select`, `textarea`
-		 *
 		 * The element should be automatically focused after the page loaded.
 		 */
-		autofocus: string;
+		autofocus: boolean;
 		/**
-		 * Applies to `input`
-		 *
 		 * From the HTML Media CaptureThe definition of 'media capture' in that specification.spec, specifies a new file can be captured.
 		 */
 		capture: string;
 		/**
-		 * Applies to `command`, `input`
-		 *
 		 * Indicates whether the element should be checked on page load.
 		 */
-		checked: string;
-		/**
-		 * Applies to `input`, `textarea`
-		 */
+		checked: boolean;
 		dirname: string;
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `input`, `button`
-		 *
 		 * Indicates the action of the element, overriding the action defined in the `<form>`.
 		 */
 		formaction: string;
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this attribute sets the encoding type to use during form submission. If this attribute is specified, it overrides the enctype attribute of the button's form owner.
 		 */
-		formenctype: string;
+		formenctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this attribute sets the submission method to use during form submission (GET, POST, etc.). If this attribute is specified, it overrides the method attribute of the button's form owner.
 		 */
-		formmethod: string;
+		formmethod: "GET" | "POST" | "dialog";
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner.
 		 */
-		formnovalidate: string;
+		formnovalidate: boolean;
 		/**
-		 * Applies to `button`, `input`
-		 *
 		 * If the button/input is a submit button (type="submit"), this attribute specifies the browsing context (for example, tab, window, or inline frame) in which to display the response that is received after submitting the form. If this attribute is specified, it overrides the target attribute of the button's form owner.
 		 */
 		formtarget: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * Specifies the height of elements listed here. For all other elements, use the CSS height property.
-		 *
-		 * > Note: In some instances, such as `<div>`, this is a legacy attribute, in which case the CSS height property should be used instead.
+		 * Specifies the height of the element.
 		 */
 		height: string;
 		/**
-		 * Applies to `input`
-		 *
 		 * Identifies a list of pre-defined options to suggest to the user.
 		 */
 		list: string;
 		/**
-		 * Applies to `input`, `meter`, `progress`
-		 *
 		 * Indicates the maximum value allowed.
 		 */
 		max: string;
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Defines the maximum number of characters allowed in the element.
 		 */
 		maxlength: string;
 		/**
-		 * Applies to `input`, `meter`
-		 *
 		 * Indicates the minimum value allowed.
 		 */
 		min: string;
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Defines the minimum number of characters allowed in the element.
 		 */
 		minlength: string;
 		/**
-		 * Applies to `input`, `select`
-		 *
 		 * Indicates whether multiple values can be entered in an input of the type email or file.
 		 */
-		multiple: string;
+		multiple: boolean;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `input`
-		 *
 		 * Defines a regular expression which the element's value will be validated against.
 		 */
 		pattern: string;
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Provides a hint to the user of what can be entered in the field.
 		 */
 		placeholder: string;
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Indicates whether the element can be edited.
 		 */
-		readonly: string;
+		readonly: boolean;
 		/**
-		 * Applies to `input`, `select`, `textarea`
-		 *
 		 * Indicates whether this element is required to fill out or not.
 		 */
-		required: string;
+		required: boolean;
 		/**
-		 * Applies to `input`, `select`
-		 *
 		 * Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters.
 		 */
 		size: string;
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
+		step: number | "any";
 		/**
-		 * Applies to `input`
-		 */
-		step: string;
-		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
-		type: string;
-		/**
-		 * Applies to `img`, `input`, `object`
-		 */
+		type: "hidden" | "text" | "search" | "tel" | "url" | "email" | "password" | "date" | "month" | "week" | "time" | "datetime" | "number" | "range" | "color" | "checkbox" | "radio" | "file" | "submit" | "image" | "reset" | "button";
 		usemap: string;
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * For the elements listed here, this establishes the element's width.
-		 *
-		 * > Note: For all other instances, such as `<div>`, this is a legacy attribute, in which case the CSS width property should be used instead.
+		 * Specifies the width of the element.
 		 */
 		width: string;
 	};
 	ins: {
 		/**
-		 * Applies to `blockquote`, `del`, `ins`, `q`
-		 *
 		 * Contains a URI which points to the source of the quote or change.
 		 */
 		cite: string;
 		/**
-		 * Applies to `del`, `ins`, `time`
-		 *
 		 * Indicates the date and time associated with the element.
 		 */
 		datetime: string;
 	};
 	keygen: {
 		/**
-		 * Applies to `button`, `input`, `keygen`, `select`, `textarea`
-		 *
 		 * The element should be automatically focused after the page loaded.
 		 */
-		autofocus: string;
+		autofocus: boolean;
 		/**
-		 * Applies to `keygen`
-		 *
 		 * A challenge string that is submitted along with the public key.
 		 */
 		challenge: string;
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `keygen`
-		 *
 		 * Specifies the type of key generated.
 		 */
 		keytype: string;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 	};
 	label: {
 		/**
-		 * Applies to `label`, `output`
-		 *
 		 * Describes elements which belongs to this one.
 		 */
 		for: string;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 	};
 	li: {
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 	};
 	link: {
 		/**
-		 * Applies to `audio`, `img`, `link`, `script`, `video`
-		 *
 		 * How the element handles cross-origin requests
 		 */
-		crossorigin: string;
+		crossorigin: "anonymous" | "use-credentials";
 		/**
-		 * Applies to `a`, `area`, `base`, `link`
-		 *
 		 * The URL of a linked resource.
 		 */
 		href: string;
 		/**
-		 * Applies to `a`, `area`, `link`
-		 *
 		 * Specifies the language of the linked resource.
 		 */
 		hreflang: string;
 		/**
-		 * Applies to `iframe`, `img`, `link`, `script`
-		 *
 		 * Indicates the relative fetch priority for the resource.
 		 */
 		importance: string;
 		/**
-		 * Applies to `link`, `script`
-		 *
 		 * Specifies a Subresource Integrity value that allows browsers to verify what they fetch.
 		 */
 		integrity: string;
 		/**
-		 * Applies to `a`, `area`, `link`, `source`, `style`
-		 *
 		 * Specifies a hint of the media for which the linked resource was designed.
 		 */
 		media: string;
 		/**
-		 * Applies to `a`, `area`, `iframe`, `img`, `link`, `script`
-		 *
 		 * Specifies which referrer is sent when fetching the resource.
 		 */
 		referrerpolicy: string;
 		/**
-		 * Applies to `a`, `area`, `link`
-		 *
 		 * Specifies the relationship of the target object to the link object.
 		 */
 		rel: string;
-		/**
-		 * Applies to `link`, `img`, `source`
-		 */
 		sizes: string;
 	};
 	map: {
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 	};
 	marquee: {
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
 		/**
-		 * Applies to `audio`, `bgsound`, `marquee`, `video`
-		 *
 		 * Indicates whether the media should start playing from the start when it's finished.
 		 */
-		loop: string;
+		loop: boolean;
 	};
 	menu: {
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
 		type: string;
 	};
 	meta: {
 		/**
-		 * Applies to `meta`, `script`
-		 *
 		 * Declares the character encoding of the page or script.
 		 */
-		charset: string;
+		charset: "utf-8";
 		/**
-		 * Applies to `meta`
-		 *
 		 * A value associated with http-equiv or name depending on the context.
 		 */
 		content: string;
 		/**
-		 * Applies to `meta`
-		 *
 		 * Defines a pragma directive.
 		 */
-		["http-equiv"]: string;
+		["http-equiv"]: "content-type" | "default-style" | "refresh" | "x-ua-compatible" | "content-security-policy";
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 	};
 	meter: {
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `meter`
-		 *
 		 * Indicates the lower bound of the upper range.
 		 */
 		high: string;
 		/**
-		 * Applies to `meter`
-		 *
 		 * Indicates the upper bound of the lower range.
 		 */
 		low: string;
 		/**
-		 * Applies to `input`, `meter`, `progress`
-		 *
 		 * Indicates the maximum value allowed.
 		 */
 		max: string;
 		/**
-		 * Applies to `input`, `meter`
-		 *
 		 * Indicates the minimum value allowed.
 		 */
 		min: string;
 		/**
-		 * Applies to `meter`
-		 *
 		 * Indicates the optimal numeric value.
 		 */
 		optimum: string;
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 	};
 	object: {
 		/**
-		 * Applies to `img`, `object`, `table`
-		 *
 		 * The border width.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS border property instead.
 		 */
 		border: string;
 		/**
-		 * Applies to `object`
-		 *
 		 * Specifies the URL of the resource.
 		 */
 		data: string;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * Specifies the height of elements listed here. For all other elements, use the CSS height property.
-		 *
-		 * > Note: In some instances, such as `<div>`, this is a legacy attribute, in which case the CSS height property should be used instead.
+		 * Specifies the height of the element.
 		 */
 		height: string;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
-		type: string;
-		/**
-		 * Applies to `img`, `input`, `object`
-		 */
+		type: `${string}/${string}`;
 		usemap: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * For the elements listed here, this establishes the element's width.
-		 *
-		 * > Note: For all other instances, such as `<div>`, this is a legacy attribute, in which case the CSS width property should be used instead.
+		 * Specifies the width of the element.
 		 */
 		width: string;
 	};
 	ol: {
 		/**
-		 * Applies to `ol`
-		 *
 		 * Indicates whether the list should be displayed in a descending order instead of a ascending.
 		 */
-		reversed: string;
+		reversed: boolean;
 		/**
-		 * Applies to `ol`
-		 *
 		 * Defines the first number if other than 1.
 		 */
 		start: string;
 	};
 	optgroup: {
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `optgroup`, `option`, `track`
-		 *
 		 * Specifies a user-readable title of the element.
 		 */
 		label: string;
 	};
 	option: {
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `optgroup`, `option`, `track`
-		 *
 		 * Specifies a user-readable title of the element.
 		 */
 		label: string;
 		/**
-		 * Applies to `option`
-		 *
 		 * Defines a value which will be selected on page load.
 		 */
-		selected: string;
+		selected: boolean;
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 	};
 	output: {
 		/**
-		 * Applies to `label`, `output`
-		 *
 		 * Describes elements which belongs to this one.
 		 */
 		for: string;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 	};
 	param: {
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 	};
 	progress: {
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `input`, `meter`, `progress`
-		 *
 		 * Indicates the maximum value allowed.
 		 */
 		max: string;
 		/**
-		 * Applies to `button`, `data`, `input`, `li`, `meter`, `option`, `progress`, `param`
-		 *
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
 		value: string;
 	};
 	q: {
 		/**
-		 * Applies to `blockquote`, `del`, `ins`, `q`
-		 *
 		 * Contains a URI which points to the source of the quote or change.
 		 */
 		cite: string;
 	};
 	script: {
 		/**
-		 * Applies to `script`
-		 *
 		 * Executes the script asynchronously.
 		 */
-		async: string;
+		async: boolean;
 		/**
-		 * Applies to `meta`, `script`
-		 *
 		 * Declares the character encoding of the page or script.
 		 */
-		charset: string;
+		charset: "utf-8";
 		/**
-		 * Applies to `audio`, `img`, `link`, `script`, `video`
-		 *
 		 * How the element handles cross-origin requests
 		 */
-		crossorigin: string;
+		crossorigin: "anonymous" | "use-credentials";
 		/**
-		 * Applies to `script`
-		 *
 		 * Indicates that the script should be executed after the page has been parsed.
 		 */
-		defer: string;
+		defer: boolean;
 		/**
-		 * Applies to `iframe`, `img`, `link`, `script`
-		 *
 		 * Indicates the relative fetch priority for the resource.
 		 */
 		importance: string;
 		/**
-		 * Applies to `link`, `script`
-		 *
 		 * Specifies a Subresource Integrity value that allows browsers to verify what they fetch.
 		 */
 		integrity: string;
 		/**
-		 * Applies to `a`, `area`, `iframe`, `img`, `link`, `script`
-		 *
 		 * Specifies which referrer is sent when fetching the resource.
 		 */
 		referrerpolicy: string;
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
-		type: string;
+		type: "module" | "`${string}/${string}`";
 	};
 	select: {
 		/**
-		 * Applies to `form`, `input`, `select`, `textarea`
-		 *
 		 * Indicates whether controls in this form can by default have their values automatically completed by the browser.
 		 */
-		autocomplete: string;
+		autocomplete: "on" | "off";
 		/**
-		 * Applies to `button`, `input`, `keygen`, `select`, `textarea`
-		 *
 		 * The element should be automatically focused after the page loaded.
 		 */
-		autofocus: string;
+		autofocus: boolean;
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `input`, `select`
-		 *
 		 * Indicates whether multiple values can be entered in an input of the type email or file.
 		 */
-		multiple: string;
+		multiple: boolean;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `input`, `select`, `textarea`
-		 *
 		 * Indicates whether this element is required to fill out or not.
 		 */
-		required: string;
+		required: boolean;
 		/**
-		 * Applies to `input`, `select`
-		 *
 		 * Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters.
 		 */
 		size: string;
 	};
 	source: {
 		/**
-		 * Applies to `a`, `area`, `link`, `source`, `style`
-		 *
 		 * Specifies a hint of the media for which the linked resource was designed.
 		 */
 		media: string;
-		/**
-		 * Applies to `link`, `img`, `source`
-		 */
 		sizes: string;
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
 		/**
-		 * Applies to `img`, `source`
-		 *
 		 * One or more responsive image candidates.
 		 */
 		srcset: string;
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
-		type: string;
+		type: `${string}/${string}`;
 	};
 	style: {
 		/**
-		 * Applies to `a`, `area`, `link`, `source`, `style`
-		 *
 		 * Specifies a hint of the media for which the linked resource was designed.
 		 */
 		media: string;
 		/**
-		 * Applies to `button`, `input`, `command`, `embed`, `object`, `script`, `source`, `style`, `menu`
-		 *
 		 * Defines the type of the element.
 		 */
 		type: string;
 	};
 	table: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `table`, `td`, `th`
-		 *
 		 * Specifies the URL of an image file.
 		 *
 		 * > Note: Although browsers and email clients may still support this attribute, it is obsolete. Use CSS background-image instead.
 		 */
 		background: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
 		/**
-		 * Applies to `img`, `object`, `table`
-		 *
 		 * The border width.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS border property instead.
@@ -1655,14 +1108,10 @@ type ElementAttrs = {
 	};
 	tbody: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
@@ -1671,152 +1120,103 @@ type ElementAttrs = {
 	};
 	td: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `table`, `td`, `th`
-		 *
 		 * Specifies the URL of an image file.
 		 *
 		 * > Note: Although browsers and email clients may still support this attribute, it is obsolete. Use CSS background-image instead.
 		 */
 		background: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
 		/**
-		 * Applies to `td`, `th`
-		 *
 		 * The colspan attribute defines the number of columns a cell should span.
 		 */
 		colspan: string;
 		/**
-		 * Applies to `td`, `th`
-		 *
 		 * IDs of the `<th>` elements which applies to this element.
 		 */
 		headers: string;
 		/**
-		 * Applies to `td`, `th`
-		 *
 		 * Defines the number of rows a table cell should span over.
 		 */
 		rowspan: string;
 	};
 	textarea: {
 		/**
-		 * Applies to `form`, `input`, `select`, `textarea`
-		 *
 		 * Indicates whether controls in this form can by default have their values automatically completed by the browser.
 		 */
-		autocomplete: string;
+		autocomplete: "on" | "off";
 		/**
-		 * Applies to `button`, `input`, `keygen`, `select`, `textarea`
-		 *
 		 * The element should be automatically focused after the page loaded.
 		 */
-		autofocus: string;
+		autofocus: boolean;
 		/**
-		 * Applies to `textarea`
-		 *
 		 * Defines the number of columns in a textarea.
 		 */
 		cols: string;
-		/**
-		 * Applies to `input`, `textarea`
-		 */
 		dirname: string;
 		/**
-		 * Applies to `button`, `command`, `fieldset`, `input`, `keygen`, `optgroup`, `option`, `select`, `textarea`
-		 *
 		 * Indicates whether the user can interact with the element.
 		 */
-		disabled: string;
+		disabled: boolean;
 		/**
-		 * Applies to `textarea`, `contenteditable`
-		 *
 		 * The enterkeyhint specifies what action label (or icon) to present for the enter key on virtual keyboards. The attribute can be used with form controls (such as the value of textarea elements), or in elements in an editing host (e.g., using contenteditable attribute).
 		 */
-		enterkeyhint: string;
+		enterkeyhint: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
 		/**
-		 * Applies to `button`, `fieldset`, `input`, `keygen`, `label`, `meter`, `object`, `output`, `progress`, `select`, `textarea`
-		 *
 		 * Indicates the form that is the owner of the element.
 		 */
 		form: string;
 		/**
-		 * Applies to `textarea`, `contenteditable`
-		 *
 		 * Provides a hint as to the type of data that might be entered by the user while editing the element or its contents. The attribute can be used with form controls (such as the value of textarea elements), or in elements in an editing host (e.g., using contenteditable attribute).
 		 */
-		inputmode: string;
+		inputmode: "none" | "text" | "tel" | "email" | "url" | "numeric" | "decimal" | "search";
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Defines the maximum number of characters allowed in the element.
 		 */
 		maxlength: string;
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Defines the minimum number of characters allowed in the element.
 		 */
 		minlength: string;
 		/**
-		 * Applies to `button`, `form`, `fieldset`, `iframe`, `input`, `keygen`, `object`, `output`, `select`, `textarea`, `map`, `meta`, `param`
-		 *
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
 		name: string;
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Provides a hint to the user of what can be entered in the field.
 		 */
 		placeholder: string;
 		/**
-		 * Applies to `input`, `textarea`
-		 *
 		 * Indicates whether the element can be edited.
 		 */
-		readonly: string;
+		readonly: boolean;
 		/**
-		 * Applies to `input`, `select`, `textarea`
-		 *
 		 * Indicates whether this element is required to fill out or not.
 		 */
-		required: string;
+		required: boolean;
 		/**
-		 * Applies to `textarea`
-		 *
 		 * Defines the number of rows in a text area.
 		 */
 		rows: string;
 		/**
-		 * Applies to `textarea`
-		 *
 		 * Indicates whether the text should be wrapped.
 		 */
-		wrap: string;
+		wrap: "soft" | "hard";
 	};
 	tfoot: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
@@ -1825,78 +1225,56 @@ type ElementAttrs = {
 	};
 	th: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `table`, `td`, `th`
-		 *
 		 * Specifies the URL of an image file.
 		 *
 		 * > Note: Although browsers and email clients may still support this attribute, it is obsolete. Use CSS background-image instead.
 		 */
 		background: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
 		 */
 		bgcolor: string;
 		/**
-		 * Applies to `td`, `th`
-		 *
 		 * The colspan attribute defines the number of columns a cell should span.
 		 */
 		colspan: string;
 		/**
-		 * Applies to `td`, `th`
-		 *
 		 * IDs of the `<th>` elements which applies to this element.
 		 */
 		headers: string;
 		/**
-		 * Applies to `td`, `th`
-		 *
 		 * Defines the number of rows a table cell should span over.
 		 */
 		rowspan: string;
 		/**
-		 * Applies to `th`
-		 *
 		 * Defines the cells that the header test (defined in the th element) relates to.
 		 */
-		scope: string;
+		scope: "row" | "col" | "rowgroup" | "colgroup";
 	};
 	thead: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 	};
 	time: {
 		/**
-		 * Applies to `del`, `ins`, `time`
-		 *
 		 * Indicates the date and time associated with the element.
 		 */
 		datetime: string;
 	};
 	tr: {
 		/**
-		 * Applies to `applet`, `caption`, `col`, `colgroup`, `hr`, `iframe`, `img`, `table`, `tbody`, `td`, `tfoot`, `th`, `thead`, `tr`
-		 *
 		 * Specifies the horizontal alignment of the element.
 		 */
 		align: string;
 		/**
-		 * Applies to `body`, `col`, `colgroup`, `marquee`, `table`, `tbody`, `tfoot`, `td`, `th`, `tr`
-		 *
 		 * Background color of the element.
 		 *
 		 * > Note: This is a legacy attribute. Please use the CSS background-color property instead.
@@ -1905,108 +1283,79 @@ type ElementAttrs = {
 	};
 	track: {
 		/**
-		 * Applies to `track`
-		 *
 		 * Indicates that the track should be enabled unless the user's preferences indicate something different.
 		 */
-		default: string;
+		default: boolean;
 		/**
-		 * Applies to `track`
-		 *
 		 * Specifies the kind of text track.
 		 */
-		kind: string;
+		kind: "subtitles" | "captions" | "descriptions" | "chapters" | "metadata";
 		/**
-		 * Applies to `optgroup`, `option`, `track`
-		 *
 		 * Specifies a user-readable title of the element.
 		 */
 		label: string;
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
-		/**
-		 * Applies to `track`
-		 */
 		srclang: string;
 	};
 	video: {
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * The audio or video should play as soon as possible.
 		 */
-		autoplay: string;
+		autoplay: boolean;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Contains the time range of already buffered media.
 		 */
 		buffered: string;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Indicates whether the browser should show playback controls to the user.
 		 */
-		controls: string;
+		controls: boolean;
 		/**
-		 * Applies to `audio`, `img`, `link`, `script`, `video`
-		 *
 		 * How the element handles cross-origin requests
 		 */
-		crossorigin: string;
+		crossorigin: "anonymous" | "use-credentials";
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * Specifies the height of elements listed here. For all other elements, use the CSS height property.
-		 *
-		 * > Note: In some instances, such as `<div>`, this is a legacy attribute, in which case the CSS height property should be used instead.
+		 * Specifies the height of the element.
 		 */
 		height: string;
 		/**
-		 * Applies to `audio`, `bgsound`, `marquee`, `video`
-		 *
 		 * Indicates whether the media should start playing from the start when it's finished.
 		 */
-		loop: string;
+		loop: boolean;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Indicates whether the audio will be initially silenced on page load.
 		 */
-		muted: string;
+		muted: boolean;
 		/**
-		 * Applies to `video`
-		 *
 		 * A URL indicating a poster frame to show until the user plays or seeks.
 		 */
 		poster: string;
 		/**
-		 * Applies to `audio`, `video`
-		 *
 		 * Indicates whether the whole resource, parts of it or nothing should be preloaded.
 		 */
-		preload: string;
+		preload: "none" | "metadata" | "auto";
 		/**
-		 * Applies to `audio`, `embed`, `iframe`, `img`, `input`, `script`, `source`, `track`, `video`
-		 *
 		 * The URL of the embeddable content.
 		 */
 		src: string;
 		/**
-		 * Applies to `canvas`, `embed`, `iframe`, `img`, `input`, `object`, `video`
-		 *
-		 * For the elements listed here, this establishes the element's width.
-		 *
-		 * > Note: For all other instances, such as `<div>`, this is a legacy attribute, in which case the CSS width property should be used instead.
+		 * Specifies the width of the element.
 		 */
 		width: string;
 	};
-	[k: string]: unknown;
 };
+
+type PropOr<T, P extends string | symbol | number, D> =
+	T extends Record<P, infer V> ? V : D;
+
+type Deunionize<T> =
+	| ([undefined] extends [T] ? undefined : never)
+	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined>; };
+
+export type AllAttrs = Partial<Deunionize<ElementAttrs[keyof ElementAttrs]>>;
 
 export type DataAttr = `data-${string}`;
 
@@ -2023,7 +1372,7 @@ export type Attr<E extends Element = Element> =
 			 * 
 			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
 			 */
-			role?: AriaRoles;
+			role: AriaRoles;
 			/**
 			 * ARIA is a set of attributes that define ways to make web content
 			 * and web applications (especially those developed with JavaScript)
@@ -2031,6 +1380,6 @@ export type Attr<E extends Element = Element> =
 			 * 
 			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
 			 */
-			aria?: AriaAttributes;
-		} & ElementAttrs[E]
+			aria: AriaAttributes;
+		} & (ElementAttrs & { [k: string]: unknown })[E]
 	>;

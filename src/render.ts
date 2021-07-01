@@ -6,16 +6,21 @@ import { Attr } from "./attributes.ts";
 import { isState } from "./state.ts";
 import { Falsy, isFalsy, escapeHTML, guessEnv } from "./util.ts";
 
-function attrifyHTML(
-	attrs: Record<string, string | Record<string, string>>,
-	prefix = "",
-): string {
+type AttributeObject = Record<
+	string,
+	string | number | boolean | Record<string, string | number | boolean>
+>;
+
+function attrifyHTML(attrs: AttributeObject, prefix = ""): string {
 	return Object.entries(attrs)
 		.map(([attr, value]) => {
 			if (value === "") return value;
 			if (typeof value === "object")
 				return attrifyHTML(value, attr + "-");
-			return `${prefix + attr}="${value}"`;
+			if (typeof value === "boolean")
+				if (value) return `${prefix + attr}`;
+				else return "";
+			if (value) return `${prefix + attr}="${value}"`;
 		})
 		.join(" ");
 }
@@ -56,16 +61,16 @@ function htmlStringToElement(html: string) {
 	return template.content.firstChild || "";
 }
 
-function attrifyDOM(
-	el: HTMLElement,
-	attrs: Record<string, string | Record<string, string>>,
-	prefix = "",
-) {
+function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 	for (const attr in attrs) {
 		const value = attrs[attr as keyof Attr];
 		if (value === "") el.setAttribute(prefix + attr, "");
 		else if (typeof value === "object") attrifyDOM(el, value, attr + "-");
-		else if (value) el.setAttribute(prefix + attr, value);
+		else if (typeof value === "boolean")
+			if (value) el.setAttribute(prefix + attr, "");
+			// no-op
+			else null;
+		else if (value) el.setAttribute(prefix + attr, String(value));
 	}
 }
 
