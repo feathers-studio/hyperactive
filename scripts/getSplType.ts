@@ -32,6 +32,7 @@ const mime = "`${string}/${string}`";
 
 const manual: Entry[] = [
 	["as", () => `string`],
+	["sandbox", () => `string`],
 	["step", () => `number | "any"`],
 	[
 		"dir",
@@ -76,6 +77,20 @@ const manual: Entry[] = [
 				),
 			}[el] || null),
 	],
+	[
+		"value",
+		(el: string) =>
+			({
+				button: `string`,
+				option: `string`,
+				data: `string`,
+				input: `string`,
+				param: `string`,
+				li: `number`,
+				meter: `number`,
+				progress: `number`,
+			}[el] || null),
+	],
 ];
 
 const parseEnum = (str: string) =>
@@ -87,10 +102,29 @@ const enums = rows
 	.map(row => [row.name, union(...(parseEnum(row.value) || []))])
 	.map(([name, union]): Entry => [name, () => union]);
 
+const numeric = [
+	"cols",
+	"colspan",
+	"height",
+	"width",
+	"high",
+	"low",
+	"max",
+	"maxlength",
+	"min",
+	"minlength",
+	"optimum",
+	"rows",
+	"rowspan",
+	"size",
+	"start",
+	"tabindex",
+].map((name): Entry => [name, () => "number"]);
+
 const def = () => null;
 
 const specialTypes = Object.fromEntries(
-	([] as Entry[]).concat(boolean, enums, manual),
+	([] as Entry[]).concat(boolean, enums, numeric, manual),
 );
 
 const specialKeys = new Set(Object.keys(specialTypes));

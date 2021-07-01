@@ -58,7 +58,7 @@ type GlobalAttrs = {
 	/**
 	 * Overrides the browser's default tab order and follows the one specified instead.
 	 */
-	tabindex: string;
+	tabindex: number;
 	/**
 	 * Text to be displayed in a tooltip when hovering over the element.
 	 */
@@ -294,11 +294,11 @@ type ElementAttrs = {
 		/**
 		 * Specifies the height of the element.
 		 */
-		height: string;
+		height: number;
 		/**
 		 * Specifies the width of the element.
 		 */
-		width: string;
+		width: number;
 	};
 	caption: {
 		/**
@@ -387,7 +387,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the height of the element.
 		 */
-		height: string;
+		height: number;
 		/**
 		 * The URL of the embeddable content.
 		 */
@@ -399,7 +399,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the width of the element.
 		 */
-		width: string;
+		width: number;
 	};
 	fieldset: {
 		/**
@@ -489,7 +489,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the height of the element.
 		 */
-		height: string;
+		height: number;
 		/**
 		 * Indicates the relative fetch priority for the resource.
 		 */
@@ -511,7 +511,7 @@ type ElementAttrs = {
 		/**
 		 * Stops a document loaded in an iframe from using certain features (such as submitting forms or opening new windows).
 		 */
-		sandbox: "allow-forms" | "allow-modals" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-popups-to-escape-sandbox" | "allow-presentation" | "allow-same-origin" | "allow-scripts" | "allow-top-navigation";
+		sandbox: string;
 		/**
 		 * The URL of the embeddable content.
 		 */
@@ -520,7 +520,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the width of the element.
 		 */
-		width: string;
+		width: number;
 	};
 	img: {
 		/**
@@ -548,7 +548,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the height of the element.
 		 */
-		height: string;
+		height: number;
 		/**
 		 * Indicates the relative fetch priority for the resource.
 		 */
@@ -580,7 +580,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the width of the element.
 		 */
-		width: string;
+		width: number;
 	};
 	input: {
 		/**
@@ -639,7 +639,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the height of the element.
 		 */
-		height: string;
+		height: number;
 		/**
 		 * Identifies a list of pre-defined options to suggest to the user.
 		 */
@@ -647,19 +647,19 @@ type ElementAttrs = {
 		/**
 		 * Indicates the maximum value allowed.
 		 */
-		max: string;
+		max: number;
 		/**
 		 * Defines the maximum number of characters allowed in the element.
 		 */
-		maxlength: string;
+		maxlength: number;
 		/**
 		 * Indicates the minimum value allowed.
 		 */
-		min: string;
+		min: number;
 		/**
 		 * Defines the minimum number of characters allowed in the element.
 		 */
-		minlength: string;
+		minlength: number;
 		/**
 		 * Indicates whether multiple values can be entered in an input of the type email or file.
 		 */
@@ -687,7 +687,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters.
 		 */
-		size: string;
+		size: number;
 		/**
 		 * The URL of the embeddable content.
 		 */
@@ -705,7 +705,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the width of the element.
 		 */
-		width: string;
+		width: number;
 	};
 	ins: {
 		/**
@@ -757,7 +757,7 @@ type ElementAttrs = {
 		/**
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
-		value: string;
+		value: number;
 	};
 	link: {
 		/**
@@ -844,27 +844,27 @@ type ElementAttrs = {
 		/**
 		 * Indicates the lower bound of the upper range.
 		 */
-		high: string;
+		high: number;
 		/**
 		 * Indicates the upper bound of the lower range.
 		 */
-		low: string;
+		low: number;
 		/**
 		 * Indicates the maximum value allowed.
 		 */
-		max: string;
+		max: number;
 		/**
 		 * Indicates the minimum value allowed.
 		 */
-		min: string;
+		min: number;
 		/**
 		 * Indicates the optimal numeric value.
 		 */
-		optimum: string;
+		optimum: number;
 		/**
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
-		value: string;
+		value: number;
 	};
 	object: {
 		/**
@@ -884,7 +884,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the height of the element.
 		 */
-		height: string;
+		height: number;
 		/**
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
@@ -897,7 +897,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the width of the element.
 		 */
-		width: string;
+		width: number;
 	};
 	ol: {
 		/**
@@ -907,7 +907,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the first number if other than 1.
 		 */
-		start: string;
+		start: number;
 	};
 	optgroup: {
 		/**
@@ -969,11 +969,11 @@ type ElementAttrs = {
 		/**
 		 * Indicates the maximum value allowed.
 		 */
-		max: string;
+		max: number;
 		/**
 		 * Defines a default value which will be displayed in the element on page load.
 		 */
-		value: string;
+		value: number;
 	};
 	q: {
 		/**
@@ -1051,7 +1051,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters.
 		 */
-		size: string;
+		size: number;
 	};
 	source: {
 		/**
@@ -1138,7 +1138,7 @@ type ElementAttrs = {
 		/**
 		 * The colspan attribute defines the number of columns a cell should span.
 		 */
-		colspan: string;
+		colspan: number;
 		/**
 		 * IDs of the `<th>` elements which applies to this element.
 		 */
@@ -1146,7 +1146,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the number of rows a table cell should span over.
 		 */
-		rowspan: string;
+		rowspan: number;
 	};
 	textarea: {
 		/**
@@ -1160,7 +1160,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the number of columns in a textarea.
 		 */
-		cols: string;
+		cols: number;
 		dirname: string;
 		/**
 		 * Indicates whether the user can interact with the element.
@@ -1181,11 +1181,11 @@ type ElementAttrs = {
 		/**
 		 * Defines the maximum number of characters allowed in the element.
 		 */
-		maxlength: string;
+		maxlength: number;
 		/**
 		 * Defines the minimum number of characters allowed in the element.
 		 */
-		minlength: string;
+		minlength: number;
 		/**
 		 * Name of the element. For example used by the server to identify the fields in form submits.
 		 */
@@ -1205,7 +1205,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the number of rows in a text area.
 		 */
-		rows: string;
+		rows: number;
 		/**
 		 * Indicates whether the text should be wrapped.
 		 */
@@ -1243,7 +1243,7 @@ type ElementAttrs = {
 		/**
 		 * The colspan attribute defines the number of columns a cell should span.
 		 */
-		colspan: string;
+		colspan: number;
 		/**
 		 * IDs of the `<th>` elements which applies to this element.
 		 */
@@ -1251,7 +1251,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the number of rows a table cell should span over.
 		 */
-		rowspan: string;
+		rowspan: number;
 		/**
 		 * Defines the cells that the header test (defined in the th element) relates to.
 		 */
@@ -1320,7 +1320,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the height of the element.
 		 */
-		height: string;
+		height: number;
 		/**
 		 * Indicates whether the media should start playing from the start when it's finished.
 		 */
@@ -1344,7 +1344,7 @@ type ElementAttrs = {
 		/**
 		 * Specifies the width of the element.
 		 */
-		width: string;
+		width: number;
 	};
 };
 
