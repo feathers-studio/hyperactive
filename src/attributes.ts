@@ -1017,7 +1017,7 @@ type ElementAttrs = {
 		/**
 		 * Defines the type of the element.
 		 */
-		type: "module" | "`${string}/${string}`";
+		type: "module" | `${string}/${string}`;
 	};
 	select: {
 		/**
