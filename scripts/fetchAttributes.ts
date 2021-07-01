@@ -46,8 +46,6 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 		.sort((a, b) => a.attr.localeCompare(b.attr)),
 );
 
-console.log({ elements });
-
 const getKeyStr = (key: string) => (key.includes("-") ? `["${key}"]` : key);
 
 const globalOrElems = (elements: string[]) =>
@@ -66,6 +64,22 @@ const docLine = (line: string) => {
 	return " * " + line;
 };
 
+const getDesc = (attr: Attribute & { type: string }, indent: string) =>
+	attr.desc &&
+	indent +
+		"/**\n" +
+		indent +
+		[globalOrElems(attr.elements)]
+			.concat(attr.desc.replace("\n\n", "\n").split("\n"))
+			.map(docLine)
+			.filter(Boolean)
+			.join("\n" + indent + " *\n" + indent) +
+		("\n" + indent + " */\n");
+
+const transformAttr =
+	(indent: string) => (attr: Attribute & { type: string }) =>
+		getDesc(attr, indent) + `${indent}${getKeyStr(attr.attr)}: string;`;
+
 const elementToType = (
 	el: string,
 	attrs: (Attribute & { type: string })[],
@@ -74,28 +88,7 @@ const elementToType = (
 	const indent = "\t".repeat(root ? 1 : 2);
 	return [
 		`${el}${root ? " =" : ":"} {`,
-		indent +
-			attrs
-				.map(
-					attr =>
-						(attr.desc &&
-							"/**\n" +
-								indent +
-								[
-									globalOrElems(attr.elements),
-									...attr.desc
-										.replace("\n\n", "\n")
-										.split("\n"),
-								]
-									.map(docLine)
-									.filter(Boolean)
-									.join("\n" + indent + " *\n" + indent) +
-								"\n" +
-								indent +
-								" */\n" +
-								indent) + `${getKeyStr(attr.attr)}: string;`,
-				)
-				.join("\n" + indent),
+		attrs.map(transformAttr(indent)).join("\n"),
 		"\t".repeat(root ? 0 : 1) + "};",
 	].join("\n");
 };
