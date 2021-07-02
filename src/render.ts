@@ -14,7 +14,8 @@
 import { Node, Nodeish, HTMLNode } from "./node.ts";
 import { Attr } from "./attributes.ts";
 import { isState } from "./state.ts";
-import { Falsy, isFalsy, escapeHTML, guessEnv } from "./util.ts";
+import { Falsy, isFalsy, escapeHTML } from "./util.ts";
+import { guessEnv } from "./guessEnv.ts";
 
 type AttributeObject = Record<
 	string,
