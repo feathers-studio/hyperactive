@@ -10,5 +10,3 @@ export const guessEnv = () => {
 	}
 	return undefined;
 };
-
-console.log(guessEnv());
