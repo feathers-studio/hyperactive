@@ -1,7 +1,7 @@
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-wasm.ts";
 
-import { propsToType } from "./codegen.ts";
-import { getSplType } from "./getSplType.ts";
+import { propsToType } from "./util/codegen.ts";
+import { getSplType } from "./util/getSplType.ts";
 
 const html = await fetch(
 	"https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes",

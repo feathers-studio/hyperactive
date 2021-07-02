@@ -1,6 +1,6 @@
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-wasm.ts";
 
-import { propsToType } from "./codegen.ts";
+import { propsToType } from "./util/codegen.ts";
 
 const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 	Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
