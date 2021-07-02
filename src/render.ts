@@ -1,5 +1,15 @@
-///<reference path="https://raw.githubusercontent.com/denoland/deno/main/cli/dts/lib.deno.ns.d.ts" />
-///<reference path="https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts" />
+/// <reference lib="deno.ns" />
+
+// LKG upstream DOM lib
+/// <reference path="https://raw.githubusercontent.com/microsoft/TypeScript/cec2fda9a53620dc545a2c4d7b0156446ab145b4/lib/lib.dom.d.ts" />
+
+// Some day, one of these will work. We wait for some day.
+
+// conflicts with Deno types
+// <reference lib="dom" />
+
+// Incorrect Element.append type, does not allow ChildNode
+// <reference path="https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts" />
 
 import { Node, Nodeish, HTMLNode } from "./node.ts";
 import { Attr } from "./attributes.ts";

@@ -1,5 +1,4 @@
-///<reference path="https://raw.githubusercontent.com/denoland/deno/main/cli/dts/lib.deno.ns.d.ts" />
-///<reference path="https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts" />
+/// <reference path="https://raw.githubusercontent.com/microsoft/TypeScript/cec2fda9a53620dc545a2c4d7b0156446ab145b4/lib/lib.dom.d.ts" />
 
 import { elements, renderDOM, State } from "./mod.ts";
 
