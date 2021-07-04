@@ -140,3 +140,23 @@ Deno.test({
 		assertEquals(renderHTML(br()), `<br />`);
 	},
 });
+
+Deno.test({
+	name: "renderHTML with event listener",
+	fn: () => {
+		assertEquals(
+			renderHTML(
+				input({
+					on: {
+						input: e =>
+							console.log(
+								(e?.target as unknown as { value: string })
+									.value,
+							),
+					},
+				}),
+			),
+			`<input />`,
+		);
+	},
+});

@@ -1,6 +1,6 @@
 /// <reference path="https://raw.githubusercontent.com/microsoft/TypeScript/cec2fda9a53620dc545a2c4d7b0156446ab145b4/lib/lib.dom.d.ts" />
 
-import { elements, renderDOM, State } from "./mod.ts";
+import { elements, renderDOM, State, bindInput } from "./mod.ts";
 
 const { div, input, h3, p, span } = elements;
 
@@ -11,11 +11,21 @@ renderDOM(
 	div(
 		{ class: "container" },
 		h3("Enter a number, it should double below"),
-		input({ id: "input-el", value: state.init }),
+		input({
+			id: "input-el",
+			value: state.init,
+			on: {
+				input: e => {
+					state.publish(
+						(e.target as unknown as { value: string }).value,
+					);
+				},
+			},
+		}),
 		p(state.transform(v => span(String(parseFloat(v) * 2)))),
 	),
 );
 
-document.querySelector("#input-el")?.addEventListener("input", e => {
-	state.publish((e.target as unknown as { value: string }).value);
-});
+// document.querySelector("#input-el")?.addEventListener("input", e => {
+// 	state.publish((e.target as unknown as { value: string }).value);
+// });

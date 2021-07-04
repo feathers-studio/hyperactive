@@ -82,6 +82,7 @@ const elementTypes = Object.keys(elements)
 
 const types = `import { Element } from "./elements.ts";
 import { AriaRoles, AriaAttributes } from "./aria.ts";
+import { DOMEvents } from "./domTypes.ts";
 
 type ${globalTypes}
 
@@ -106,6 +107,10 @@ export type Attr<E extends Element = Element> =
 	Partial<
 		GlobalAttrs & {
 			/**
+			 * ref callback is called on mount of element with the DOM element.
+			 */
+			ref: (el: HTMLElement) => void,
+			/**
 			 * When the element lacks suitable ARIA-semantics, authors must
 			 * assign an ARIA-role. Addition of ARIA semantics only exposes
 			 * extra information to a browser's accessibility API, and does
@@ -122,7 +127,7 @@ export type Attr<E extends Element = Element> =
 			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
 			 */
 			aria: AriaAttributes;
-		} & (ElementAttrs & { [k: string]: unknown })[E]
+		} & (ElementAttrs & { [k: string]: unknown })[E] & DOMEvents
 	>;
 `;
 
