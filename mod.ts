@@ -5,3 +5,4 @@ export * from "./src/state.ts";
 export * from "./src/h_element.ts";
 export * from "./src/parse.ts";
 export * from "./src/render.ts";
+export * from "./src/domutils.ts";

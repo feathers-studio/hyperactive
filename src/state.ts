@@ -2,7 +2,8 @@ export const STATE = Symbol("@hyperactive/state");
 
 export type Subscriber<T> = (val: T) => void;
 
-export type SimpleStateRO<T = unknown> = {
+// deno-lint-ignore no-explicit-any
+export type SimpleStateRO<T = any> = {
 	init: T;
 	subscribe: (f: Subscriber<T>) => void;
 	transform: <U, Mapper extends (t: T) => U>(
@@ -11,7 +12,8 @@ export type SimpleStateRO<T = unknown> = {
 	[STATE]: true;
 };
 
-export type SimpleState<T = unknown> = SimpleStateRO<T> & {
+// deno-lint-ignore no-explicit-any
+export type SimpleState<T = any> = SimpleStateRO<T> & {
 	publish: (next: T) => void;
 	readonly: () => SimpleStateRO<T>;
 };

@@ -12,15 +12,9 @@ renderDOM(
 		{ class: "container" },
 		h3("Enter a number, it should double below"),
 		input({
+			ref: bindInput(state),
 			id: "input-el",
 			value: state.init,
-			on: {
-				input: e => {
-					state.publish(
-						(e.target as unknown as { value: string }).value,
-					);
-				},
-			},
 		}),
 		p(state.transform(v => span(String(parseFloat(v) * 2)))),
 	),
