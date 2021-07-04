@@ -1,19 +1,19 @@
-import { Nodeish, Node, h } from "./node.ts";
+import { Nodeish, Node, NonEmptyElement, h } from "./node.ts";
 import { Element, CustomTag } from "./elements.ts";
+import { EmptyElements } from "./emptyElements.ts";
 import { Attr } from "./attributes.ts";
 
 export type hElement<
 	Tag extends Element = Element,
 	Attrs extends Attr<Tag> = Attr<Tag>,
-> =
-	//
-	(() => Node<Tag, Attrs>) &
-		// is a duplicate type, but gives clean intellisense
-		((childNode: Nodeish) => Node<Tag, Attrs>) &
-		// order must be preserved, otherwise TS thinks State -> Node is invalid
-		((...childNodes: Nodeish[]) => Node<Tag, Attrs>) &
-		((props: Attrs) => Node<Tag, Attrs>) &
-		((props: Attrs, ...childNodes: Nodeish[]) => Node<Tag, Attrs>);
+> = (() => Node<Tag, Attrs>) &
+	(Tag extends EmptyElements
+		? (props: Attrs) => Node<Tag, Attrs>
+		: ((childNode: Nodeish) => Node<Tag, Attrs>) &
+				// order must be preserved, otherwise TS thinks State -> Node is invalid
+				((...childNodes: Nodeish[]) => Node<Tag, Attrs>) &
+				((props: Attrs) => Node<Tag, Attrs>) &
+				((props: Attrs, ...childNodes: Nodeish[]) => Node<Tag, Attrs>));
 
 const hElementCache = new Map<Element, hElement>();
 
@@ -29,10 +29,10 @@ function getHElement<Elem extends Element>(
 		props?: Attr<Elem> | Nodeish,
 		...childNodes: Nodeish[]
 	) {
-		return h(element, props, ...childNodes);
+		return h(element as NonEmptyElement, props, ...childNodes);
 	} as hE;
 
-	hElementCache.set(element, hElement);
+	hElementCache.set(element, hElement as hElement);
 	return hElement;
 }
 

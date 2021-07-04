@@ -1,7 +1,10 @@
 import { Element } from "./elements.ts";
+import { EmptyElements } from "./emptyElements.ts";
 import { Attr } from "./attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
 import { SimpleState, SimpleStateRO, isState } from "./state.ts";
+
+export type NonEmptyElement = Exclude<Element, EmptyElements>;
 
 export type TextNode = string;
 
@@ -29,27 +32,34 @@ export type Nodeish<Tag extends Element = Element> =
 export const isNode = (n: any): n is Node | HTMLNode | TextNode =>
 	n instanceof Node || n instanceof HTMLNode || typeof n === "string";
 
-export function h<Tag extends Element = Element, Attrs extends Attr = Attr>(
-	elem: Tag,
-	props?: Attrs | Falsy,
-): Node<Tag>;
+export function h<
+	Tag extends NonEmptyElement = NonEmptyElement,
+	Attrs extends Attr = Attr,
+>(elem: Tag, props?: Attrs | Falsy): Node<Tag>;
 
-export function h<Tag extends Element = Element>(
+export function h<Tag extends NonEmptyElement = NonEmptyElement>(
 	elem: Tag,
 	...children: Nodeish[]
 ): Node<Tag>;
 
-export function h<Tag extends Element, Attrs extends Attr<Tag> = Attr<Tag>>(
-	elem: Tag,
-	props: Attr,
-	...children: Nodeish[]
-): Node<Tag>;
+export function h<
+	Tag extends NonEmptyElement,
+	Attrs extends Attr<Tag> = Attr<Tag>,
+>(elem: Tag, props: Attr, ...children: Nodeish[]): Node<Tag>;
 
-export function h<Tag extends Element, Attrs extends Attr<Tag> = Attr<Tag>>(
+export function h<
+	Tag extends NonEmptyElement,
+	Attrs extends Attr<Tag> = Attr<Tag>,
+>(
 	elem: Tag,
 	props?: Attrs | Nodeish | Falsy,
 	...children: Nodeish[]
 ): Node<Tag>;
+
+export function h<
+	Tag extends EmptyElements,
+	Attrs extends Attr<Tag> = Attr<Tag>,
+>(elem: Tag, props?: Attrs | Nodeish | Falsy): Node<Tag>;
 
 export function h(
 	elem: Element,

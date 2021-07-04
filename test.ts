@@ -56,7 +56,7 @@ Deno.test({
 					aria: { disabled: "true" },
 				}),
 			),
-			`<div id="hello" class="world" role="note" aria-disabled="true" />`,
+			`<div id="hello" class="world" role="note" aria-disabled="true"></div>`,
 		);
 	},
 });
@@ -111,7 +111,7 @@ Deno.test({
 	name: "renderHTML with custom element",
 	fn: () => {
 		const [el] = elements("custom-element");
-		assertEquals(renderHTML(el()), `<custom-element />`);
+		assertEquals(renderHTML(el()), `<custom-element></custom-element>`);
 	},
 });
 
@@ -131,5 +131,12 @@ Deno.test({
 	name: "renderHTML with numeric attributes",
 	fn: () => {
 		assertEquals(renderHTML(input({ step: 5 })), `<input step="5" />`);
+	},
+});
+
+Deno.test({
+	name: "renderHTML with emptyElements",
+	fn: () => {
+		assertEquals(renderHTML(br()), `<br />`);
 	},
 });

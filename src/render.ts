@@ -12,6 +12,7 @@
 // <reference path="https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts" />
 
 import { Node, Nodeish, HTMLNode } from "./node.ts";
+import { EmptyElements } from "./emptyElements.ts";
 import { Attr } from "./attributes.ts";
 import { isState } from "./state.ts";
 import { Falsy, isFalsy, escapeHTML } from "./util.ts";
@@ -48,10 +49,11 @@ export function renderHTML(node: Nodeish): string {
 
 	if (attr) stringified += " " + attr;
 
-	if (node.children.length)
+	if (EmptyElements.has(node.tag as EmptyElements)) stringified += " />";
+	else if (node.children.length)
 		stringified +=
 			">" + node.children.map(renderHTML).join("") + `</${node.tag}>`;
-	else stringified += " />";
+	else stringified += `></${node.tag}>`;
 
 	return stringified;
 }
