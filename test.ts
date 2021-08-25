@@ -14,6 +14,25 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "renderHTML simple -- escaping attribute and text nodes",
+	fn: () => {
+		assertEquals(
+			renderHTML(
+				div(
+					{
+						id: "hello",
+						class: "world",
+						style: `content: '"&"</div>'`,
+					},
+					"<'\"Hello&world\"'>",
+				),
+			),
+			`<div id="hello" class="world" style="content: &#39;&quot;&amp;&quot;&lt;/div&gt;&#39;">&lt;'"Hello&amp;world"'&gt;</div>`,
+		);
+	},
+});
+
 assertEquals(
 	renderHTML(
 		div(

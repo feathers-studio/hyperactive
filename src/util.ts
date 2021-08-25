@@ -6,8 +6,11 @@ const escapables = {
 	'"': "&quot;",
 };
 
-export const escapeHTML = (s: string) =>
+export const escapeAttr = (s: string) =>
 	s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
+
+export const escapeTextNode = (s: string) =>
+	s.replace(/<|>|&/g, r => escapables[r as keyof typeof escapables] || r);
 
 export type Falsy = false | "" | 0 | 0n | undefined | null;
 

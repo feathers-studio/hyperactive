@@ -2,7 +2,7 @@ import { Node, Nodeish, HTMLNode } from "./node.ts";
 import { EmptyElements } from "./emptyElements.ts";
 import { Attr } from "./attributes.ts";
 import { isState } from "./state.ts";
-import { Falsy, isFalsy, escapeHTML } from "./util.ts";
+import { Falsy, isFalsy, escapeAttr, escapeTextNode } from "./util.ts";
 import { guessEnv } from "./guessEnv.ts";
 import { HtmlElement } from "./domTypes.ts";
 
@@ -28,14 +28,14 @@ function attrifyHTML(attrs: AttributeObject, prefix = ""): string {
 			if (typeof value === "boolean")
 				if (value) return `${prefix + attr}`;
 				else return "";
-			if (value) return `${prefix + attr}="${value}"`;
+			if (value) return `${prefix + attr}="${escapeAttr(String(value))}"`;
 		})
 		.join(" ");
 }
 
 export function renderHTML(node: Nodeish): string {
 	if (isFalsy(node)) return "";
-	if (typeof node === "string") return escapeHTML(node);
+	if (typeof node === "string") return escapeTextNode(node);
 	if (node instanceof HTMLNode) return node.htmlString;
 	if (isState(node)) return renderHTML(node.init);
 
@@ -92,7 +92,7 @@ const toDOM = function toDOM<N extends Nodeish>(
 	opts: { emptyTextNodes?: boolean } = {},
 ): "" | ChildNode | HtmlElement {
 	if (typeof node === "string" && (node !== "" || opts.emptyTextNodes))
-		return document.createTextNode(escapeHTML(node));
+		return document.createTextNode(node);
 	if (isFalsy(node)) return "";
 	if (node instanceof HTMLNode) return htmlStringToElement(node.htmlString);
 	if (isState(node)) {
