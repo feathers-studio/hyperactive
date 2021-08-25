@@ -1,25 +1,19 @@
-/// <reference path="https://raw.githubusercontent.com/microsoft/TypeScript/cec2fda9a53620dc545a2c4d7b0156446ab145b4/lib/lib.dom.d.ts" />
+import { elements, renderDOM, State, bind } from "./mod.ts";
 
-import { elements, renderDOM, State, bindInput } from "./mod.ts";
+import type { Document } from "./src/lib/dom.ts";
+declare const document: Document;
 
 const { div, input, h3, p, span } = elements;
 
 const state = State.simple("1");
 
-renderDOM(
-	document.getElementById("root")!,
-	div(
-		{ class: "container" },
-		h3("Enter a number, it should double below"),
-		input({
-			ref: bindInput(state),
-			id: "input-el",
-			value: state.init,
-		}),
-		p(state.transform(v => span(String(parseFloat(v) * 2)))),
-	),
-);
+const root = document.getElementById("root")!;
 
-// document.querySelector("#input-el")?.addEventListener("input", e => {
-// 	state.publish((e.target as unknown as { value: string }).value);
-// });
+const title = h3("Enter a number, it should double below");
+
+const output = p(state.transform(v => span(String(parseFloat(v) * 2))));
+
+renderDOM(
+	root,
+	div({ class: "container" }, title, bind(input(), state), output),
+);
