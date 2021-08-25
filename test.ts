@@ -161,7 +161,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "renderHTML with event listener",
+	name: "renderHTML skips events",
 	fn: () => {
 		assertEquals(
 			renderHTML(

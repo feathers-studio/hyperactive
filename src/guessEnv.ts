@@ -1,4 +1,4 @@
-// declare expected globals to avoid multiple ts-ignore
+// declare expected globals to avoid ts-ignore
 declare const process: { version: unknown };
 declare const window: { Deno: unknown; document: unknown };
 

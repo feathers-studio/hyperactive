@@ -1,11 +1,18 @@
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-wasm.ts";
 
-import { propsToType } from "./util/codegen.ts";
+import { preamble, propsToType } from "./util/codegen.ts";
+
+const target = "./src/lib/aria.ts";
 
 const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 	Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
 		arr.slice(i * size, i * size + size),
 	);
+
+{
+	// preamble
+	Deno.writeTextFileSync(target, preamble + "\n");
+}
 
 {
 	const html = await fetch("https://w3c.github.io/using-aria/")
@@ -26,7 +33,7 @@ const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 		`	| ${roles.join("\n\t| ")};\n\n`,
 	].join("\n");
 
-	Deno.writeTextFileSync("./src/aria.ts", types);
+	Deno.writeTextFileSync(target, types, { append: true });
 }
 
 {
@@ -54,5 +61,5 @@ const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 
 	const types = ["export type " + attributeTypes + "\n"].join("\n");
 
-	Deno.writeTextFileSync("./src/aria.ts", types, { append: true });
+	Deno.writeTextFileSync(target, types, { append: true });
 }

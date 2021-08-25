@@ -1,7 +1,7 @@
 import { Nodeish, Node, NonEmptyElement, h } from "./node.ts";
-import { Element, CustomTag } from "./elements.ts";
-import { EmptyElements } from "./emptyElements.ts";
-import { Attr } from "./attributes.ts";
+import { Element, CustomTag } from "./lib/elements.ts";
+import { EmptyElements } from "./lib/emptyElements.ts";
+import { Attr } from "./lib/attributes.ts";
 
 export type hElement<
 	Tag extends Element = Element,

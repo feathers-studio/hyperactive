@@ -1,6 +1,6 @@
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-wasm.ts";
 
-import { propsToType } from "./util/codegen.ts";
+import { preamble, propsToType } from "./util/codegen.ts";
 import { getSplType } from "./util/getSplType.ts";
 
 const html = await fetch(
@@ -80,9 +80,10 @@ const elementTypes = Object.keys(elements)
 	)
 	.join("\n\t");
 
-const types = `import { Element } from "./elements.ts";
+const types = `${preamble}
+import { Element } from "./elements.ts";
 import { AriaRoles, AriaAttributes } from "./aria.ts";
-import { DOMEvents } from "./domTypes.ts";
+import { HTMLElement, DOMEvents } from "./dom.ts";
 
 type ${globalTypes}
 
@@ -131,4 +132,4 @@ export type Attr<E extends Element = Element> =
 	>;
 `;
 
-Deno.writeTextFileSync("./src/attributes.ts", types);
+Deno.writeTextFileSync("./src/lib/attributes.ts", types);

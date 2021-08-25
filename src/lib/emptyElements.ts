@@ -1,4 +1,4 @@
-import { unionFromSet } from "./util.ts";
+import { unionFromSet } from "../util.ts";
 
 export const EmptyElements = new Set([
 	"area",

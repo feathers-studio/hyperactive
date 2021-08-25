@@ -1,3 +1,5 @@
+import { preamble } from "./util/codegen.ts";
+
 const rootUrl = "https://api.github.com/repos/mdn/content/contents/";
 
 const elementsUrl = rootUrl + "files/en-us/web/html/element";
@@ -73,5 +75,8 @@ fetch(elementsUrl, opts)
 				})),
 			);
 
-		Deno.writeTextFileSync("./src/elements.ts", constructTypes(active));
+		Deno.writeTextFileSync(
+			"./src/lib/elements.ts",
+			preamble + constructTypes(active),
+		);
 	});

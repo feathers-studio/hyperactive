@@ -1,6 +1,6 @@
-import { Element } from "./elements.ts";
-import { EmptyElements } from "./emptyElements.ts";
-import { Attr } from "./attributes.ts";
+import { Element } from "./lib/elements.ts";
+import { EmptyElements } from "./lib/emptyElements.ts";
+import { Attr } from "./lib/attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
 import { SimpleState, SimpleStateRO, isState } from "./state.ts";
 

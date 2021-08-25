@@ -1,10 +1,11 @@
 import { Node, Nodeish, HTMLNode } from "./node.ts";
-import { EmptyElements } from "./emptyElements.ts";
-import { Attr } from "./attributes.ts";
+import { Attr } from "./lib/attributes.ts";
 import { isState } from "./state.ts";
-import { Falsy, isFalsy, escapeAttr, escapeTextNode } from "./util.ts";
+import { Falsy, isFalsy } from "./util.ts";
 import { guessEnv } from "./guessEnv.ts";
-import { HtmlElement } from "./domTypes.ts";
+import { HTMLElement, ChildNode, Document } from "./lib/dom.ts";
+
+declare var document: Document;
 
 // deno-lint-ignore no-explicit-any
 type AnyFunction = (...props: any[]) => void;
@@ -17,50 +18,13 @@ type AttributeObject = Record<
 	| AnyFunction
 	| Record<string, string | number | boolean | AnyFunction>
 >;
-
-function attrifyHTML(attrs: AttributeObject, prefix = ""): string {
-	return Object.entries(attrs)
-		.map(([attr, value]) => {
-			if (attr === "on" || typeof value === "function") return "";
-			if (value === "") return value;
-			if (typeof value === "object")
-				return attrifyHTML(value, attr + "-");
-			if (typeof value === "boolean")
-				if (value) return `${prefix + attr}`;
-				else return "";
-			if (value) return `${prefix + attr}="${escapeAttr(String(value))}"`;
-		})
-		.join(" ");
-}
-
-export function renderHTML(node: Nodeish): string {
-	if (isFalsy(node)) return "";
-	if (typeof node === "string") return escapeTextNode(node);
-	if (node instanceof HTMLNode) return node.htmlString;
-	if (isState(node)) return renderHTML(node.init);
-
-	let stringified = "<" + node.tag;
-
-	const attr = attrifyHTML(node.attrs);
-
-	if (attr) stringified += " " + attr;
-
-	if (EmptyElements.has(node.tag as EmptyElements)) stringified += " />";
-	else if (node.children.length)
-		stringified +=
-			">" + node.children.map(renderHTML).join("") + `</${node.tag}>`;
-	else stringified += `></${node.tag}>`;
-
-	return stringified;
-}
-
 type NodeishtoDOM<N extends Nodeish> = N extends Falsy
 	? ""
 	: N extends string
 	? ChildNode | ""
 	: N extends HTMLNode
 	? ChildNode | ""
-	: HtmlElement;
+	: HTMLElement;
 
 function htmlStringToElement(html: string) {
 	var template = document.createElement("template");
@@ -70,7 +34,7 @@ function htmlStringToElement(html: string) {
 	return template.content.firstChild || "";
 }
 
-function attrifyDOM(el: HtmlElement, attrs: AttributeObject, prefix = "") {
+function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 	for (const attr in attrs) {
 		const value = attrs[attr as keyof Attr];
 		if (value === "") el.setAttribute(prefix + attr, "");
@@ -88,9 +52,9 @@ function attrifyDOM(el: HtmlElement, attrs: AttributeObject, prefix = "") {
 
 const toDOM = function toDOM<N extends Nodeish>(
 	node: N,
-	parent: HtmlElement,
+	parent: HTMLElement,
 	opts: { emptyTextNodes?: boolean } = {},
-): "" | ChildNode | HtmlElement {
+): "" | ChildNode | HTMLElement {
 	if (typeof node === "string" && (node !== "" || opts.emptyTextNodes))
 		return document.createTextNode(node);
 	if (isFalsy(node)) return "";
@@ -125,11 +89,11 @@ const toDOM = function toDOM<N extends Nodeish>(
 	}
 
 	return el;
-} as <N extends Nodeish>(node: N, parent: HtmlElement) => NodeishtoDOM<N>;
+} as <N extends Nodeish>(node: N, parent: HTMLElement) => NodeishtoDOM<N>;
 
 export function renderDOM<
 	HyNode extends Node | string,
-	RootNode extends HtmlElement,
+	RootNode extends HTMLElement,
 >(rootNode: RootNode, hyNode: HyNode) {
 	const env = guessEnv();
 	if (env !== "browser")
