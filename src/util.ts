@@ -14,7 +14,7 @@ export const escapeTextNode = (s: string) =>
 
 export type Falsy = false | "" | 0 | 0n | undefined | null;
 
-export const Falsy = new Set([false, "", 0, 0n, undefined, null]);
+export const Falsy = new Set<Falsy>([false, "", 0, 0n, undefined, null]);
 // deno-lint-ignore no-explicit-any
 export const isFalsy = (n: any): n is Falsy => Falsy.has(n);
 

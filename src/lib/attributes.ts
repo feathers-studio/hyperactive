@@ -1373,10 +1373,12 @@ export type AllAttrs = Partial<Deunionize<ElementAttrs[keyof ElementAttrs]>>;
 
 export type DataAttr = `data-${string}`;
 
+type MappedId<T> = {} & { [P in keyof T]: T[P] };
+
 export type Attr<E extends Element = Element> =
 	// TODO(mkr): will work in TS 4.4
 	// { [data in DataAttr]?: string }
-	Partial<
+	MappedId<Partial<
 		GlobalAttrs & {
 			/**
 			 * ref callback is called on mount of element with the DOM element.
@@ -1400,4 +1402,4 @@ export type Attr<E extends Element = Element> =
 			 */
 			aria: AriaAttributes;
 		} & (ElementAttrs & { [k: string]: unknown })[E] & DOMEvents
-	>;
+	>>;
