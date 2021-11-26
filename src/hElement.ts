@@ -38,15 +38,13 @@ function getHElement<Elem extends Element>(
 
 export type ElementsToHElements<Elements extends Element[]> =
 	// infer as tuple
-	(Elements extends [infer E, ...infer Rest]
+	Elements extends [infer E, ...infer Rest]
 		? E extends Element
 			? Rest extends Element[]
 				? [hElement<E>, ...ElementsToHElements<Rest>]
 				: []
 			: []
-		: []) & {
-		length: Elements["length"];
-	};
+		: [];
 
 function mapElements<Elements extends Element[]>(...elements: Elements) {
 	return elements.map(getHElement) as ElementsToHElements<Elements>;
