@@ -36,12 +36,17 @@ function getHElement<Elem extends Element>(
 	return hElement;
 }
 
-export type ElementsToHElements<Elements extends [...Element[]]> = {
-	[Index in keyof Elements]: hElement<
-		// @ts-ignore TypeScript pls
-		Elements[Index]
-	>;
-} & { length: Elements["length"] };
+export type ElementsToHElements<Elements extends Element[]> =
+	// infer as tuple
+	(Elements extends [infer E, ...infer Rest]
+		? E extends Element
+			? Rest extends Element[]
+				? [hElement<E>, ...ElementsToHElements<Rest>]
+				: []
+			: []
+		: []) & {
+		length: Elements["length"];
+	};
 
 function mapElements<Elements extends Element[]>(...elements: Elements) {
 	return elements.map(getHElement) as ElementsToHElements<Elements>;

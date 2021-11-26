@@ -1,8 +1,6 @@
 # hyperactive
 
-Hyperactive is a suite of tools to build smart webapps. As of 1.0, only server-side render is supported.
-
-You're on the experimental branch where interesting things are happening!
+Hyperactive is a suite of tools to build smart webapps. As of 1.0, only server-side render is supported. Client-side render with `renderDOM` works, but more work is ongoing on the reactive part.
 
 ## Usage example
 
@@ -21,3 +19,7 @@ assertEquals(
   `<div id="hello" class="world"><p><h1 class="hello">hello world<br /></h1></p></div>`,
 );
 ```
+
+## User testimonials
+
+![@TRWII](./hpr-trgwii.jpg)
