@@ -12,9 +12,11 @@ export const escapeAttr = (s: string) =>
 export const escapeTextNode = (s: string) =>
 	s.replace(/<|>|&/g, r => escapables[r as keyof typeof escapables] || r);
 
-export type Falsy = false | "" | 0 | 0n | undefined | null;
+// no 0n since bigint support is 2020+
+export type Falsy = false | "" | 0 | undefined | null;
 
-export const Falsy = new Set<Falsy>([false, "", 0, 0n, undefined, null]);
+export const Falsy = new Set<Falsy>([false, "", 0, undefined, null]);
+
 // deno-lint-ignore no-explicit-any
 export const isFalsy = (n: any): n is Falsy => Falsy.has(n);
 

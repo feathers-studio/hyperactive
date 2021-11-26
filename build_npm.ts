@@ -4,6 +4,9 @@ import { version } from "./version.ts";
 await build({
 	entryPoints: ["./mod.ts"],
 	outDir: "./npm",
+	compilerOptions: {
+		target: "ES2015",
+	},
 	package: {
 		// package.json properties
 		name: "@hyperactive/hyper",
