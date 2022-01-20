@@ -45,14 +45,16 @@ export function* desc(desc: string) {
 	yield " */" + eol;
 }
 
+const idRegex = /^(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])*$/;
+
 export function* member(name: string, type: string | Generator<string>, level: number) {
-	yield name + ": ";
+	yield (idRegex.test(name) ? name : `["${name}"]`) + ": ";
 	if (typeof type === "string") {
 		yield type;
-		yield ",";
+		yield ";";
 	} else {
 		yield* type;
-		if (level > 1) yield ",";
+		if (level > 1) yield ";";
 	}
 }
 
@@ -78,9 +80,10 @@ export function* statement(...lines: Generator<string>[]) {
 	yield ";";
 }
 
-export function* program(statements: Generator<string>[]) {
+export function* program(statements: (Generator<string> | string)[]) {
 	let first = true;
-	for (const statement of statements) {
+	const xs = typeof statements === "string" ? [[statements]] : statements;
+	for (const statement of xs) {
 		if (first) first = false;
 		else yield eol;
 		yield* statement;
@@ -105,9 +108,9 @@ type Opts = { pause?: number };
 export const writer = async (filename: string, program: Generator<string>, opts: Opts = {}) => {
 	const writer = await Deno.open(filename, { write: true, create: true, truncate: true });
 
-	for (const statement of program) {
+	for (const segment of program) {
 		if (opts.pause) await sleep(opts.pause);
-		await writeAll(writer, encode(statement));
+		await writeAll(writer, encode(segment));
 	}
 
 	writer.close();
