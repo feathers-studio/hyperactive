@@ -1686,7 +1686,7 @@ export type DataAttr = `data-${string}`;
 type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
 
 export type Attr<E extends Element = Element> =
-MappedPartial<
+	MappedPartial<
 		GlobalAttrs & { [data in DataAttr]?: string } & {
 			/**
 			 * ref callback is called on mount of element with the DOM element.
