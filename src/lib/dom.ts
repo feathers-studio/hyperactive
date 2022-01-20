@@ -4,6 +4,8 @@ export type { HTMLElement, ChildNode, Document } from "../../vendor/dom.lib.ts";
 
 type EMap = GlobalEventHandlersEventMap;
 
+type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
+
 export type DOMEvents = {
-	on: Partial<{ [Event in keyof EMap]: (e: EMap[Event]) => void }>;
+	on: MappedPartial<{ [Event in keyof EMap]: (e: EMap[Event]) => void }>;
 };
