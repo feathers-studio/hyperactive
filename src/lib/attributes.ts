@@ -1687,7 +1687,7 @@ type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
 
 export type Attr<E extends Element = Element> =
 	MappedPartial<
-		GlobalAttrs & { [data in DataAttr]?: string } & {
+		GlobalAttrs & { // [data in DataAttr]?: string } & { // TS weirdly breaks when we allow this
 			/**
 			 * ref callback is called on mount of element with the DOM element.
 			 */
