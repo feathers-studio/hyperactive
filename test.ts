@@ -15,6 +15,16 @@ Deno.test({
 });
 
 Deno.test({
+	name: "renderHTML simple with data-attr",
+	fn: () => {
+		assertEquals(
+			renderHTML(div({ "id": "hello", "class": "world", "data-attr": "value" }, "Hello world")),
+			`<div id="hello" class="world" "data-attr"="value">Hello world</div>`,
+		);
+	},
+});
+
+Deno.test({
 	name: "renderHTML simple -- escaping attribute and text nodes",
 	fn: () => {
 		assertEquals(
@@ -52,12 +62,7 @@ Deno.test({
 	name: "renderHTML complex",
 	fn: () => {
 		assertEquals(
-			renderHTML(
-				div(
-					{ id: "hello", class: "world" },
-					p(h1({ class: "hello" }, "hello world", br())),
-				),
-			),
+			renderHTML(div({ id: "hello", class: "world" }, p(h1({ class: "hello" }, "hello world", br())))),
 			`<div id="hello" class="world"><p><h1 class="hello">hello world<br /></h1></p></div>`,
 		);
 	},
@@ -99,10 +104,7 @@ Deno.test({
 	fn: () => {
 		const { div, p } = elements;
 		const [div2, p2] = elements("div", "p");
-		assertEquals(
-			renderHTML(div(p("Hello"))),
-			renderHTML(div2(p2("Hello"))),
-		);
+		assertEquals(renderHTML(div(p("Hello"))), renderHTML(div2(p2("Hello"))));
 	},
 });
 
@@ -137,10 +139,7 @@ Deno.test({
 Deno.test({
 	name: "renderHTML with boolean attributes",
 	fn: () => {
-		assertEquals(
-			renderHTML(input({ disabled: true })),
-			`<input disabled />`,
-		);
+		assertEquals(renderHTML(input({ disabled: true })), `<input disabled />`);
 
 		assertEquals(renderHTML(input({ disabled: false })), `<input />`);
 	},
@@ -167,11 +166,7 @@ Deno.test({
 			renderHTML(
 				input({
 					on: {
-						input: e =>
-							console.log(
-								(e?.target as unknown as { value: string })
-									.value,
-							),
+						input: e => console.log((e?.target as unknown as { value: string }).value),
 					},
 				}),
 			),
