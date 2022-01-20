@@ -4,6 +4,9 @@ import { version } from "./version.ts";
 await build({
 	entryPoints: ["./mod.ts"],
 	outDir: "./npm",
+	shims: {
+		deno: true,
+	},
 	compilerOptions: {
 		target: "ES2015",
 	},
@@ -11,8 +14,7 @@ await build({
 		// package.json properties
 		name: "@hyperactive/hyper",
 		version,
-		description:
-			"hyperactive is a library for building high performant server or client-rendered web interfaces.",
+		description: "hyperactive is a library for building high performant server or client-rendered web interfaces.",
 		license: "MIT",
 		repository: {
 			type: "git",

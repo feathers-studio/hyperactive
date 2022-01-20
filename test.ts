@@ -154,6 +154,13 @@ Deno.test({
 });
 
 Deno.test({
+	name: "renderHTML with undefined attributes",
+	fn: () => {
+		assertEquals(renderHTML(input({ step: undefined })), `<input />`);
+	},
+});
+
+Deno.test({
 	name: "renderHTML with emptyElements",
 	fn: () => {
 		assertEquals(renderHTML(br()), `<br />`);
