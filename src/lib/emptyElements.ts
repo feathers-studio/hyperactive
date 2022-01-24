@@ -1,4 +1,4 @@
-import { unionFromSet } from "../util.ts";
+import { SetContents } from "../util.ts";
 
 export const EmptyElements = new Set([
 	"area",
@@ -17,4 +17,4 @@ export const EmptyElements = new Set([
 	"wbr",
 ] as const);
 
-export type EmptyElements = unionFromSet<typeof EmptyElements>;
+export type EmptyElements = SetContents<typeof EmptyElements>;
