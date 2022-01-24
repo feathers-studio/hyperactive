@@ -56,7 +56,7 @@ const parsed = [...exec(sanelib, constructed, "g")]
 	})
 	.filter((each): each is ParsedItem => !!each);
 
-const tracked = new Set(["GlobalEventHandlersEventMap", "HTMLElement", "ChildNode", "Document"]);
+const tracked = new Set(["GlobalEventHandlersEventMap", "HTMLElement", "Text", "Node", "Document"]);
 
 function exhaust(list: ParsedItem[]): ParsedItem[] {
 	const filtered = parsed
