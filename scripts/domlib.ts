@@ -1,31 +1,34 @@
 const res = await fetch("https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts");
 const domlib = await res.text();
 
+const NBSP = String.fromCharCode(160);
+
 const sanelib = domlib
-	.replaceAll("\ninterface", "\nexport interface")
-	.replace(`\n/// <reference no-default-lib="true"/>\n`, "");
+	.replace(`\n/// <reference no-default-lib="true"/>\n`, "")
+	.replaceAll("...arguments:", "...args:")
+	.replaceAll("    ", "\t")
+	.replaceAll(NBSP, " ");
+
+const or = (list: string[]) => list.map(each => `(${each})`).join("|");
 
 const idRegex = "(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])+";
 const body = ".*{(\\n(.+))*\\n}";
-const doc = String.raw`\/\*\*.*(((\n\s*\*.*)*\n\s*\*\/)|(\*\/))`;
 
-const iface = `\nexport interface (?<interface>${idRegex})${body}`;
+const single = String.raw`\/\*\* .+ \*\/`;
+const multi = String.raw`\/\*\*(\n.*)+\n\s+\*\/`;
+
+const doc = or([single, multi]);
+
+const iface = `\ninterface (?<interface>${idRegex})${body}`;
 const type = `\ntype (?<type>${idRegex}).*`;
-const declareVar = `\ndeclare var (?<declareVar>${idRegex})${body}`;
+const declareVar = `\ndeclare var (?<declareVar>${idRegex})${body};`;
 const declareFun = `\ndeclare function (?<declareFun>${idRegex}).*`;
 
-const constructed = `(?<doc>${doc})?(?<match>${[iface, type, declareVar, declareFun]
-	.map(each => `(${each})`)
-	.join("|")})`;
+const constructed = RegExp(`(?<doc>${doc})?(?<match>${or([iface, type, declareVar, declareFun])})`, "g");
 
-function* exec(str: string, regexp: RegExp | string, flags?: string): Generator<RegExpExecArray> {
-	if (typeof regexp === "string") regexp = new RegExp(regexp);
-	if (flags) regexp = new RegExp(regexp, flags);
-
+function* exec(str: string, regexp: RegExp): Generator<RegExpExecArray> {
 	let result;
-	while ((result = regexp.exec(str))) {
-		yield result;
-	}
+	while ((result = regexp.exec(str))) yield result;
 }
 
 function getType(group: { [k: string]: string }) {
@@ -42,7 +45,7 @@ type ParsedItem = {
 	doc?: string;
 };
 
-const parsed = [...exec(sanelib, constructed, "g")]
+const parsed = [...exec(sanelib, constructed)]
 	.map(({ groups: { match, doc, ...groups } = {} }): ParsedItem | undefined => {
 		const { key, value } = getType(groups) || {};
 
@@ -56,7 +59,8 @@ const parsed = [...exec(sanelib, constructed, "g")]
 	})
 	.filter((each): each is ParsedItem => !!each);
 
-const tracked = new Set(["GlobalEventHandlersEventMap", "HTMLElement", "Text", "Node", "Document"]);
+const required = ["GlobalEventHandlersEventMap", "HTMLElement", "Text", "Node", "Document"];
+const tracked = new Set(required);
 
 function exhaust(list: ParsedItem[]): ParsedItem[] {
 	const filtered = parsed
@@ -69,17 +73,21 @@ function exhaust(list: ParsedItem[]): ParsedItem[] {
 		});
 
 	if (!filtered.length) return list;
-	return exhaust(list.concat(filtered));
+	return exhaust(filtered);
 }
 
 exhaust(parsed.filter(each => each.type === "interface" && tracked.has(each.name)));
 
 const slim = parsed
 	.filter(item => tracked.has(item.name))
-	.map(each => each.match)
-	.join("")
-	.replaceAll("...arguments:", "...args:")
-	.replaceAll("    ", "\t");
+	.map(each => {
+		let ret = each.match.slice(1);
+		if (each.type === "interface" && required.includes(each.name)) ret = "export " + ret;
+		if (each.doc) ret = each.doc + "\n" + ret;
+
+		return ret;
+	})
+	.join("\n");
 
 const preface = `
 /*! *****************************************************************************
@@ -98,4 +106,7 @@ and limitations under the License.
 ***************************************************************************** */
 `.trim();
 
-await Deno.writeFile("vendor/dom.slim.ts", new TextEncoder().encode(preface + "\n" + slim));
+await Deno.writeTextFile("vendor/dom.slim.ts", preface + "\n" + slim);
+
+// force this to be an ESM
+export {};
