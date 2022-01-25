@@ -101,9 +101,19 @@ function clear(node: HTMLElement) {
 	}
 }
 
-export function renderDOM<R extends HTMLElement, H extends HyperNode | string>(rootNode: R, hyperNode: H) {
-	const env = guessEnv();
-	if (env !== "browser") throw new DOMNotFound(env);
+type Opts = {
+	skipEnvCheck?: boolean;
+};
+
+export function renderDOM<R extends HTMLElement, H extends HyperNode | string>(
+	rootNode: R,
+	hyperNode: H,
+	{ skipEnvCheck }: Opts = {},
+) {
+	if (!skipEnvCheck) {
+		const env = guessEnv();
+		if (env !== "browser") throw new DOMNotFound(env);
+	}
 
 	clear(rootNode);
 	return rootNode.append(toDOM(hyperNode, rootNode));
