@@ -1,6 +1,6 @@
-import type { GlobalEventHandlersEventMap } from "../../vendor/dom.lib.ts";
+import type { GlobalEventHandlersEventMap } from "../../vendor/dom.slim.ts";
 
-export type { HTMLElement, ChildNode, Document } from "../../vendor/dom.lib.ts";
+export type { HTMLElement, Text, Node, Document } from "../../vendor/dom.slim.ts";
 
 type EMap = GlobalEventHandlersEventMap;
 

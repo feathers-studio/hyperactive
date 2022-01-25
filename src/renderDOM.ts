@@ -1,33 +1,32 @@
-import { Node, Nodeish, HTMLNode } from "./node.ts";
-import { Attr } from "./lib/attributes.ts";
-import { isState } from "./state.ts";
-import { Falsy, isFalsy } from "./util.ts";
 import { guessEnv } from "./guessEnv.ts";
-import { HTMLElement, ChildNode, Document } from "./lib/dom.ts";
+import { Attr } from "./lib/attributes.ts";
+import { Falsy, isFalsy } from "./util.ts";
+import { isState, State, SimpleStateRO } from "./state.ts";
+import { HTMLElement, Text, Node, Document } from "./lib/dom.ts";
+import { HyperNode, HyperNodeish, HyperHTMLStringNode } from "./node.ts";
 
 declare var document: Document;
 
 // deno-lint-ignore no-explicit-any
 type AnyFunction = (...props: any[]) => void;
 
-type AttributeObject = Record<
-	string,
-	string | number | boolean | AnyFunction | Record<string, string | number | boolean | AnyFunction>
->;
-type NodeishtoDOM<N extends Nodeish> = N extends Falsy
-	? ""
+type AttributePrimitive = string | number | boolean | AnyFunction;
+type AttributeValue = AttributePrimitive | Record<string, AttributePrimitive>;
+type AttributeObject = Record<string, AttributeValue>;
+
+type NodeToDOM<N extends HyperNodeish> = N extends Falsy
+	? null
 	: N extends string
-	? ChildNode | ""
-	: N extends HTMLNode
-	? ChildNode | ""
+	? Text
+	: N extends SimpleStateRO<string>
+	? Text
 	: HTMLElement;
 
-function htmlStringToElement(html: string) {
+function htmlStringToElement(html: string): Node | null {
 	var template = document.createElement("template");
-	html = html.trim(); // Never return a text node of whitespace as the result
 	template.innerHTML = html;
 
-	return template.content.firstChild || "";
+	return template.content.firstChild;
 }
 
 function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
@@ -45,30 +44,27 @@ function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 	}
 }
 
-const toDOM = function toDOM<N extends Nodeish>(
-	node: N,
-	parent: HTMLElement,
-	opts: { emptyTextNodes?: boolean } = {},
-): "" | ChildNode | HTMLElement {
-	if (typeof node === "string" && (node !== "" || opts.emptyTextNodes)) return document.createTextNode(node);
-	if (isFalsy(node)) return "";
-	if (node instanceof HTMLNode) return htmlStringToElement(node.htmlString);
+const toDOM = function toDOM<N extends HyperNodeish>(node: N, parent: HTMLElement): Node | null {
+	if (typeof node === "string") return document.createTextNode(node);
+	if (isFalsy(node)) return null;
+	if (node instanceof HyperHTMLStringNode) return htmlStringToElement(node.htmlString);
 	if (isState(node)) {
-		let stateNode = toDOM(node.init, parent, { emptyTextNodes: true });
+		let init = toDOM(node.init, parent);
 
 		node.subscribe(val => {
-			const newStateNode = toDOM(val, parent, { emptyTextNodes: true });
+			const update = toDOM(val, parent);
 
-			if (newStateNode === "" || stateNode === "") {
-				//
+			if (update === null || init === null) {
+				// no-op
 			} else {
-				parent.replaceChild(newStateNode, stateNode);
-				stateNode = newStateNode;
+				parent.replaceChild(update, init);
+				// replace init for future updates
+				init = update;
 			}
-			return newStateNode;
 		});
 
-		return stateNode;
+		// return DOMNode for rendering
+		return init;
 	}
 
 	const el = document.createElement(node.tag);
@@ -77,28 +73,48 @@ const toDOM = function toDOM<N extends Nodeish>(
 
 	for (const child of node.children) {
 		const childNode = toDOM(child, el);
-		if (childNode === "") {
+		if (childNode === null) {
 			//
 		} else el.append(childNode);
 	}
 
 	return el;
-} as <N extends Nodeish>(node: N, parent: HTMLElement) => NodeishtoDOM<N>;
+} as <N extends HyperNodeish>(node: N, parent: HTMLElement) => NodeToDOM<N>;
+
+class DOMNotFound extends Error {
+	constructor(env?: string) {
+		super(
+			[
+				`renderDOM is meant to be used in the browser.`,
+				`Found: '${env || "unknown"}'.`,
+				`To force, pass \`{ skipEnvCheck: true }\` to renderDOM.`,
+			].join(" "),
+		);
+	}
+}
+
+function clear(node: HTMLElement) {
+	let child;
+
+	while ((child = node.firstChild)) {
+		node.removeChild(child);
+	}
+}
 
 type Opts = {
 	skipEnvCheck?: boolean;
 };
 
-export function renderDOM<HyNode extends Node | string, RootNode extends HTMLElement>(
-	rootNode: RootNode,
-	hyNode: HyNode,
+export function renderDOM<R extends HTMLElement, H extends HyperNode | string>(
+	rootNode: R,
+	hyperNode: H,
 	{ skipEnvCheck }: Opts = {},
 ) {
 	if (!skipEnvCheck) {
 		const env = guessEnv();
-		if (env !== "browser")
-			throw new Error(`renderDOM is meant to be used in the browser.` + ` Found: '${env || "unknown"}'`);
+		if (env !== "browser") throw new DOMNotFound(env);
 	}
 
-	return rootNode.append(toDOM(hyNode, rootNode));
+	clear(rootNode);
+	return rootNode.append(toDOM(hyperNode, rootNode));
 }

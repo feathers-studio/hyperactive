@@ -6,80 +6,70 @@ import { SimpleState, SimpleStateRO, isState } from "./state.ts";
 
 export type NonEmptyElement = Exclude<Element, EmptyElements>;
 
-export type TextNode = string;
+export type HyperTextNode = string;
 
-export class HTMLNode {
+export class HyperHTMLStringNode {
 	constructor(public htmlString: string) {}
 }
 
-export class Node<Tag extends Element = Element, Attrs extends Attr = Attr> {
-	constructor(
-		public tag: Tag,
-		public attrs: Attrs,
-		public children: (Node | TextNode)[],
-	) {}
+export class HyperNode<Tag extends Element = Element, Attrs extends Attr = Attr> {
+	constructor(public tag: Tag, public attrs: Attrs, public children: (HyperNode | HyperTextNode)[]) {}
 }
 
-export type Nodeish<Tag extends Element = Element> =
-	| Node<Tag>
-	| TextNode
-	| HTMLNode
+export type HyperNodeish<Tag extends Element = Element> =
+	| HyperNode<Tag>
+	| HyperTextNode
+	| HyperHTMLStringNode
 	| Falsy
-	| SimpleState<Node<Tag> | TextNode | HTMLNode | Falsy>
-	| SimpleStateRO<Node<Tag> | TextNode | HTMLNode | Falsy>;
+	| SimpleState<HyperNode<Tag> | HyperTextNode | HyperHTMLStringNode | Falsy>
+	| SimpleStateRO<HyperNode<Tag> | HyperTextNode | HyperHTMLStringNode | Falsy>;
 
 // deno-lint-ignore no-explicit-any
-export const isNode = (n: any): n is Node | HTMLNode | TextNode =>
-	n instanceof Node || n instanceof HTMLNode || typeof n === "string";
+export const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNode =>
+	n instanceof HyperNode || n instanceof HyperHTMLStringNode || typeof n === "string";
 
-export function h<
-	Tag extends NonEmptyElement = NonEmptyElement,
-	Attrs extends Attr = Attr,
->(elem: Tag, props?: Attrs | Falsy): Node<Tag>;
+export function h<Tag extends NonEmptyElement = NonEmptyElement, Attrs extends Attr = Attr>(
+	elem: Tag,
+	props?: Attrs | Falsy,
+): HyperNode<Tag>;
 
 export function h<Tag extends NonEmptyElement = NonEmptyElement>(
 	elem: Tag,
-	...children: Nodeish[]
-): Node<Tag>;
+	...children: HyperNodeish[]
+): HyperNode<Tag>;
 
-export function h<
-	Tag extends NonEmptyElement,
-	Attrs extends Attr<Tag> = Attr<Tag>,
->(elem: Tag, props: Attr, ...children: Nodeish[]): Node<Tag>;
-
-export function h<
-	Tag extends NonEmptyElement,
-	Attrs extends Attr<Tag> = Attr<Tag>,
->(
+export function h<Tag extends NonEmptyElement, Attrs extends Attr<Tag> = Attr<Tag>>(
 	elem: Tag,
-	props?: Attrs | Nodeish | Falsy,
-	...children: Nodeish[]
-): Node<Tag>;
+	props: Attr,
+	...children: HyperNodeish[]
+): HyperNode<Tag>;
 
-export function h<
-	Tag extends EmptyElements,
-	Attrs extends Attr<Tag> = Attr<Tag>,
->(elem: Tag, props?: Attrs | Nodeish | Falsy): Node<Tag>;
+export function h<Tag extends NonEmptyElement, Attrs extends Attr<Tag> = Attr<Tag>>(
+	elem: Tag,
+	props?: Attrs | HyperNodeish | Falsy,
+	...children: HyperNodeish[]
+): HyperNode<Tag>;
 
-export function h(
-	elem: Element,
-	props?: Attr | Nodeish,
-	...childNodes: Nodeish[]
-): Node {
+export function h<Tag extends EmptyElements, Attrs extends Attr<Tag> = Attr<Tag>>(
+	elem: Tag,
+	props?: Attrs | HyperNodeish | Falsy,
+): HyperNode<Tag>;
+
+export function h(elem: Element, props?: Attr | HyperNodeish, ...childNodes: HyperNodeish[]): HyperNode {
 	const [attrs, children] =
-		isNode(props) || isFalsy(props) || isState(props)
+		isHyperNode(props) || isFalsy(props) || isState(props)
 			? [{}, [props, ...childNodes]]
 			: [props || {}, childNodes || []];
 
-	return new Node(
+	return new HyperNode(
 		elem,
 		attrs,
 		children
 			// filter falsy nodes
-			.filter((child): child is Node => Boolean(child)),
+			.filter((child): child is HyperNode => Boolean(child)),
 	);
 }
 
 export function trust(html: string) {
-	return new HTMLNode(html);
+	return new HyperHTMLStringNode(html);
 }
