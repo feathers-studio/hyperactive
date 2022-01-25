@@ -82,7 +82,7 @@ const slim = parsed
 	.filter(item => tracked.has(item.name))
 	.map(each => {
 		let ret = each.match.slice(1);
-		if (each.type === "interface" && required.includes(each.name)) ret = "export " + ret;
+		if (each.type === "interface") ret = "export " + ret;
 		if (each.doc) ret = each.doc + "\n" + ret;
 
 		return ret;
