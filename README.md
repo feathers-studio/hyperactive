@@ -5,7 +5,11 @@ Hyperactive is a suite of tools to build smart webapps. As of 1.0, only server-s
 ## Usage example
 
 ```TypeScript
+// if using Deno
 import { elements, renderHTML } from "https://deno.land/x/hyperactive/mod.ts";
+
+// if using Node
+import { elements, renderHTML } from "@hyperactive/hyper";
 
 const { div, p, h1 } = elements;
 
