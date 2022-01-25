@@ -12,11 +12,7 @@ type AnyFunction = (...props: any[]) => void;
 
 type AttributeObject = Record<
 	string,
-	| string
-	| number
-	| boolean
-	| AnyFunction
-	| Record<string, string | number | boolean | AnyFunction>
+	string | number | boolean | AnyFunction | Record<string, string | number | boolean | AnyFunction>
 >;
 type NodeishtoDOM<N extends Nodeish> = N extends Falsy
 	? ""
@@ -44,8 +40,7 @@ function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 			if (value) el.setAttribute(prefix + attr, "");
 			// no-op
 			else null;
-		else if (prefix === "on-" && typeof value === "function")
-			el.addEventListener(attr, value);
+		else if (prefix === "on-" && typeof value === "function") el.addEventListener(attr, value);
 		else if (value) el.setAttribute(prefix + attr, String(value));
 	}
 }
@@ -55,8 +50,7 @@ const toDOM = function toDOM<N extends Nodeish>(
 	parent: HTMLElement,
 	opts: { emptyTextNodes?: boolean } = {},
 ): "" | ChildNode | HTMLElement {
-	if (typeof node === "string" && (node !== "" || opts.emptyTextNodes))
-		return document.createTextNode(node);
+	if (typeof node === "string" && (node !== "" || opts.emptyTextNodes)) return document.createTextNode(node);
 	if (isFalsy(node)) return "";
 	if (node instanceof HTMLNode) return htmlStringToElement(node.htmlString);
 	if (isState(node)) {
@@ -91,16 +85,20 @@ const toDOM = function toDOM<N extends Nodeish>(
 	return el;
 } as <N extends Nodeish>(node: N, parent: HTMLElement) => NodeishtoDOM<N>;
 
-export function renderDOM<
-	HyNode extends Node | string,
-	RootNode extends HTMLElement,
->(rootNode: RootNode, hyNode: HyNode) {
-	const env = guessEnv();
-	if (env !== "browser")
-		throw new Error(
-			`renderDOM is meant to be used in the browser.` +
-				` Found: '${env || "unknown"}'`,
-		);
+type Opts = {
+	skipEnvCheck?: boolean;
+};
+
+export function renderDOM<HyNode extends Node | string, RootNode extends HTMLElement>(
+	rootNode: RootNode,
+	hyNode: HyNode,
+	{ skipEnvCheck }: Opts = {},
+) {
+	if (!skipEnvCheck) {
+		const env = guessEnv();
+		if (env !== "browser")
+			throw new Error(`renderDOM is meant to be used in the browser.` + ` Found: '${env || "unknown"}'`);
+	}
 
 	return rootNode.append(toDOM(hyNode, rootNode));
 }
