@@ -3,6 +3,17 @@
 		"options": {
 			"lineWidth": 120,
 			"useTabs": true
+		},
+		"files": {
+			"exclude": [
+				"README.md",
+				"serve/README.md",
+				"test.ts",
+				"test.browser.ts",
+				"hyper/",
+				"scripts/",
+				"vendor/"
+			]
 		}
 	}
 }

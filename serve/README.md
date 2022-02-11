@@ -1,7 +1,6 @@
 # hyperserve
 
-Part of the [hyperactive](https://github.com/feathers-studio/hyperactive) project. A lean server library that's
-functional by design and integrates seamlessly with hyperactive itself.
+Part of the [hyperactive](https://github.com/feathers-studio/hyperactive) project. A lean server library that's functional by design and integrates seamlessly with hyperactive itself.
 
 ## Getting started
 
