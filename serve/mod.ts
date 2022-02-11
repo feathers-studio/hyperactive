@@ -7,7 +7,7 @@ export type Middleware<State = {}> = (ctx: Context<State>, next: Next) => Promis
 export type Context<State = {}> = {
 	request: Request;
 	responded: boolean;
-	respond: (body?: BodyInit | null, init?: ResponseInit) => Promise<void>;
+	respond: (body?: Response | BodyInit | null, init?: ResponseInit) => Promise<void>;
 	html: (body: HyperNode, init?: ResponseInit) => Promise<void>;
 	state: State;
 };
@@ -38,7 +38,7 @@ function makeContext(e: Deno.RequestEvent): Context {
 		respond(body, init) {
 			if (responded) throw new Error("Can't call respond() twice");
 			responded = true;
-			return e.respondWith(new Response(body, init));
+			return e.respondWith(body instanceof Response ? body : new Response(body, init));
 		},
 		html(body, init) {
 			const headers = new Headers(init?.headers);
@@ -110,3 +110,15 @@ export const post = method("POST");
 export const put = method("PUT");
 export const patch = method("PATCH");
 export const del = method("DELETE");
+
+export type WebSocketHandler = (socket: WebSocket) => Promise<void>;
+
+export function ws<State = {}>(pattern: string, handler: WebSocketHandler): Middleware<State> {
+	const urlPattern = new URLPattern({ pathname: pattern });
+	const pred = (ctx: Context<State>) => urlPattern.test(ctx.request.url);
+	return filter(pred, async (ctx) => {
+		const { response, socket } = Deno.upgradeWebSocket(ctx.request);
+		await ctx.respond(response);
+		return handler(socket);
+	});
+}
