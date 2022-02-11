@@ -5,13 +5,17 @@ Part of the [hyperactive](https://github.com/feathers-studio/hyperactive) projec
 ## Getting started
 
 ```TypeScript
-import { http, router, get } from "https://deno.land/x/hyperactive/serve.ts";
+import { get, router, serve } from "https://deno.land/x/hyperactive/serve.ts";
 
-const server = http({ port: 3000 }, router(
-	get("/", ctx => ctx.respond("Hello world")),
-	...
-));
+const server = serve(
+	{ port: 3000 },
+	router(
+		get("/", (ctx) => ctx.respond("Hello world")),
+		get("/foo", (ctx) => ctx.respond("Foo")),
+		get("/bar", (ctx) => ctx.respond("Bar")),
+	),
+);
 
-server.start();
 console.log("Listening on port", 3000);
+server.start();
 ```
