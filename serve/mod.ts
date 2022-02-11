@@ -11,11 +11,14 @@ export type Context<In, Out> = {
 	next: (state: Out) => Promise<void>;
 };
 
+const create = <Proto extends object, Fields>(proto: Proto | null, fields: Fields | {} = {}) =>
+	Object.assign(Object.create(proto), fields);
+
 export function o<In, Out, T>(f: Middleware<T, Out>, g: Middleware<In, T>): Middleware<In, Out> {
 	return (ctx: Context<In, Out>) =>
-		g(Object.assign(Object.create(ctx), {
+		g(create(ctx, {
 			next(state: T) {
-				return f(Object.assign(Object.create(ctx), {
+				return f(create(ctx, {
 					state,
 					next: ctx.next,
 				}));
@@ -52,10 +55,7 @@ function makeContext(e: Deno.RequestEvent): Context<unknown, unknown> {
 		},
 		next(state) {
 			if (self.responded) throw new Error("Can't call next() after calling respond()");
-			return h404({
-				...self,
-				state,
-			});
+			return h404(create(self, { state }));
 		},
 	};
 	return self;
