@@ -10,7 +10,7 @@ import { get, router, serve } from "https://deno.land/x/hyperactive/serve.ts";
 const server = serve(
 	{ port: 3000 },
 	router(
-		get("/", (ctx) => ctx.respond("Hello world")),
+		get("/", (ctx, next) => next(), (ctx) => ctx.respond("Hello world")),
 		get("/foo", (ctx) => ctx.respond("Foo")),
 		get("/bar", (ctx) => ctx.respond("Bar")),
 	),
