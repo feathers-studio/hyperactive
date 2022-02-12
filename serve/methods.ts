@@ -25,3 +25,5 @@ export const post = method("POST");
 export const put = method("PUT");
 export const patch = method("PATCH");
 export const del = method("DELETE");
+
+export const use = router;

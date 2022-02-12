@@ -10,7 +10,7 @@ export type Context<State = {}> = {
 	respond: (body?: Response | BodyInit | null, init?: ResponseInit) => Promise<void>;
 	html: (body: string, init?: ResponseInit) => Promise<void>;
 	render: (body: HyperNode, init?: ResponseInit) => Promise<void>;
-	state: State;
+	state: Partial<State>;
 };
 
 export function o<State = {}>(
@@ -20,7 +20,8 @@ export function o<State = {}>(
 	return (ctx: Context<State>, next: Next) => g(ctx, () => f(ctx, next));
 }
 
-export function router<State = {}>(...fs: Middleware<State>[]) {
+export function router<State = {}>(...fs: Middleware<State>[]): Middleware<State> {
+	if (fs.length === 0) throw new TypeError("router requires at least one Middleware");
 	return fs.reduceRight(o);
 }
 
@@ -61,7 +62,7 @@ function Context(e: Deno.RequestEvent): Context {
 
 export const noop = async (): Promise<void> => void 0;
 
-export function serve(opts: Deno.ListenOptions, handler: Middleware) {
+export function serve<State>(opts: Deno.ListenOptions, handler: Middleware<State>) {
 	async function handleHttp(conn: Deno.Conn) {
 		for await (const e of Deno.serveHttp(conn)) {
 			const ctx = Context(e);
