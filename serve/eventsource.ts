@@ -1,11 +1,11 @@
-import { Buffer } from "https://deno.land/std@0.125.0/io/buffer.ts";
 import { readableStreamFromReader, writeAll } from "https://deno.land/std@0.125.0/streams/conversion.ts";
 
 import { type Context, filter, type Middleware } from "./core.ts";
+import { PassThrough } from "./passthrough.ts";
 
 export type Event = {
 	event?: string;
-	data?: string;
+	data: string;
 	id?: string;
 	retry?: number;
 };
@@ -14,6 +14,8 @@ export type EventSourceContext<State = {}> = {
 	request: Request;
 	comment: (content: string) => Promise<void>;
 	event: (e: Event) => Promise<void>;
+	ended: boolean;
+	startResponse: (headers?: HeadersInit) => Promise<void>;
 	state: State;
 };
 
@@ -32,25 +34,31 @@ function eventToString(o: Record<string, string | number>) {
 	return Object.entries(o).map(([k, v]) => String(v).split("\n").map((line) => `${k}: ${line}`).join("\n")).join("\n");
 }
 
-async function write(buf: Buffer, content: string) {
+async function write(buf: PassThrough, content: string) {
 	if (!content) return;
-	return await writeAll(buf, new TextEncoder().encode(content + "\n\n"));
+	return void await writeAll(buf, new TextEncoder().encode(content + "\n\n"));
 }
 
 function EventSourceContext<State = {}>(ctx: Context<State>): EventSourceContext<State> {
-	const buf = new Buffer();
-	const stream = readableStreamFromReader(buf);
-
-	const headers = new Headers();
-	headers.set("Cache-Control", "no-store");
-	headers.set("Content-Type", "text/event-stream");
-
-	ctx.respond(stream, { headers });
+	const passthrough = new PassThrough();
+	const stream = readableStreamFromReader(passthrough);
 
 	const self: EventSourceContext<State> = {
 		request: ctx.request,
-		comment: (content) => write(buf, ": " + content),
-		event: (event) => write(buf, eventToString(event)),
+		comment: (content) => write(passthrough, ": " + content),
+		event: (event) => write(passthrough, eventToString(event)),
+		ended: false,
+		startResponse: (headersInit) => {
+			const headers = new Headers(headersInit);
+			headers.set("Cache-Control", "no-store");
+			headers.set("Content-Type", "text/event-stream");
+			return ctx.respond(stream, { headers }).then(() => {
+				self.ended = true;
+			}).catch((e) => {
+				self.ended = true;
+				return Promise.reject(e);
+			});
+		},
 		state: ctx.state,
 	};
 
