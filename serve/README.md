@@ -48,7 +48,7 @@ serve(
 		eventsource("/notifs", async (ctx) => {
 			setInterval(() => {
 				// Sends a notification every second
-				await ctx.event({ event: "notification", data: "You have a message" });
+				ctx.event({ event: "notification", data: "You have a message" });
 			}, 1000);
 		}),
 	),
