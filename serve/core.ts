@@ -8,7 +8,8 @@ export type Context<State = {}> = {
 	request: Request;
 	responded: boolean;
 	respond: (body?: Response | BodyInit | null, init?: ResponseInit) => Promise<void>;
-	html: (body: HyperNode, init?: ResponseInit) => Promise<void>;
+	html: (body: string, init?: ResponseInit) => Promise<void>;
+	render: (body: HyperNode, init?: ResponseInit) => Promise<void>;
 	state: State;
 };
 
@@ -43,11 +44,14 @@ function Context(e: Deno.RequestEvent): Context {
 		html(body, init) {
 			const headers = new Headers(init?.headers);
 			headers.set("Content-Type", "text/html; charset=UTF-8");
-			return self.respond("<!DOCTYPE html>" + renderHTML(body), {
+			return self.respond(body, {
 				headers,
 				status: init?.status,
 				statusText: init?.statusText,
 			});
+		},
+		render(body, init) {
+			return self.html("<!DOCTYPE html>" + renderHTML(body), init);
 		},
 		state: {},
 	};
