@@ -1,6 +1,6 @@
 import { assertEquals } from "./vendor/deno/asserts.ts";
 
-import { elements, trust, renderHTML } from "./mod.ts";
+import { elements, renderHTML, trust } from "./mod.ts";
 
 const { div, p, h1, br, input } = elements;
 
@@ -174,7 +174,7 @@ Deno.test({
 			renderHTML(
 				input({
 					on: {
-						input: e => console.log((e?.target as unknown as { value: string }).value),
+						input: (e) => console.log((e?.target as unknown as { value: string }).value),
 					},
 				}),
 			),

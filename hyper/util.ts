@@ -6,9 +6,9 @@ const escapables = {
 	'"': "&quot;",
 };
 
-export const escapeAttr = (s: string) => s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
+export const escapeAttr = (s: string) => s.replace(/<|>|&|"|'/g, (r) => escapables[r as keyof typeof escapables] || r);
 
-export const escapeTextNode = (s: string) => s.replace(/<|>|&/g, r => escapables[r as keyof typeof escapables] || r);
+export const escapeTextNode = (s: string) => s.replace(/<|>|&/g, (r) => escapables[r as keyof typeof escapables] || r);
 
 export type SetContents<T> = T extends Set<infer U> ? U : never;
 

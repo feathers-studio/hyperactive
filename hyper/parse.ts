@@ -31,13 +31,14 @@ export const parseSelector = (selector: string, { tagMode = false } = {}) => {
 		if (buffer) {
 			buffer = buffer.trim();
 			if (bufferType) {
-				if (bufferType === "id" && attrs.id)
+				if (bufferType === "id" && attrs.id) {
 					throw new Error(
 						`Cannot declare multiple IDs: ${attrs.id} ${buffer}`,
 					);
-				if (bufferType === "tag" || bufferType == "id")
+				}
+				if (bufferType === "tag" || bufferType == "id") {
 					attrs[bufferType] = buffer;
-				else classlist.add(buffer);
+				} else classlist.add(buffer);
 			}
 		}
 		buffer = "";
@@ -46,12 +47,14 @@ export const parseSelector = (selector: string, { tagMode = false } = {}) => {
 
 	const update = (char: string, type?: keyof typeof attrs) => {
 		// !buffer implies this is the first character of current match
-		if (!buffer)
-			if (char === "-" || char === "_" || digits.has(char))
+		if (!buffer) {
+			if (char === "-" || char === "_" || digits.has(char)) {
 				// if match starts with -_0-9, error
 				throw new Error(
 					`${bufferType || type} cannot start with char: ${char}`,
 				);
+			}
+		}
 		buffer += char;
 		if (type) bufferType = type;
 	};

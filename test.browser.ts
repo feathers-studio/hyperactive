@@ -1,6 +1,6 @@
-import { elements, renderDOM, State, bind } from "./mod.ts";
+import { bind, elements, renderDOM, State } from "./mod.ts";
 
-import type { Document } from "./src/lib/dom.ts";
+import type { Document } from "./hyper/lib/dom.ts";
 declare const document: Document;
 
 const { div, input, h3, p, span } = elements;
@@ -11,6 +11,6 @@ const root = document.getElementById("root")!;
 
 const title = h3("Enter a number, it should double below");
 
-const output = p(state.transform(v => span(String(parseFloat(v) * 2))));
+const output = p(state.transform((v) => span(String(parseFloat(v) * 2))));
 
 renderDOM(root, div({ class: "container" }, title, bind(input(), state), output, ""));

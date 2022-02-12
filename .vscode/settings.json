@@ -7,8 +7,7 @@
 		"https://deno.land": true
 	},
 	"editor.formatOnSave": true,
-	"editor.defaultFormatter": "denoland.vscode-deno",
-	"[markdown]": {
-		"editor.defaultFormatter": "vscode.markdown-language-features"
+	"[typescript]": {
+		"editor.defaultFormatter": "denoland.vscode-deno"
 	}
 }

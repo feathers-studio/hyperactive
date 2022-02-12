@@ -2,18 +2,8 @@
 // This module is browser compatible. Do not rely on good formatting of values
 // for AssertionError messages in browsers.
 
-import {
-	bold,
-	gray,
-	green,
-	red,
-	white,
-} from "https://deno.land/std@0.99.0/fmt/colors.ts";
-import {
-	diff,
-	DiffResult,
-	DiffType,
-} from "https://deno.land/std@0.99.0/testing/_diff.ts";
+import { bold, gray, green, red, white } from "https://deno.land/std@0.99.0/fmt/colors.ts";
+import { diff, DiffResult, DiffType } from "https://deno.land/std@0.99.0/testing/_diff.ts";
 
 const CAN_NOT_DISPLAY = "[Cannot display]";
 
@@ -37,12 +27,12 @@ class AssertionError extends Error {
 function _format(v: unknown): string {
 	return globalThis.Deno
 		? Deno.inspect(v, {
-				depth: Infinity,
-				sorted: true,
-				trailingComma: true,
-				compact: false,
-				iterableLimit: Infinity,
-		  })
+			depth: Infinity,
+			sorted: true,
+			trailingComma: true,
+			compact: false,
+			iterableLimit: Infinity,
+		})
 		: `"${String(v).replace(/(?=["\\])/g, "\\")}"`;
 }
 
@@ -81,9 +71,11 @@ function buildMessage(diffResult: ReadonlyArray<DiffResult<string>>): string[] {
 	messages.push("");
 	messages.push("");
 	messages.push(
-		`    ${gray(bold("[Diff]"))} ${red(bold("Actual"))} / ${green(
-			bold("Expected"),
-		)}`,
+		`    ${gray(bold("[Diff]"))} ${red(bold("Actual"))} / ${
+			green(
+				bold("Expected"),
+			)
+		}`,
 	);
 	messages.push("");
 	messages.push("");
@@ -97,7 +89,7 @@ function buildMessage(diffResult: ReadonlyArray<DiffResult<string>>): string[] {
 }
 
 function isKeyedCollection(x: unknown): x is Set<unknown> {
-	return [Symbol.iterator, "size"].every(k => k in (x as Set<unknown>));
+	return [Symbol.iterator, "size"].every((k) => k in (x as Set<unknown>));
 }
 
 /**
@@ -163,10 +155,12 @@ function equal(c: unknown, d: unknown): boolean {
 				return unmatchedEntries === 0;
 			}
 			const merged = { ...a, ...b };
-			for (const key of [
-				...Object.getOwnPropertyNames(merged),
-				...Object.getOwnPropertySymbols(merged),
-			]) {
+			for (
+				const key of [
+					...Object.getOwnPropertyNames(merged),
+					...Object.getOwnPropertySymbols(merged),
+				]
+			) {
 				type Key = keyof typeof merged;
 				if (!compare(a && a[key as Key], b && b[key as Key])) {
 					return false;
@@ -188,9 +182,9 @@ function equal(c: unknown, d: unknown): boolean {
  *
  * Type parameter can be specified to ensure values under comparison have the same type.
  * For example:
- *```ts
- *assertEquals<number>(1, 2)
- *```
+ * ```ts
+ * assertEquals<number>(1, 2)
+ * ```
  */
 export function assertEquals(
 	actual: unknown,

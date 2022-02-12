@@ -26,7 +26,7 @@ export const docLine = (line: string) => {
 	line = line.trim();
 	if (!line) return docLineStart;
 
-	line = line.replace(/<|>/g, s => ({ "<": "`<", ">": ">`" }[s as "<" | ">"]));
+	line = line.replace(/<|>/g, (s) => ({ "<": "`<", ">": ">`" }[s as "<" | ">"]));
 	if (line.startsWith("Note")) line = "> " + line;
 	return docLineStart + line;
 };
@@ -101,7 +101,7 @@ export async function writeAll(w: Deno.Writer, arr: Uint8Array) {
 	}
 }
 
-const sleep = (t: number) => new Promise(r => setTimeout(r, t));
+const sleep = (t: number) => new Promise((r) => setTimeout(r, t));
 
 type Opts = { pause?: number };
 

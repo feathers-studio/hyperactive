@@ -1,7 +1,7 @@
-import { HyperNodeish, HyperHTMLStringNode } from "./node.ts";
+import { HyperHTMLStringNode, HyperNodeish } from "./node.ts";
 import { EmptyElements } from "./lib/emptyElements.ts";
 import { isState } from "./state.ts";
-import { isFalsy, escapeAttr, escapeTextNode } from "./util.ts";
+import { escapeAttr, escapeTextNode, isFalsy } from "./util.ts";
 
 // deno-lint-ignore no-explicit-any
 type AnyFunction = (...props: any[]) => void;
@@ -16,9 +16,10 @@ function attrifyHTML(attrs: AttributeObject, prefix = ""): string {
 			if (attr === "on" || typeof value === "function") return "";
 			if (value === "") return value;
 			if (typeof value === "object") return attrifyHTML(value, attr + "-");
-			if (typeof value === "boolean")
+			if (typeof value === "boolean") {
 				if (value) return `${prefix + attr}`;
 				else return "";
+			}
 			if (value) return `${prefix + attr}="${escapeAttr(String(value))}"`;
 		})
 		.join(" ");

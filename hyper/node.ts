@@ -2,7 +2,7 @@ import { Element } from "./lib/elements.ts";
 import { EmptyElements } from "./lib/emptyElements.ts";
 import { Attr } from "./lib/attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
-import { SimpleState, SimpleStateRO, isState } from "./state.ts";
+import { isState, SimpleState, SimpleStateRO } from "./state.ts";
 
 export type NonEmptyElement = Exclude<Element, EmptyElements>;
 
@@ -56,10 +56,9 @@ export function h<Tag extends EmptyElements, Attrs extends Attr<Tag> = Attr<Tag>
 ): HyperNode<Tag>;
 
 export function h(elem: Element, props?: Attr | HyperNodeish, ...childNodes: HyperNodeish[]): HyperNode {
-	const [attrs, children] =
-		isHyperNode(props) || isFalsy(props) || isState(props)
-			? [{}, [props, ...childNodes]]
-			: [props || {}, childNodes || []];
+	const [attrs, children] = isHyperNode(props) || isFalsy(props) || isState(props)
+		? [{}, [props, ...childNodes]]
+		: [props || {}, childNodes || []];
 
 	return new HyperNode(
 		elem,

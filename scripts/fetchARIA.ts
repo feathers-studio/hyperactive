@@ -5,9 +5,7 @@ import { preamble, propsToType } from "./util/codegen.ts";
 const target = "./src/lib/aria.ts";
 
 const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
-	Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-		arr.slice(i * size, i * size + size),
-	);
+	Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, i * size + size));
 
 {
 	// preamble
@@ -17,16 +15,16 @@ const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 {
 	const html = await fetch("https://w3c.github.io/using-aria/")
 		//
-		.then(res => res.text());
+		.then((res) => res.text());
 
 	const document = new DOMParser().parseFromString(html, "text/html")!;
 
 	const roles = [
 		...document.querySelector("#html-aria-gaps > section > ol")!.childNodes,
 	]
-		.map(each => each.textContent.trim().replace(/`/g, ""))
+		.map((each) => each.textContent.trim().replace(/`/g, ""))
 		.filter(Boolean)
-		.map(each => `"${each}"`);
+		.map((each) => `"${each}"`);
 
 	const types = [
 		"export type AriaRoles =",
@@ -39,7 +37,7 @@ const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 {
 	const html = await fetch(
 		"https://www.w3.org/TR/wai-aria-1.0/states_and_properties",
-	).then(res => res.text());
+	).then((res) => res.text());
 
 	const document = new DOMParser().parseFromString(html, "text/html")!;
 

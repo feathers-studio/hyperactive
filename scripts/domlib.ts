@@ -9,7 +9,7 @@ const sanelib = domlib
 	.replaceAll("    ", "\t")
 	.replaceAll(NBSP, " ");
 
-const or = (list: string[]) => list.map(each => `(${each})`).join("|");
+const or = (list: string[]) => list.map((each) => `(${each})`).join("|");
 
 const idRegex = "(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])+";
 const body = ".*{(\\n(.+))*\\n}";
@@ -49,13 +49,14 @@ const parsed = [...exec(sanelib, constructed)]
 	.map(({ groups: { match, doc, ...groups } = {} }): ParsedItem | undefined => {
 		const { key, value } = getType(groups) || {};
 
-		if (key && value)
+		if (key && value) {
 			return {
 				name: value,
 				type: key as ParsedItem["type"],
 				match: match,
 				...(doc && { doc }),
 			};
+		}
 	})
 	.filter((each): each is ParsedItem => !!each);
 
@@ -65,9 +66,9 @@ const tracked = new Set(required);
 function exhaust(list: ParsedItem[]): ParsedItem[] {
 	const filtered = parsed
 		// pick the ones we've not already tracked
-		.filter(each => !tracked.has(each.name))
-		.filter(each => list.some(item => item.match.includes(each.name)))
-		.map(each => {
+		.filter((each) => !tracked.has(each.name))
+		.filter((each) => list.some((item) => item.match.includes(each.name)))
+		.map((each) => {
 			tracked.add(each.name);
 			return each;
 		});
@@ -76,11 +77,11 @@ function exhaust(list: ParsedItem[]): ParsedItem[] {
 	return exhaust(filtered);
 }
 
-exhaust(parsed.filter(each => each.type === "interface" && tracked.has(each.name)));
+exhaust(parsed.filter((each) => each.type === "interface" && tracked.has(each.name)));
 
 const slim = parsed
-	.filter(item => tracked.has(item.name))
-	.map(each => {
+	.filter((item) => tracked.has(item.name))
+	.map((each) => {
 		let ret = each.match.slice(1);
 		if (each.type === "interface") ret = "export " + ret;
 		if (each.doc) ret = each.doc + "\n" + ret;

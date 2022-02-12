@@ -1,9 +1,9 @@
 import { guessEnv } from "./guessEnv.ts";
 import { Attr } from "./lib/attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
-import { isState, State, SimpleStateRO } from "./state.ts";
-import { HTMLElement, Text, Node, Document } from "./lib/dom.ts";
-import { HyperNode, HyperNodeish, HyperHTMLStringNode } from "./node.ts";
+import { isState, SimpleStateRO } from "./state.ts";
+import { Document, HTMLElement, Node, Text } from "./lib/dom.ts";
+import { HyperHTMLStringNode, HyperNode, HyperNodeish } from "./node.ts";
 
 declare var document: Document;
 
@@ -14,12 +14,9 @@ type AttributePrimitive = string | number | boolean | AnyFunction;
 type AttributeValue = AttributePrimitive | Record<string, AttributePrimitive>;
 type AttributeObject = Record<string, AttributeValue>;
 
-type NodeToDOM<N extends HyperNodeish> = N extends Falsy
-	? null
-	: N extends string
-	? Text
-	: N extends SimpleStateRO<string>
-	? Text
+type NodeToDOM<N extends HyperNodeish> = N extends Falsy ? null
+	: N extends string ? Text
+	: N extends SimpleStateRO<string> ? Text
 	: HTMLElement;
 
 function htmlStringToElement(html: string): Node | null {
@@ -35,11 +32,11 @@ function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 		if (value === "") el.setAttribute(prefix + attr, "");
 		else if (attr === "ref" && typeof value === "function") value(el);
 		else if (typeof value === "object") attrifyDOM(el, value, attr + "-");
-		else if (typeof value === "boolean")
+		else if (typeof value === "boolean") {
 			if (value) el.setAttribute(prefix + attr, "");
 			// no-op
 			else null;
-		else if (prefix === "on-" && typeof value === "function") el.addEventListener(attr, value);
+		} else if (prefix === "on-" && typeof value === "function") el.addEventListener(attr, value);
 		else if (value) el.setAttribute(prefix + attr, String(value));
 	}
 }
@@ -51,7 +48,7 @@ const toDOM = function toDOM<N extends HyperNodeish>(node: N, parent: HTMLElemen
 	if (isState(node)) {
 		let init = toDOM(node.init, parent);
 
-		node.subscribe(val => {
+		node.subscribe((val) => {
 			const update = toDOM(val, parent);
 
 			if (update === null || init === null) {
