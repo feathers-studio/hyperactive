@@ -34,7 +34,6 @@ function eventToString(o: Record<string, string | number>) {
 
 async function write(buf: Buffer, content: string) {
 	if (!content) return;
-	await writeAll(Deno.stdout, new TextEncoder().encode(content + "\n\n"));
 	return await writeAll(buf, new TextEncoder().encode(content + "\n\n"));
 }
 
