@@ -16,7 +16,7 @@ export type EventSourceContext<State = {}> = {
 	event: (e: Event) => Promise<void>;
 	ended: boolean;
 	startResponse: (headers?: HeadersInit) => Promise<void>;
-	state: State;
+	state: Partial<State>;
 };
 
 type EventSourceHandler<State = {}> = (ctx: EventSourceContext<State>) => Promise<void>;
