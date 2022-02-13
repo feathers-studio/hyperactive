@@ -1,6 +1,6 @@
 import { bind, elements, renderDOM, State } from "./mod.ts";
 
-import type { Document } from "./hyper/lib/dom.ts";
+import type { Document } from "./lib/dom.ts";
 declare const document: Document;
 
 const { div, input, h3, p, span } = elements;
