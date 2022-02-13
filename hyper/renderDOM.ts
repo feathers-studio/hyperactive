@@ -5,7 +5,7 @@ import { isState, SimpleStateRO } from "./state.ts";
 import { Document, HTMLElement, Node, Text } from "./lib/dom.ts";
 import { HyperHTMLStringNode, HyperNode, HyperNodeish } from "./node.ts";
 
-declare var document: Document;
+declare const document: Document;
 
 // deno-lint-ignore no-explicit-any
 type AnyFunction = (...props: any[]) => void;
@@ -20,9 +20,8 @@ type NodeToDOM<N extends HyperNodeish> = N extends Falsy ? null
 	: HTMLElement;
 
 function htmlStringToElement(html: string): Node | null {
-	var template = document.createElement("template");
+	const template = document.createElement("template");
 	template.innerHTML = html;
-
 	return template.content.firstChild;
 }
 
@@ -41,15 +40,15 @@ function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 	}
 }
 
-const toDOM = function toDOM<N extends HyperNodeish>(node: N, parent: HTMLElement): Node | null {
+const toDOM = function toDOM<N extends HyperNodeish>(parent: HTMLElement, node: N): Node | null {
 	if (typeof node === "string") return document.createTextNode(node);
 	if (isFalsy(node)) return null;
 	if (node instanceof HyperHTMLStringNode) return htmlStringToElement(node.htmlString);
 	if (isState(node)) {
-		let init = toDOM(node.init, parent);
+		let init = toDOM(parent, node.init);
 
 		node.subscribe((val) => {
-			const update = toDOM(val, parent);
+			const update = toDOM(parent, val);
 
 			if (update === null || init === null) {
 				// no-op
@@ -69,14 +68,14 @@ const toDOM = function toDOM<N extends HyperNodeish>(node: N, parent: HTMLElemen
 	attrifyDOM(el, node.attrs);
 
 	for (const child of node.children) {
-		const childNode = toDOM(child, el);
+		const childNode = toDOM(el, child);
 		if (childNode === null) {
 			//
 		} else el.append(childNode);
 	}
 
 	return el;
-} as <N extends HyperNodeish>(node: N, parent: HTMLElement) => NodeToDOM<N>;
+} as <N extends HyperNodeish>(parent: HTMLElement, node: N) => NodeToDOM<N>;
 
 class DOMNotFound extends Error {
 	constructor(env?: string) {
@@ -102,8 +101,8 @@ type Opts = {
 	skipEnvCheck?: boolean;
 };
 
-export function renderDOM<R extends HTMLElement, H extends HyperNode | string>(
-	rootNode: R,
+export function renderDOM<H extends HyperNodeish>(
+	rootNode: HTMLElement,
 	hyperNode: H,
 	{ skipEnvCheck }: Opts = {},
 ) {
@@ -113,5 +112,6 @@ export function renderDOM<R extends HTMLElement, H extends HyperNode | string>(
 	}
 
 	clear(rootNode);
-	return rootNode.append(toDOM(hyperNode, rootNode));
+	const el = toDOM(rootNode, hyperNode);
+	if (el) rootNode.append(el);
 }

@@ -7,3 +7,5 @@ export * from "./parse.ts";
 export * from "./renderHTML.ts";
 export * from "./renderDOM.ts";
 export * from "./domutils.ts";
+export * from "./history.ts";
+export * from "./router.ts";
