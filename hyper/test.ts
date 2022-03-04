@@ -44,20 +44,24 @@ Deno.test({
 	},
 });
 
-assertEquals(
-	renderHTML(
-		div(
-			{
-				id: "hello",
-				class: "world",
-				role: "note",
-				aria: { disabled: "true" },
-			},
-			p(h1({ class: "hello" }, "hello world", br())),
-		),
-	),
-	`<div id="hello" class="world" role="note" aria-disabled="true"><p><h1 class="hello">hello world<br /></h1></p></div>`,
-);
+Deno.test({
+	name: "renderHTML simple -- class array",
+	fn: () => {
+		assertEquals(
+			renderHTML(
+				div(
+					{
+						id: "hello",
+						class: ["d-flex", "justify-content-between", "mb-3", false],
+						style: `content: '"&"</div>'`,
+					},
+					"<'\"Hello&world\"'>",
+				),
+			),
+			`<div id="hello" class="d-flex justify-content-between mb-3" style="content: &#39;&quot;&amp;&quot;&lt;/div&gt;&#39;">&lt;'"Hello&amp;world"'&gt;</div>`,
+		);
+	},
+});
 
 Deno.test({
 	name: "renderHTML complex",

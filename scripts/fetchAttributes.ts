@@ -90,9 +90,12 @@ export const imports = [
 	`import { Element } from "./elements.ts";`,
 	`import { AriaRoles, AriaAttributes } from "./aria.ts";`,
 	`import { HTMLElement, DOMEvents } from "./dom.ts";`,
+	`import { Falsy } from "../util.ts";`,
+	`type MaybeString = string | Falsy;`,
 ].join("\n");
 
-const prologue = `type PropOr<T, P extends string | symbol | number, D> =
+const prologue = `
+type PropOr<T, P extends string | symbol | number, D> =
 	T extends Record<P, infer V> ? V : D;
 
 type Deunionise<T> =
@@ -131,7 +134,6 @@ export type Attr<E extends Element = Element> =
 			aria: AriaAttributes;
 		} & (UniqueElementAttrs & { [k: string]: unknown })[E] & DOMEvents
 	>;
-`;
+`.trim();
 
-// Deno.writeTextFileSync("./src/lib/attributes.ts", types);
-typer.writer("./src/lib/attributes.ts", typer.program([preamble, imports, globalType, ...elementTypes(), prologue]));
+typer.writer("./hyper/lib/attributes.ts", typer.program([preamble, imports, globalType, ...elementTypes(), prologue]));

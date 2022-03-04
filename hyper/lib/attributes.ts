@@ -3,6 +3,8 @@
 import { Element } from "./elements.ts";
 import { AriaRoles, AriaAttributes } from "./aria.ts";
 import { HTMLElement, DOMEvents } from "./dom.ts";
+import { Falsy } from "../util.ts";
+type MaybeString = string | Falsy;
 
 type GlobalAttrs = {
 	/**
@@ -16,7 +18,7 @@ type GlobalAttrs = {
 	/**
 	 * Often used with CSS to style elements with common properties.
 	 */
-	class: string;
+	class: MaybeString | MaybeString[];
 	/**
 	 * Indicates whether the element's content is editable.
 	 */
@@ -72,7 +74,7 @@ type GlobalAttrs = {
 	 */
 	title: string;
 	/**
-	 * Specify whether an element’s attribute values and the values of its
+	 * Specify whether an element's attribute values and the values of its
 	 * Text node
 	 * children are to be translated when the page is localized, or whether to
 	 * leave them unchanged.
@@ -1711,4 +1713,3 @@ export type Attr<E extends Element = Element> =
 			aria: AriaAttributes;
 		} & (UniqueElementAttrs & { [k: string]: unknown })[E] & DOMEvents
 	>;
-

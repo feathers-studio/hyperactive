@@ -25,6 +25,7 @@ const union = (...parts: string[]) => parts.map((part) => `"${part}"`).join(" | 
 const mime = "`${string}/${string}`";
 
 const manual: Entry[] = [
+	["class", () => `MaybeString | MaybeString[]`],
 	["as", () => `string`],
 	["sandbox", () => `string`],
 	["step", () => `number | "any"`],
