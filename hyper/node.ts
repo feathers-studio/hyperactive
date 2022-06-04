@@ -28,6 +28,14 @@ export type HyperNodeish<Tag extends Element = Element> =
 export const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNode =>
 	n instanceof HyperNode || n instanceof HyperHTMLStringNode || typeof n === "string";
 
+export function normaliseParams(props?: Attr | HyperNodeish, childNodes?: HyperNodeish[]) {
+	const [attrs, children] = isHyperNode(props) || isFalsy(props) || isState(props)
+		? [{}, [props, ...(childNodes || [])]]
+		: [props || {}, childNodes || []];
+
+	return { attrs, children };
+}
+
 export function h<Tag extends NonEmptyElement = NonEmptyElement, Attrs extends Attr = Attr>(
 	elem: Tag,
 	props?: Attrs | Falsy,
@@ -56,16 +64,14 @@ export function h<Tag extends EmptyElements, Attrs extends Attr<Tag> = Attr<Tag>
 ): HyperNode<Tag>;
 
 export function h(elem: Element, props?: Attr | HyperNodeish, ...childNodes: HyperNodeish[]): HyperNode {
-	const [attrs, children] = isHyperNode(props) || isFalsy(props) || isState(props)
-		? [{}, [props, ...childNodes]]
-		: [props || {}, childNodes || []];
+	const { attrs, children } = normaliseParams(props, childNodes);
 
 	return new HyperNode(
 		elem,
 		attrs,
 		children
 			// filter falsy nodes
-			.filter((child): child is HyperNode => Boolean(child)),
+			.filter(Boolean) as HyperNode[],
 	);
 }
 

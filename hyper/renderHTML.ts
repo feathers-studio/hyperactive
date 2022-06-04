@@ -24,6 +24,7 @@ function attrifyHTML(attrs: AttributeObject, prefix = ""): string {
 			}
 			if (value) return `${prefix + attr}="${escapeAttr(String(value))}"`;
 		})
+		.filter(Boolean)
 		.join(" ");
 }
 
