@@ -1,7 +1,7 @@
-import { HyperHTMLStringNode, HyperNodeish } from "./node.ts";
-import { EmptyElements } from "./lib/emptyElements.ts";
-import { isState } from "./state.ts";
-import { escapeAttr, escapeTextNode, type Falsy, isFalsy } from "./util.ts";
+import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
+import { EmptyElements } from "../lib/emptyElements.ts";
+import { isState } from "../state.ts";
+import { escapeAttr, escapeTextNode, type Falsy, isFalsy } from "../util.ts";
 
 // deno-lint-ignore no-explicit-any
 type AnyFunction = (...props: any[]) => void;
