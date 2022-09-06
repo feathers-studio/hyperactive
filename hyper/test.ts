@@ -178,7 +178,7 @@ Deno.test({
 			renderHTML(
 				input({
 					on: {
-						input: (e) => console.log((e?.target as unknown as { value: string }).value),
+						input: e => console.log((e?.target as unknown as { value: string }).value),
 					},
 				}),
 			),

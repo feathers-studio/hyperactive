@@ -320,7 +320,7 @@ export interface MemoryHistory extends History {
 	readonly index: number;
 }
 
-const readOnly: <T>(obj: T) => Readonly<T> = (obj) => obj;
+const readOnly: <T>(obj: T) => Readonly<T> = obj => obj;
 
 function warning(cond: any, message: string) {
 	if (!cond) {
@@ -361,9 +361,7 @@ export type BrowserHistoryOptions = { window?: Window };
  *
  * @see https://github.com/remix-run/history/tree/main/docs/api-reference.md#createbrowserhistory
  */
-export function createBrowserHistory(
-	options: BrowserHistoryOptions = {},
-): BrowserHistory {
+export function createBrowserHistory(options: BrowserHistoryOptions = {}): BrowserHistory {
 	let { window = document.defaultView! } = options;
 	let globalHistory = window.history;
 
@@ -455,10 +453,7 @@ export function createBrowserHistory(
 		});
 	}
 
-	function getHistoryStateAndUrl(
-		nextLocation: Location,
-		index: number,
-	): [HistoryState, string] {
+	function getHistoryStateAndUrl(nextLocation: Location, index: number): [HistoryState, string] {
 		return [
 			{
 				usr: nextLocation.state,
@@ -470,9 +465,7 @@ export function createBrowserHistory(
 	}
 
 	function allowTx(action: Action, location: Location, retry: () => void) {
-		return (
-			!blockers.length || (blockers.call({ action, location, retry }), false)
-		);
+		return !blockers.length || (blockers.call({ action, location, retry }), false);
 	}
 
 	function applyTx(nextAction: Action) {
@@ -589,11 +582,9 @@ export type MemoryHistoryOptions = {
  *
  * @see https://github.com/remix-run/history/tree/main/docs/api-reference.md#creatememoryhistory
  */
-export function createMemoryHistory(
-	options: MemoryHistoryOptions = {},
-): MemoryHistory {
+export function createMemoryHistory(options: MemoryHistoryOptions = {}): MemoryHistory {
 	let { initialEntries = ["/"], initialIndex } = options;
-	let entries: Location[] = initialEntries.map((entry) => {
+	let entries: Location[] = initialEntries.map(entry => {
 		let location = readOnly<Location>({
 			pathname: "/",
 			search: "",
@@ -605,20 +596,14 @@ export function createMemoryHistory(
 
 		warning(
 			location.pathname.charAt(0) === "/",
-			`Relative pathnames are not supported in createMemoryHistory({ initialEntries }) (invalid entry: ${
-				JSON.stringify(
-					entry,
-				)
-			})`,
+			`Relative pathnames are not supported in createMemoryHistory({ initialEntries }) (invalid entry: ${JSON.stringify(
+				entry,
+			)})`,
 		);
 
 		return location;
 	});
-	let index = clamp(
-		initialIndex == null ? entries.length - 1 : initialIndex,
-		0,
-		entries.length - 1,
-	);
+	let index = clamp(initialIndex == null ? entries.length - 1 : initialIndex, 0, entries.length - 1);
 
 	let action = Action.Pop;
 	let location = entries[index];
@@ -641,9 +626,7 @@ export function createMemoryHistory(
 	}
 
 	function allowTx(action: Action, location: Location, retry: () => void) {
-		return (
-			!blockers.length || (blockers.call({ action, location, retry }), false)
-		);
+		return !blockers.length || (blockers.call({ action, location, retry }), false);
 	}
 
 	function applyTx(nextAction: Action, nextLocation: Location) {
@@ -661,11 +644,7 @@ export function createMemoryHistory(
 
 		warning(
 			location.pathname.charAt(0) === "/",
-			`Relative pathnames are not supported in memory history.push(${
-				JSON.stringify(
-					to,
-				)
-			})`,
+			`Relative pathnames are not supported in memory history.push(${JSON.stringify(to)})`,
 		);
 
 		if (allowTx(nextAction, nextLocation, retry)) {
@@ -684,11 +663,7 @@ export function createMemoryHistory(
 
 		warning(
 			location.pathname.charAt(0) === "/",
-			`Relative pathnames are not supported in memory history.replace(${
-				JSON.stringify(
-					to,
-				)
-			})`,
+			`Relative pathnames are not supported in memory history.replace(${JSON.stringify(to)})`,
 		);
 
 		if (allowTx(nextAction, nextLocation, retry)) {
@@ -773,11 +748,11 @@ function createEvents<F extends Function>(): Events<F> {
 		push(fn: F) {
 			handlers.push(fn);
 			return function () {
-				handlers = handlers.filter((handler) => handler !== fn);
+				handlers = handlers.filter(handler => handler !== fn);
 			};
 		},
 		call(arg) {
-			handlers.forEach((fn) => fn && fn(arg));
+			handlers.forEach(fn => fn && fn(arg));
 		},
 	};
 }
@@ -791,11 +766,7 @@ function createKey() {
  *
  * @see https://github.com/remix-run/history/tree/main/docs/api-reference.md#createpath
  */
-export function createPath({
-	pathname = "/",
-	search = "",
-	hash = "",
-}: Partial<Path>) {
+export function createPath({ pathname = "/", search = "", hash = "" }: Partial<Path>) {
 	if (search && search !== "?") {
 		pathname += search.charAt(0) === "?" ? search : "?" + search;
 	}

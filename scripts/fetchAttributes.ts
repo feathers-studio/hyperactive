@@ -3,7 +3,7 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-w
 import { getSpecialType } from "./util/getSpecialType.ts";
 import * as typer from "./util/hypertyper.ts";
 
-const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes").then((res) => res.text());
+const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes").then(res => res.text());
 
 const document = new DOMParser().parseFromString(html, "text/html")!;
 
@@ -25,18 +25,18 @@ const groupByList = (xs: Attribute[]) =>
 
 const { "Global attribute": globalAttr, ...elements } = groupByList(
 	[...document.querySelector("article table.standard-table tbody")?.childNodes!]
-		.filter((tr) => tr.nodeName === "TR")
+		.filter(tr => tr.nodeName === "TR")
 		.filter(
-			(tr) =>
+			tr =>
 				// @ts-ignore: innerHTML exists, but isn't typed
 				!(tr.innerHTML as string).includes(`"icon icon-deprecated"`),
 		)
-		.map((tr) => [...tr.childNodes!].map((each) => each.textContent))
+		.map(tr => [...tr.childNodes!].map(each => each.textContent))
 		.map(([, attr, , elems, , desc]) => {
 			const elements = elems
 				.replaceAll(/<|>/g, "")
 				.split(/,\s+/)
-				.map((e) => e.trim());
+				.map(e => e.trim());
 
 			return {
 				type: "", // will be replaced after
@@ -45,7 +45,7 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 				desc: desc.trim(),
 			};
 		})
-		.filter((each) => each.prop !== "data-*")
+		.filter(each => each.prop !== "data-*")
 		.sort((a, b) => a.prop.localeCompare(b.prop)),
 );
 
@@ -60,7 +60,7 @@ const composeCustom = (attr: Attribute, element?: string) => ({
 	type: getSpecialType(attr.prop)(element || "global") || "string",
 });
 
-const globalType = typer.type("GlobalAttrs", typer.struct(globalAttr.map((attr) => composeCustom(attr))));
+const globalType = typer.type("GlobalAttrs", typer.struct(globalAttr.map(attr => composeCustom(attr))));
 
 const capitalise = (name: string) => name[0].toUpperCase() + name.slice(1);
 const toElementAttrType = (name: string) => capitalise(name) + "Attributes";
@@ -69,17 +69,14 @@ function* elementTypes() {
 	const sorted = Object.keys(elements).sort((a, b) => a.localeCompare(b));
 	for (const element of sorted) {
 		yield typer.statement(
-			typer.type(
-				toElementAttrType(element),
-				typer.struct(elements[element].map((attr) => composeCustom(attr, element))),
-			),
+			typer.type(toElementAttrType(element), typer.struct(elements[element].map(attr => composeCustom(attr, element)))),
 		);
 	}
 
 	yield typer.statement(
 		typer.type(
 			"UniqueElementAttrs",
-			typer.struct(sorted.map((element) => ({ prop: element, type: toElementAttrType(element) }))),
+			typer.struct(sorted.map(element => ({ prop: element, type: toElementAttrType(element) }))),
 		),
 	);
 }

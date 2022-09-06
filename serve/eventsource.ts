@@ -31,12 +31,19 @@ type EventSourceHandler<State = {}> = (ctx: EventSourceContext<State>) => Promis
  * ```
  */
 function eventToString(o: Record<string, string | number>) {
-	return Object.entries(o).map(([k, v]) => String(v).split("\n").map((line) => `${k}: ${line}`).join("\n")).join("\n");
+	return Object.entries(o)
+		.map(([k, v]) =>
+			String(v)
+				.split("\n")
+				.map(line => `${k}: ${line}`)
+				.join("\n"),
+		)
+		.join("\n");
 }
 
 async function write(buf: PassThrough, content: string) {
 	if (!content) return;
-	return void await writeAll(buf, new TextEncoder().encode(content + "\n\n"));
+	return void (await writeAll(buf, new TextEncoder().encode(content + "\n\n")));
 }
 
 function EventSourceContext<State = {}>(ctx: Context<State>): EventSourceContext<State> {
@@ -45,19 +52,22 @@ function EventSourceContext<State = {}>(ctx: Context<State>): EventSourceContext
 
 	const self: EventSourceContext<State> = {
 		request: ctx.request,
-		comment: (content) => write(passthrough, ": " + content),
-		event: (event) => write(passthrough, eventToString(event)),
+		comment: content => write(passthrough, ": " + content),
+		event: event => write(passthrough, eventToString(event)),
 		ended: false,
-		startResponse: (headersInit) => {
+		startResponse: headersInit => {
 			const headers = new Headers(headersInit);
 			headers.set("Cache-Control", "no-store");
 			headers.set("Content-Type", "text/event-stream");
-			return ctx.respond(stream, { headers }).then(() => {
-				self.ended = true;
-			}).catch((e) => {
-				self.ended = true;
-				return Promise.reject(e);
-			});
+			return ctx
+				.respond(stream, { headers })
+				.then(() => {
+					self.ended = true;
+				})
+				.catch(e => {
+					self.ended = true;
+					return Promise.reject(e);
+				});
 		},
 		state: ctx.state,
 	};
@@ -68,7 +78,7 @@ function EventSourceContext<State = {}>(ctx: Context<State>): EventSourceContext
 export function eventsource<State = {}>(pattern: string, handler: EventSourceHandler<State>): Middleware<State> {
 	const urlPattern = new URLPattern({ pathname: pattern });
 	const pred = (ctx: Context<State>) => urlPattern.test(ctx.request.url);
-	return filter(pred, async (ctx) => {
+	return filter(pred, async ctx => {
 		return handler(EventSourceContext<State>(ctx));
 	});
 }

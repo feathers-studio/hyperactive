@@ -11,6 +11,6 @@ const root = document.getElementById("root")!;
 
 const title = h3("Enter a number, it should double below");
 
-const output = p(state.transform((v) => span(String(parseFloat(v) * 2))));
+const output = p(state.transform(v => span(String(parseFloat(v) * 2))));
 
 renderDOM(root, div({ class: "container" }, title, bind(input(), state), output, ""));

@@ -15,37 +15,26 @@ const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 {
 	const html = await fetch("https://w3c.github.io/using-aria/")
 		//
-		.then((res) => res.text());
+		.then(res => res.text());
 
 	const document = new DOMParser().parseFromString(html, "text/html")!;
 
-	const roles = [
-		...document.querySelector("#html-aria-gaps > section > ol")!.childNodes,
-	]
-		.map((each) => each.textContent.trim().replace(/`/g, ""))
+	const roles = [...document.querySelector("#html-aria-gaps > section > ol")!.childNodes]
+		.map(each => each.textContent.trim().replace(/`/g, ""))
 		.filter(Boolean)
-		.map((each) => `"${each}"`);
+		.map(each => `"${each}"`);
 
-	const types = [
-		"export type AriaRoles =",
-		`	| ${roles.join("\n\t| ")};\n\n`,
-	].join("\n");
+	const types = ["export type AriaRoles =", `	| ${roles.join("\n\t| ")};\n\n`].join("\n");
 
 	Deno.writeTextFileSync(target, types, { append: true });
 }
 
 {
-	const html = await fetch(
-		"https://www.w3.org/TR/wai-aria-1.0/states_and_properties",
-	).then((res) => res.text());
+	const html = await fetch("https://www.w3.org/TR/wai-aria-1.0/states_and_properties").then(res => res.text());
 
 	const document = new DOMParser().parseFromString(html, "text/html")!;
 
-	const allData = [
-		...document.querySelectorAll(
-			"#index_state_prop dt, #index_state_prop dd",
-		),
-	];
+	const allData = [...document.querySelectorAll("#index_state_prop dt, #index_state_prop dd")];
 
 	const attributeTypes = propsToType(
 		"AriaAttributes",

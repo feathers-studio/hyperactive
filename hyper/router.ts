@@ -18,7 +18,7 @@ export function router(...routes: RouteFragment[]): SimpleState<HyperNode | null
 	const state = State.simple<HyperNode | null>(match(routes, history.location));
 
 	// Update when history is updated
-	history.listen((update) => state.publish(match(routes, update.location)));
+	history.listen(update => state.publish(match(routes, update.location)));
 
 	return state;
 }

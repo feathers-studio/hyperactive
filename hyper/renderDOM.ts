@@ -14,9 +14,12 @@ type AttributePrimitive = string | number | boolean | AnyFunction | Falsy;
 type AttributeValue = AttributePrimitive | (string | Falsy)[] | Record<string, AttributePrimitive>;
 type AttributeObject = Record<string, AttributeValue>;
 
-type NodeToDOM<N extends HyperNodeish> = N extends Falsy ? null
-	: N extends string ? Text
-	: N extends SimpleStateRO<string> ? Text
+type NodeToDOM<N extends HyperNodeish> = N extends Falsy
+	? null
+	: N extends string
+	? Text
+	: N extends SimpleStateRO<string>
+	? Text
 	: HTMLElement;
 
 function htmlStringToElement(html: string): Node | null {
@@ -31,7 +34,7 @@ function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 		// if (value === "") el.setAttribute(prefix + attr, "");
 		if (!value) return;
 		else if (attr === "ref" && typeof value === "function") value(el);
-		else if (Array.isArray(value)) el.setAttribute(attr, value.filter((x) => x).join(" "));
+		else if (Array.isArray(value)) el.setAttribute(attr, value.filter(x => x).join(" "));
 		else if (typeof value === "object") attrifyDOM(el, value, attr + "-");
 		else if (typeof value === "boolean") {
 			if (value) el.setAttribute(prefix + attr, "");
@@ -49,7 +52,7 @@ const toDOM = function toDOM<N extends HyperNodeish>(parent: HTMLElement, node: 
 	if (isState(node)) {
 		let init = toDOM(parent, node.init);
 
-		node.subscribe((val) => {
+		node.subscribe(val => {
 			const update = toDOM(parent, val);
 
 			if (update === null || init === null) {
@@ -103,11 +106,7 @@ type Opts = {
 	skipEnvCheck?: boolean;
 };
 
-export function renderDOM<H extends HyperNodeish>(
-	rootNode: HTMLElement,
-	hyperNode: H,
-	{ skipEnvCheck }: Opts = {},
-) {
+export function renderDOM<H extends HyperNodeish>(rootNode: HTMLElement, hyperNode: H, { skipEnvCheck }: Opts = {}) {
 	if (!skipEnvCheck) {
 		const env = guessEnv();
 		if (env !== "browser") throw new DOMNotFound(env);

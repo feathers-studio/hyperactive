@@ -80,7 +80,7 @@ type GlobalAttrs = {
 	 * leave them unchanged.
 	 */
 	translate: "yes" | "no";
-}
+};
 
 type AAttributes = {
 	/**
@@ -244,9 +244,9 @@ type BasefontAttributes = {
 	/**
 	 * This attribute sets the text color using either a named color or a
 	 * color specified in the hexadecimal #RRGGBB format.
-	 * 
-	 * 
-	 * 
+	 *
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS color property instead.
 	 */
@@ -271,8 +271,8 @@ type BlockquoteAttributes = {
 type BodyAttributes = {
 	/**
 	 * Specifies the URL of an image file.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -280,8 +280,8 @@ type BodyAttributes = {
 	background: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -380,8 +380,8 @@ type ColAttributes = {
 	align: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -396,8 +396,8 @@ type ColgroupAttributes = {
 	align: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -522,9 +522,9 @@ type FontAttributes = {
 	/**
 	 * This attribute sets the text color using either a named color or a
 	 * color specified in the hexadecimal #RRGGBB format.
-	 * 
-	 * 
-	 * 
+	 *
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS color property instead.
 	 */
@@ -587,9 +587,9 @@ type HrAttributes = {
 	/**
 	 * This attribute sets the text color using either a named color or a
 	 * color specified in the hexadecimal #RRGGBB format.
-	 * 
-	 * 
-	 * 
+	 *
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS color property instead.
 	 */
@@ -660,8 +660,8 @@ type ImgAttributes = {
 	alt: string;
 	/**
 	 * The border width.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS border property instead.
 	 */
@@ -851,7 +851,29 @@ type InputAttributes = {
 	/**
 	 * Defines the type of the element.
 	 */
-	type: "hidden" | "text" | "search" | "tel" | "url" | "email" | "password" | "date" | "month" | "week" | "time" | "datetime" | "number" | "range" | "color" | "checkbox" | "radio" | "file" | "submit" | "image" | "reset" | "button";
+	type:
+		| "hidden"
+		| "text"
+		| "search"
+		| "tel"
+		| "url"
+		| "email"
+		| "password"
+		| "date"
+		| "month"
+		| "week"
+		| "time"
+		| "datetime"
+		| "number"
+		| "range"
+		| "color"
+		| "checkbox"
+		| "radio"
+		| "file"
+		| "submit"
+		| "image"
+		| "reset"
+		| "button";
 	usemap: string;
 	/**
 	 * Defines a default value which will be displayed in the element on page
@@ -976,8 +998,8 @@ type MapAttributes = {
 type MarqueeAttributes = {
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1052,8 +1074,8 @@ type MeterAttributes = {
 type ObjectAttributes = {
 	/**
 	 * The border width.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS border property instead.
 	 */
@@ -1303,8 +1325,8 @@ type TableAttributes = {
 	align: string;
 	/**
 	 * Specifies the URL of an image file.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -1312,16 +1334,16 @@ type TableAttributes = {
 	background: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
 	bgcolor: string;
 	/**
 	 * The border width.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS border property instead.
 	 */
@@ -1335,8 +1357,8 @@ type TbodyAttributes = {
 	align: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1350,8 +1372,8 @@ type TdAttributes = {
 	align: string;
 	/**
 	 * Specifies the URL of an image file.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -1359,8 +1381,8 @@ type TdAttributes = {
 	background: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1461,8 +1483,8 @@ type TfootAttributes = {
 	align: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1476,8 +1498,8 @@ type ThAttributes = {
 	align: string;
 	/**
 	 * Specifies the URL of an image file.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -1485,8 +1507,8 @@ type ThAttributes = {
 	background: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1532,8 +1554,8 @@ type TrAttributes = {
 	align: string;
 	/**
 	 * Background color of the element.
-	 * 
-	 * 
+	 *
+	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1674,12 +1696,11 @@ type UniqueElementAttrs = {
 	video: VideoAttributes;
 };
 
-type PropOr<T, P extends string | symbol | number, D> =
-	T extends Record<P, infer V> ? V : D;
+type PropOr<T, P extends string | symbol | number, D> = T extends Record<P, infer V> ? V : D;
 
 type Deunionise<T> =
 	| ([undefined] extends [T] ? undefined : never)
-	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined>; };
+	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined> };
 
 export type AllAttrs = Partial<Deunionise<UniqueElementAttrs[keyof UniqueElementAttrs]>>;
 
@@ -1687,29 +1708,30 @@ export type DataAttr = `data-${string}`;
 
 type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
 
-export type Attr<E extends Element = Element> =
-	MappedPartial<
-		GlobalAttrs & { // [data in DataAttr]?: string } & { // TS weirdly breaks when we allow this
-			/**
-			 * ref callback is called on mount of element with the DOM element.
-			 */
-			ref: (el: HTMLElement) => void,
-			/**
-			 * When the element lacks suitable ARIA-semantics, authors must
-			 * assign an ARIA-role. Addition of ARIA semantics only exposes
-			 * extra information to a browser's accessibility API, and does
-			 * not affect a page's DOM.
-			 * 
-			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
-			 */
-			role: AriaRoles;
-			/**
-			 * ARIA is a set of attributes that define ways to make web content
-			 * and web applications (especially those developed with JavaScript)
-			 * more accessible to people with disabilities.
-			 * 
-			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
-			 */
-			aria: AriaAttributes;
-		} & (UniqueElementAttrs & { [k: string]: unknown })[E] & DOMEvents
-	>;
+export type Attr<E extends Element = Element> = MappedPartial<
+	GlobalAttrs & {
+		// [data in DataAttr]?: string } & { // TS weirdly breaks when we allow this
+		/**
+		 * ref callback is called on mount of element with the DOM element.
+		 */
+		ref: (el: HTMLElement) => void;
+		/**
+		 * When the element lacks suitable ARIA-semantics, authors must
+		 * assign an ARIA-role. Addition of ARIA semantics only exposes
+		 * extra information to a browser's accessibility API, and does
+		 * not affect a page's DOM.
+		 *
+		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
+		 */
+		role: AriaRoles;
+		/**
+		 * ARIA is a set of attributes that define ways to make web content
+		 * and web applications (especially those developed with JavaScript)
+		 * more accessible to people with disabilities.
+		 *
+		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
+		 */
+		aria: AriaAttributes;
+	} & (UniqueElementAttrs & { [k: string]: unknown })[E] &
+		DOMEvents
+>;

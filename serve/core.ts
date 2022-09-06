@@ -13,10 +13,7 @@ export type Context<State = {}> = {
 	state: Partial<State>;
 };
 
-export function o<State = {}>(
-	f: Middleware<State>,
-	g: Middleware<State>,
-): Middleware<State> {
+export function o<State = {}>(f: Middleware<State>, g: Middleware<State>): Middleware<State> {
 	return (ctx: Context<State>, next: Next) => g(ctx, () => f(ctx, next));
 }
 
@@ -25,7 +22,7 @@ export function router<State = {}>(...fs: Middleware<State>[]): Middleware<State
 	return fs.reduceRight(o);
 }
 
-const h404: Middleware = (ctx) => {
+const h404: Middleware = ctx => {
 	return ctx.respond(`Cannot ${ctx.request.method} ${new URL(ctx.request.url).pathname}`, { status: 404 });
 };
 
@@ -88,5 +85,5 @@ export function filter<State = {}>(
 	predicate: (ctx: Context<State>) => boolean,
 	middleware: Middleware<State>,
 ): Middleware<State> {
-	return (ctx, next) => predicate(ctx) ? middleware(ctx, next) : next();
+	return (ctx, next) => (predicate(ctx) ? middleware(ctx, next) : next());
 }

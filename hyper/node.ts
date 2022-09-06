@@ -29,9 +29,10 @@ export const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | Hype
 	n instanceof HyperNode || n instanceof HyperHTMLStringNode || typeof n === "string";
 
 export function normaliseParams(props?: Attr | HyperNodeish, childNodes?: HyperNodeish[]) {
-	const [attrs, children] = isHyperNode(props) || isFalsy(props) || isState(props)
-		? [{}, [props, ...(childNodes || [])]]
-		: [props || {}, childNodes || []];
+	const [attrs, children] =
+		isHyperNode(props) || isFalsy(props) || isState(props)
+			? [{}, [props, ...(childNodes || [])]]
+			: [props || {}, childNodes || []];
 
 	return { attrs, children };
 }

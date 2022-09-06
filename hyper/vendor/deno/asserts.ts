@@ -27,12 +27,12 @@ class AssertionError extends Error {
 function _format(v: unknown): string {
 	return globalThis.Deno
 		? Deno.inspect(v, {
-			depth: Infinity,
-			sorted: true,
-			trailingComma: true,
-			compact: false,
-			iterableLimit: Infinity,
-		})
+				depth: Infinity,
+				sorted: true,
+				trailingComma: true,
+				compact: false,
+				iterableLimit: Infinity,
+		  })
 		: `"${String(v).replace(/(?=["\\])/g, "\\")}"`;
 }
 
@@ -70,13 +70,7 @@ function buildMessage(diffResult: ReadonlyArray<DiffResult<string>>): string[] {
 	const messages: string[] = [];
 	messages.push("");
 	messages.push("");
-	messages.push(
-		`    ${gray(bold("[Diff]"))} ${red(bold("Actual"))} / ${
-			green(
-				bold("Expected"),
-			)
-		}`,
-	);
+	messages.push(`    ${gray(bold("[Diff]"))} ${red(bold("Actual"))} / ${green(bold("Expected"))}`);
 	messages.push("");
 	messages.push("");
 	diffResult.forEach((result: DiffResult<string>): void => {
@@ -89,7 +83,7 @@ function buildMessage(diffResult: ReadonlyArray<DiffResult<string>>): string[] {
 }
 
 function isKeyedCollection(x: unknown): x is Set<unknown> {
-	return [Symbol.iterator, "size"].every((k) => k in (x as Set<unknown>));
+	return [Symbol.iterator, "size"].every(k => k in (x as Set<unknown>));
 }
 
 /**
@@ -102,12 +96,7 @@ function equal(c: unknown, d: unknown): boolean {
 	return (function compare(a: unknown, b: unknown): boolean {
 		// Have to render RegExp & Date for string comparison
 		// unless it's mistreated as object
-		if (
-			a &&
-			b &&
-			((a instanceof RegExp && b instanceof RegExp) ||
-				(a instanceof URL && b instanceof URL))
-		) {
+		if (a && b && ((a instanceof RegExp && b instanceof RegExp) || (a instanceof URL && b instanceof URL))) {
 			return String(a) === String(b);
 		}
 		if (a instanceof Date && b instanceof Date) {
@@ -142,9 +131,7 @@ function equal(c: unknown, d: unknown): boolean {
 						/* Given that Map keys can be references, we need
 						 * to ensure that they are also deeply equal */
 						if (
-							(aKey === aValue &&
-								bKey === bValue &&
-								compare(aKey, bKey)) ||
+							(aKey === aValue && bKey === bValue && compare(aKey, bKey)) ||
 							(compare(aKey, bKey) && compare(aValue, bValue))
 						) {
 							unmatchedEntries--;
@@ -155,12 +142,7 @@ function equal(c: unknown, d: unknown): boolean {
 				return unmatchedEntries === 0;
 			}
 			const merged = { ...a, ...b };
-			for (
-				const key of [
-					...Object.getOwnPropertyNames(merged),
-					...Object.getOwnPropertySymbols(merged),
-				]
-			) {
+			for (const key of [...Object.getOwnPropertyNames(merged), ...Object.getOwnPropertySymbols(merged)]) {
 				type Key = keyof typeof merged;
 				if (!compare(a && a[key as Key], b && b[key as Key])) {
 					return false;
@@ -186,17 +168,9 @@ function equal(c: unknown, d: unknown): boolean {
  * assertEquals<number>(1, 2)
  * ```
  */
-export function assertEquals(
-	actual: unknown,
-	expected: unknown,
-	msg?: string,
-): void;
+export function assertEquals(actual: unknown, expected: unknown, msg?: string): void;
 export function assertEquals<T>(actual: T, expected: T, msg?: string): void;
-export function assertEquals(
-	actual: unknown,
-	expected: unknown,
-	msg?: string,
-): void {
+export function assertEquals(actual: unknown, expected: unknown, msg?: string): void {
 	if (equal(actual, expected)) {
 		return;
 	}
@@ -204,10 +178,7 @@ export function assertEquals(
 	const actualString = _format(actual);
 	const expectedString = _format(expected);
 	try {
-		const diffResult = diff(
-			actualString.split("\n"),
-			expectedString.split("\n"),
-		);
+		const diffResult = diff(actualString.split("\n"), expectedString.split("\n"));
 		const diffMsg = buildMessage(diffResult).join("\n");
 		message = `Values are not equal:\n${diffMsg}`;
 	} catch {
