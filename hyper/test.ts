@@ -105,43 +105,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "elements() - elements[] equivalence",
-	fn: () => {
-		const { div, p } = elements;
-		const [div2, p2] = elements("div", "p");
-		assertEquals(renderHTML(div(p("Hello"))), renderHTML(div2(p2("Hello"))));
-	},
-});
-
-Deno.test({
-	name: "elements() - elements[] equality",
-	fn: () => {
-		const { div, p } = elements;
-		const { div: div2, p: p2 } = elements;
-
-		const [div3, p3] = elements("div", "p");
-		const [div4, p4] = elements("div", "p");
-
-		assertEquals(div, div2);
-		assertEquals(p, p2);
-
-		assertEquals(div, div3);
-		assertEquals(p, p3);
-
-		assertEquals(div, div4);
-		assertEquals(p, p4);
-	},
-});
-
-Deno.test({
-	name: "renderHTML with custom element",
-	fn: () => {
-		const [el] = elements("custom-element");
-		assertEquals(renderHTML(el()), `<custom-element></custom-element>`);
-	},
-});
-
-Deno.test({
 	name: "renderHTML with boolean attributes",
 	fn: () => {
 		assertEquals(renderHTML(input({ disabled: true })), `<input disabled />`);
@@ -188,37 +151,67 @@ Deno.test({
 });
 
 Deno.test({
-	name: "renderHTML - use simple selector syntax",
+	name: "renderHTML with simple selector syntax",
 	fn: () => {
-		const customDiv = div["hello"];
-
-		assertEquals(renderHTML(customDiv("test")), `<div class="hello">test</div>`);
+		assertEquals(
+			renderHTML(
+				//
+				div["hello"]("test"),
+			),
+			`<div class="hello">test</div>`,
+		);
 	},
 });
 
 Deno.test({
-	name: "renderHTML - use multiple selector syntax",
+	name: "renderHTML with multiple selector syntax",
 	fn: () => {
-		const customDiv = div.hello.world;
-
-		assertEquals(renderHTML(customDiv("test")), `<div class="hello world">test</div>`);
+		assertEquals(
+			renderHTML(
+				//
+				div.hello.world("test"),
+			),
+			`<div class="hello world">test</div>`,
+		);
 	},
 });
 
 Deno.test({
-	name: "renderHTML - use complex selector syntax",
+	name: "renderHTML with complex selector syntax",
 	fn: () => {
-		const customDiv = div[".hello#id.world"].container;
-
-		assertEquals(renderHTML(customDiv("test")), `<div id="id" class="hello world container">test</div>`);
+		assertEquals(
+			renderHTML(
+				//
+				div[".hello#id.world"].container("test"),
+			),
+			`<div id="id" class="hello world container">test</div>`,
+		);
 	},
 });
 
 Deno.test({
-	name: "renderHTML - combine selector syntax with attributes",
+	name: "renderHTML with selector syntax AND attributes",
 	fn: () => {
-		const el = div[".hello#id.world"].container({ class: "flex", title: "Flex Container" }, "test");
+		assertEquals(
+			renderHTML(
+				//
+				div[".hello#id.world"].container({ class: "flex", title: "Flex Container" }, "test"),
+			),
+			`<div class="hello world container flex" title="Flex Container" id="id">test</div>`,
+		);
+	},
+});
 
-		assertEquals(renderHTML(el), `<div class="hello world container flex" title="Flex Container" id="id">test</div>`);
+Deno.test({
+	name: "elements[] equality",
+	fn: () => {
+		// checks that proxy fetches from cache instead of creating a new function each time
+		const div = elements.div;
+		const div2 = elements.div;
+
+		const p = elements.p;
+		const p2 = elements.p;
+		assertEquals(div, div2);
+		assertEquals(p, p2);
 	},
 });

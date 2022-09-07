@@ -58,39 +58,18 @@ function createSelectorProxy<Elem extends Tag>(
 	});
 }
 
-const cache = new Map<Tag, Hyper.Element>();
+export type Elements = { [k in Tag]: Hyper.Element<k> };
 
-function getElement<Elem extends Tag>(element: Elem): Hyper.Element<Elem, Attr<Elem>> {
-	type HE = Hyper.Element<Elem, Attr<Elem>>;
+export const elements = new Proxy({} as Elements, {
+	get<E extends Tag>(target: Elements, element: E): Hyper.Element<E> {
+		const fromCache = target[element];
+		if (fromCache) return fromCache;
 
-	const fromCache = cache.get(element);
-	if (fromCache) return fromCache as HE;
+		const hyperElement = function hyperElement(...params: any[]) {
+			return h(element as NonEmptyElement, ...params);
+		} as Elements[E];
 
-	function hyperElement(...params: any[]) {
-		return h(element as NonEmptyElement, ...params);
-	}
-
-	cache.set(element, hyperElement as Hyper.Element);
-
-	return createSelectorProxy(element, hyperElement as HE);
-}
-
-export type ElementsToHyper<Elements extends Tag[]> =
-	// infer as tuple
-	Elements extends [infer E, ...infer Rest]
-		? E extends Tag
-			? Rest extends Tag[]
-				? [Hyper.Element<E>, ...ElementsToHyper<Rest>]
-				: []
-			: []
-		: [];
-
-function mapElements<Elements extends Tag[]>(...elements: Elements) {
-	return elements.map(getElement) as ElementsToHyper<Elements>;
-}
-
-export const elements = new Proxy(mapElements, {
-	get<E extends Tag>(_: unknown, element: E): Hyper.Element<E> {
-		return getElement(element);
+		target[element] = hyperElement;
+		return createSelectorProxy(element, hyperElement);
 	},
-}) as typeof mapElements & { [k in Exclude<Tag, CustomTag>]: Hyper.Element<k> };
+});
