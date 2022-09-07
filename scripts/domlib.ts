@@ -12,10 +12,10 @@ const sanelib = domlib
 const or = (list: string[]) => list.map(each => `(${each})`).join("|");
 
 const idRegex = "(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])+";
-const body = ".*{(\\n(.+))*\\n}";
+const body = ".*{(\\n(.+))*?\\n}";
 
 const single = String.raw`\/\*\* .+ \*\/`;
-const multi = String.raw`\/\*\*(\n.*)+\n\s+\*\/`;
+const multi = String.raw`\/\*\*(\n.*?)+\*\/`;
 
 const doc = or([single, multi]);
 
@@ -107,7 +107,7 @@ and limitations under the License.
 ***************************************************************************** */
 `.trim();
 
-await Deno.writeTextFile("vendor/dom.slim.ts", preface + "\n" + slim);
+await Deno.writeTextFile("hyper/vendor/dom.slim.ts", preface + "\n" + slim);
 
 // force this to be an ESM
 export {};
