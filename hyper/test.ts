@@ -26,7 +26,7 @@ Deno.test({
 // });
 
 Deno.test({
-	name: "renderHTML simple -- escaping attribute and text nodes",
+	name: "renderHTML simple - escaping attribute and text nodes",
 	fn: () => {
 		assertEquals(
 			renderHTML(
@@ -45,7 +45,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "renderHTML simple -- class array",
+	name: "renderHTML simple - class array",
 	fn: () => {
 		assertEquals(
 			renderHTML(
@@ -184,5 +184,41 @@ Deno.test({
 			),
 			`<input />`,
 		);
+	},
+});
+
+Deno.test({
+	name: "renderHTML - use simple selector syntax",
+	fn: () => {
+		const customDiv = div["hello"];
+
+		assertEquals(renderHTML(customDiv("test")), `<div class="hello">test</div>`);
+	},
+});
+
+Deno.test({
+	name: "renderHTML - use multiple selector syntax",
+	fn: () => {
+		const customDiv = div.hello.world;
+
+		assertEquals(renderHTML(customDiv("test")), `<div class="hello world">test</div>`);
+	},
+});
+
+Deno.test({
+	name: "renderHTML - use complex selector syntax",
+	fn: () => {
+		const customDiv = div[".hello#id.world"].container;
+
+		assertEquals(renderHTML(customDiv("test")), `<div id="id" class="hello world container">test</div>`);
+	},
+});
+
+Deno.test({
+	name: "renderHTML - combine selector syntax with attributes",
+	fn: () => {
+		const el = div[".hello#id.world"].container({ class: "flex", title: "Flex Container" }, "test");
+
+		assertEquals(renderHTML(el), `<div class="hello world container flex" title="Flex Container" id="id">test</div>`);
 	},
 });
