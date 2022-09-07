@@ -1,6 +1,6 @@
 export type CustomTag = `${string}-${string}`;
 
-export type Element =
+export type Tag =
 	| CustomTag
 	| "a"
 	| "abbr"

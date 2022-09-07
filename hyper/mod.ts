@@ -1,4 +1,4 @@
-export * from "./lib/elements.ts";
+export * from "./lib/tags.ts";
 export * from "./lib/attributes.ts";
 export * from "./node.ts";
 export * from "./state.ts";

@@ -12,7 +12,7 @@ const opts = {
 
 const baseType =
 	"export type CustomTag = `${string}-${string}`;\n\n" +
-	`export type Element =
+	`export type Tag =
 	| CustomTag`;
 
 const constructTypes = (elements: { title: string }[]) => {
@@ -72,5 +72,5 @@ fetch(elementsUrl, opts)
 				})),
 			);
 
-		Deno.writeTextFileSync("./src/lib/elements.ts", preamble + constructTypes(active));
+		Deno.writeTextFileSync("./src/lib/tags.ts", preamble + constructTypes(active));
 	});
