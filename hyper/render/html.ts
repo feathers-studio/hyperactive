@@ -14,14 +14,12 @@ function attrifyHTML(attrs: AttributeObject, prefix = ""): string {
 	return Object.entries(attrs)
 		.map(([attr, value]) => {
 			if (attr === "on" || typeof value === "function") return "";
-			// if (value === "") return value;
 			if (!value) return "";
 			if (Array.isArray(value)) return attrifyHTML({ [attr]: value.filter(x => x).join(" ") }, prefix);
 			if (typeof value === "object") return attrifyHTML(value, attr + "-");
-			if (typeof value === "boolean") {
+			if (typeof value === "boolean")
 				if (value) return `${prefix + attr}`;
 				else return "";
-			}
 			if (value) return `${prefix + attr}="${escapeAttr(String(value))}"`;
 		})
 		.filter(Boolean)

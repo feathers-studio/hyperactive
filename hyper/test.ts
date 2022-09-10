@@ -15,15 +15,15 @@ Deno.test({
 });
 
 // we don't support data-attr yet, due to weird TS bugs
-// Deno.test({
-// 	name: "renderHTML simple with data-attr",
-// 	fn: () => {
-// 		assertEquals(
-// 			renderHTML(div({ "id": "hello", "class": "world", "data-attr": "value" }, "Hello world")),
-// 			`<div id="hello" class="world" "data-attr"="value">Hello world</div>`,
-// 		);
-// 	},
-// });
+Deno.test({
+	name: "renderHTML simple with data-attr",
+	fn: () => {
+		assertEquals(
+			renderHTML(div({ "id": "hello", "class": "world", "data-attr": "value" }, "Hello world")),
+			`<div id="hello" class="world" data-attr="value">Hello world</div>`,
+		);
+	},
+});
 
 Deno.test({
 	name: "renderHTML simple - escaping attribute and text nodes",
