@@ -20,7 +20,7 @@ export function* type(name: string, type: string | Generator<string>) {
 	yield* iter;
 }
 
-const docLineStart = " * ";
+const docLineStart = " *";
 
 export const docLine = (line: string) => {
 	line = line.trim();
@@ -28,7 +28,7 @@ export const docLine = (line: string) => {
 
 	line = line.replace(/<|>/g, s => ({ "<": "`<", ">": ">`" }[s as "<" | ">"]));
 	if (line.startsWith("Note")) line = "> " + line;
-	return docLineStart + line;
+	return docLineStart + " " + line;
 };
 
 type Prop = {

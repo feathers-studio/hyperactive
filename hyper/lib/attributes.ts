@@ -53,6 +53,10 @@ type GlobalAttrs = {
 	 */
 	lang: string;
 	/**
+	 * Defines an explicit role for an element for use by assistive technologies.
+	 */
+	role: string;
+	/**
 	 * Assigns a slot in a shadow DOM shadow tree to an element.
 	 */
 	slot: string;
@@ -80,7 +84,7 @@ type GlobalAttrs = {
 	 * leave them unchanged.
 	 */
 	translate: "yes" | "no";
-};
+}
 
 type AAttributes = {
 	/**
@@ -240,19 +244,6 @@ type BaseAttributes = {
 	target: string;
 };
 
-type BasefontAttributes = {
-	/**
-	 * This attribute sets the text color using either a named color or a
-	 * color specified in the hexadecimal #RRGGBB format.
-	 *
-	 *
-	 *
-	 * > Note: This is a legacy attribute. Please use the
-	 * CSS color property instead.
-	 */
-	color: string;
-};
-
 type BgsoundAttributes = {
 	/**
 	 * Indicates whether the media should start playing from the start when
@@ -272,7 +263,6 @@ type BodyAttributes = {
 	/**
 	 * Specifies the URL of an image file.
 	 *
-	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -280,7 +270,6 @@ type BodyAttributes = {
 	background: string;
 	/**
 	 * Background color of the element.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
@@ -381,7 +370,6 @@ type ColAttributes = {
 	/**
 	 * Background color of the element.
 	 *
-	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -396,7 +384,6 @@ type ColgroupAttributes = {
 	align: string;
 	/**
 	 * Background color of the element.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
@@ -432,6 +419,8 @@ type ContenteditableAttributes = {
 	 * virtual keyboards. The attribute can be used with form controls (such as
 	 * the value of textarea elements), or in elements in an
 	 * editing host (e.g., using contenteditable attribute).
+	 *
+	 * @experimental
 	 */
 	enterkeyhint: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
 	/**
@@ -465,7 +454,7 @@ type DelAttributes = {
 
 type DetailsAttributes = {
 	/**
-	 * Indicates whether the the contents are currently visible (in the case of
+	 * Indicates whether the contents are currently visible (in the case of
 	 * a `<details>` element) or whether the dialog is active
 	 * and can be interacted with (in the case of a
 	 * `<dialog>` element).
@@ -475,7 +464,7 @@ type DetailsAttributes = {
 
 type DialogAttributes = {
 	/**
-	 * Indicates whether the the contents are currently visible (in the case of
+	 * Indicates whether the contents are currently visible (in the case of
 	 * a `<details>` element) or whether the dialog is active
 	 * and can be interacted with (in the case of a
 	 * `<dialog>` element).
@@ -522,7 +511,6 @@ type FontAttributes = {
 	/**
 	 * This attribute sets the text color using either a named color or a
 	 * color specified in the hexadecimal #RRGGBB format.
-	 *
 	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
@@ -589,7 +577,6 @@ type HrAttributes = {
 	 * color specified in the hexadecimal #RRGGBB format.
 	 *
 	 *
-	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS color property instead.
 	 */
@@ -608,6 +595,8 @@ type IframeAttributes = {
 	/**
 	 * Specifies the Content Security Policy that an embedded document must
 	 * agree to enforce upon itself.
+	 *
+	 * @experimental
 	 */
 	csp: string;
 	/**
@@ -616,12 +605,16 @@ type IframeAttributes = {
 	height: number;
 	/**
 	 * Indicates the relative fetch priority for the resource.
+	 *
+	 * @experimental
 	 */
 	importance: string;
 	/**
 	 * Indicates if the element should be loaded lazily
 	 * (loading="lazy") or loaded immediately
 	 * (loading="eager").
+	 *
+	 * @experimental
 	 */
 	loading: "lazy" | "eager";
 	/**
@@ -661,7 +654,6 @@ type ImgAttributes = {
 	/**
 	 * The border width.
 	 *
-	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS border property instead.
 	 */
@@ -680,6 +672,8 @@ type ImgAttributes = {
 	height: number;
 	/**
 	 * Indicates the relative fetch priority for the resource.
+	 *
+	 * @experimental
 	 */
 	importance: string;
 	/**
@@ -690,6 +684,8 @@ type ImgAttributes = {
 	 * Indicates if the element should be loaded lazily
 	 * (loading="lazy") or loaded immediately
 	 * (loading="eager").
+	 *
+	 * @experimental
 	 */
 	loading: "lazy" | "eager";
 	/**
@@ -851,29 +847,7 @@ type InputAttributes = {
 	/**
 	 * Defines the type of the element.
 	 */
-	type:
-		| "hidden"
-		| "text"
-		| "search"
-		| "tel"
-		| "url"
-		| "email"
-		| "password"
-		| "date"
-		| "month"
-		| "week"
-		| "time"
-		| "datetime"
-		| "number"
-		| "range"
-		| "color"
-		| "checkbox"
-		| "radio"
-		| "file"
-		| "submit"
-		| "image"
-		| "reset"
-		| "button";
+	type: "hidden" | "text" | "search" | "tel" | "url" | "email" | "password" | "date" | "month" | "week" | "time" | "datetime" | "number" | "range" | "color" | "checkbox" | "radio" | "file" | "submit" | "image" | "reset" | "button";
 	usemap: string;
 	/**
 	 * Defines a default value which will be displayed in the element on page
@@ -959,6 +933,8 @@ type LinkAttributes = {
 	hreflang: string;
 	/**
 	 * Indicates the relative fetch priority for the resource.
+	 *
+	 * @experimental
 	 */
 	importance: string;
 	/**
@@ -998,7 +974,6 @@ type MapAttributes = {
 type MarqueeAttributes = {
 	/**
 	 * Background color of the element.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
@@ -1074,7 +1049,6 @@ type MeterAttributes = {
 type ObjectAttributes = {
 	/**
 	 * The border width.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS border property instead.
@@ -1223,6 +1197,8 @@ type ScriptAttributes = {
 	defer: boolean;
 	/**
 	 * Indicates the relative fetch priority for the resource.
+	 *
+	 * @experimental
 	 */
 	importance: string;
 	/**
@@ -1326,7 +1302,6 @@ type TableAttributes = {
 	/**
 	 * Specifies the URL of an image file.
 	 *
-	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -1335,14 +1310,12 @@ type TableAttributes = {
 	/**
 	 * Background color of the element.
 	 *
-	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
 	bgcolor: string;
 	/**
 	 * The border width.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS border property instead.
@@ -1358,7 +1331,6 @@ type TbodyAttributes = {
 	/**
 	 * Background color of the element.
 	 *
-	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1373,7 +1345,6 @@ type TdAttributes = {
 	/**
 	 * Specifies the URL of an image file.
 	 *
-	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -1381,7 +1352,6 @@ type TdAttributes = {
 	background: string;
 	/**
 	 * Background color of the element.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
@@ -1427,6 +1397,8 @@ type TextareaAttributes = {
 	 * virtual keyboards. The attribute can be used with form controls (such as
 	 * the value of textarea elements), or in elements in an
 	 * editing host (e.g., using contenteditable attribute).
+	 *
+	 * @experimental
 	 */
 	enterkeyhint: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
 	/**
@@ -1484,7 +1456,6 @@ type TfootAttributes = {
 	/**
 	 * Background color of the element.
 	 *
-	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
 	 */
@@ -1499,7 +1470,6 @@ type ThAttributes = {
 	/**
 	 * Specifies the URL of an image file.
 	 *
-	 *
 	 * > Note: Although browsers and email clients may still
 	 * support this attribute, it is obsolete. Use CSS
 	 * background-image instead.
@@ -1507,7 +1477,6 @@ type ThAttributes = {
 	background: string;
 	/**
 	 * Background color of the element.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
@@ -1554,7 +1523,6 @@ type TrAttributes = {
 	align: string;
 	/**
 	 * Background color of the element.
-	 *
 	 *
 	 * > Note: This is a legacy attribute. Please use the
 	 * CSS background-color property instead.
@@ -1638,7 +1606,6 @@ type UniqueElementAttrs = {
 	area: AreaAttributes;
 	audio: AudioAttributes;
 	base: BaseAttributes;
-	basefont: BasefontAttributes;
 	bgsound: BgsoundAttributes;
 	blockquote: BlockquoteAttributes;
 	body: BodyAttributes;
@@ -1696,11 +1663,12 @@ type UniqueElementAttrs = {
 	video: VideoAttributes;
 };
 
-type PropOr<T, P extends string | symbol | number, D> = T extends Record<P, infer V> ? V : D;
+type PropOr<T, P extends string | symbol | number, D> =
+	T extends Record<P, infer V> ? V : D;
 
 type Deunionise<T> =
 	| ([undefined] extends [T] ? undefined : never)
-	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined> };
+	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined>; };
 
 export type AllAttrs = Partial<Deunionise<UniqueElementAttrs[keyof UniqueElementAttrs]>>;
 
@@ -1709,8 +1677,7 @@ export type DataAttr = `data-${string}`;
 type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
 
 export type Attr<T extends Tag = Tag> = MappedPartial<
-	GlobalAttrs & {
-		// [data in DataAttr]?: string } & { // TS weirdly breaks when we allow this
+	GlobalAttrs & { [data in DataAttr]?: string } & {
 		/**
 		 * ref callback is called on mount of element with the DOM element.
 		 */

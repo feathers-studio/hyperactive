@@ -31,19 +31,26 @@ const { "Global attribute": globalAttr, ...elements } = groupByList(
 				// @ts-ignore: innerHTML exists, but isn't typed
 				!(tr.innerHTML as string).includes(`"icon icon-deprecated"`),
 		)
-		.map(tr => [...tr.childNodes!].map(each => each.textContent))
-		.map(([, attr, , elems, , desc]) => {
-			const elements = elems
+		.map(tr => [...tr.children])
+		.map(([attr, elems, description]) => {
+			const elements = elems.textContent
 				.replaceAll(/<|>/g, "")
 				.split(/,\s+/)
 				.map(e => e.trim());
 
-			return {
-				type: "", // will be replaced after
-				prop: attr.trim(),
-				elements,
-				desc: desc.trim(),
-			};
+			const prop = attr.children[0].textContent.trim();
+			const isExp = attr.children[1]?.classList.contains("icon-experimental");
+
+			const desc =
+				description.textContent
+					.trim()
+					.split("\n")
+					.map(x => x.trim())
+					.join("\n")
+					.replace("\n\n", "\n") + (isExp ? "\n\n@experimental" : "");
+
+			// type will be replaced later
+			return { type: "", prop, elements, desc };
 		})
 		.filter(each => each.prop !== "data-*")
 		.sort((a, b) => a.prop.localeCompare(b.prop)),
@@ -56,7 +63,7 @@ const customDesc: Record<string, string> = {
 
 const composeCustom = (attr: Attribute, element?: string) => ({
 	prop: attr.prop,
-	desc: customDesc[attr.prop] || attr.desc.replace("\n\n", "\n"),
+	desc: customDesc[attr.prop] || attr.desc,
 	type: getSpecialType(attr.prop)(element || "global") || "string",
 });
 
@@ -105,32 +112,31 @@ export type DataAttr = ${"`data-${string}`"};
 
 type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
 
-export type Attr<T extends Tag = Tag> =
-	MappedPartial<
-		GlobalAttrs & { // [data in DataAttr]?: string } & { // TS weirdly breaks when we allow this
-			/**
-			 * ref callback is called on mount of element with the DOM element.
-			 */
-			ref: (el: HTMLElement) => void,
-			/**
-			 * When the element lacks suitable ARIA-semantics, authors must
-			 * assign an ARIA-role. Addition of ARIA semantics only exposes
-			 * extra information to a browser's accessibility API, and does
-			 * not affect a page's DOM.
-			 * 
-			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
-			 */
-			role: AriaRoles;
-			/**
-			 * ARIA is a set of attributes that define ways to make web content
-			 * and web applications (especially those developed with JavaScript)
-			 * more accessible to people with disabilities.
-			 * 
-			 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
-			 */
-			aria: AriaAttributes;
-		} & (UniqueElementAttrs & { [k: string]: unknown })[T] & DOMEvents
-	>;
-`.trim();
+export type Attr<T extends Tag = Tag> = MappedPartial<
+	GlobalAttrs & { [data in DataAttr]?: string } & {
+		/**
+		 * ref callback is called on mount of element with the DOM element.
+		 */
+		ref: (el: HTMLElement) => void;
+		/**
+		 * When the element lacks suitable ARIA-semantics, authors must
+		 * assign an ARIA-role. Addition of ARIA semantics only exposes
+		 * extra information to a browser's accessibility API, and does
+		 * not affect a page's DOM.
+		 *
+		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
+		 */
+		role: AriaRoles;
+		/**
+		 * ARIA is a set of attributes that define ways to make web content
+		 * and web applications (especially those developed with JavaScript)
+		 * more accessible to people with disabilities.
+		 *
+		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
+		 */
+		aria: AriaAttributes;
+	} & (UniqueElementAttrs & { [k: string]: unknown })[T] &
+		DOMEvents
+>;`.trim();
 
 typer.writer("./hyper/lib/attributes.ts", typer.program([preamble, imports, globalType, ...elementTypes(), prologue]));
