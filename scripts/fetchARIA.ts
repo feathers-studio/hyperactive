@@ -2,7 +2,7 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-w
 
 import { preamble, propsToType } from "./util/codegen.ts";
 
-const target = "./src/lib/aria.ts";
+const target = "./hyper/lib/aria.ts";
 
 const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 	Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, i * size + size));

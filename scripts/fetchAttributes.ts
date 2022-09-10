@@ -4,7 +4,6 @@ import { getSpecialType } from "./util/getSpecialType.ts";
 import * as typer from "./util/hypertyper.ts";
 
 const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes").then(res => res.text());
-
 const document = new DOMParser().parseFromString(html, "text/html")!;
 
 type Attribute = { prop: string; elements: string[]; desc: string; type: string };
