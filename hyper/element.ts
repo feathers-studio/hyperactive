@@ -1,5 +1,5 @@
 import { h, HyperNode, HyperNodeish, NonEmptyElement, normaliseParams } from "./node.ts";
-import { CustomTag, Tag } from "./lib/tags.ts";
+import { Tag } from "./lib/tags.ts";
 import { EmptyElements } from "./lib/emptyElements.ts";
 import { Attr } from "./lib/attributes.ts";
 import { parseSelector } from "./parse.ts";
