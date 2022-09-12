@@ -138,4 +138,9 @@ export type Attr<T extends Tag = Tag> = MappedPartial<
 		DOMEvents
 >;`.trim();
 
-typer.writer("./hyper/lib/attributes.ts", typer.program([preamble, imports, globalType, ...elementTypes(), prologue]));
+{
+	const target = "./hyper/lib/attributes.ts";
+	console.log(`Writing ${target}`);
+
+	typer.writer(target, typer.program(preamble, imports, globalType, ...elementTypes(), prologue));
+}

@@ -8,10 +8,10 @@ const escapables = {
 
 const escaped = new RegExp(Object.keys(escapables).join("|"), "g");
 
-export const escapeAttr = (s: string) => s.replace(escaped, r => escapables[r as keyof typeof escapables] || r);
+export const unescape = (s: string) => s.replace(escaped, r => escapables[r as keyof typeof escapables] || r);
 
 export const html2md = (html: string, { baseURL }: { baseURL?: string } = {}) =>
-	escapeAttr(
+	unescape(
 		html
 			.replace(/<code>(?<contents>.+?)<\/code>/g, (_, _1, _2, _3, { contents }) => contents)
 			.replace(/<strong>(?<contents>.+?)<\/strong>/g, (_, _1, _2, _3, { contents }) => `**${contents}**`)
