@@ -22,7 +22,7 @@ export function* flatten<T>(xs: Iterable<T | Iterable<T>>) {
 		else yield x;
 }
 
-export function* flatMap<T, U>(xs: Iterable<T>, mapper: (x: T) => U | Iterable<U>): Iterable<U> {
+export function* flatMap<T, U>(xs: Iterable<T>, mapper: (x: T) => Iterable<U>): Iterable<U> {
 	for (const x of xs) yield* mapper(x);
 }
 

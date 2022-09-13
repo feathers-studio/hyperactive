@@ -11,7 +11,6 @@ export const EmptyElements = new Set([
 	"input",
 	"link",
 	"meta",
-	"param",
 	"source",
 	"track",
 	"wbr",
