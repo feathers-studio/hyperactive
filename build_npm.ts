@@ -23,6 +23,6 @@ await build({
 });
 
 // post build steps
-Deno.copyFileSync("LICENSE", "npm/LICENSE");
-Deno.copyFileSync("README.md", "npm/README.md");
-Deno.copyFileSync("hpr-trgwii.jpg", "npm/hpr-trgwii.jpg");
+Deno.copyFileSync("LICENSE", "npm/hyper/LICENSE");
+Deno.copyFileSync("README.md", "npm/hyper/README.md");
+Deno.copyFileSync("hpr-trgwii.jpg", "npm/hyper/hpr-trgwii.jpg");
