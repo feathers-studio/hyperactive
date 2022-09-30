@@ -1,6 +1,6 @@
 // hypertyper ⚡️
 
-import { EvenUnion, UnionToIntersection } from "./types.ts";
+import { EvenUnion } from "./types.ts";
 
 export const eol = "\n";
 
@@ -45,9 +45,7 @@ export function* concat<T>(...xs: Iterable<T>[]) {
 	for (const x of xs) yield* x;
 }
 
-type ImportSpec = EvenUnion<
-	UnionToIntersection<{ imports: (string | [string, string])[] } | { default: string } | { all: string }>
->;
+type ImportSpec = EvenUnion<{ imports: (string | [string, string])[] } & { default: string } & { all: string }>;
 
 function* _imports(path: string, { imports, default: def, all }: ImportSpec) {
 	yield "import";

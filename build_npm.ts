@@ -1,15 +1,11 @@
-import { build } from "https://deno.land/x/dnt/mod.ts";
+import { build } from "https://deno.land/x/dnt@0.30.0/mod.ts";
 import { version } from "./version.ts";
 
 await build({
 	entryPoints: ["./mod.ts"],
-	outDir: "./npm",
-	shims: {
-		deno: true,
-	},
-	compilerOptions: {
-		target: "ES2015",
-	},
+	outDir: "./npm/hyper",
+	shims: { deno: "dev" },
+	compilerOptions: { target: "ES2019" },
 	package: {
 		// package.json properties
 		name: "@hyperactive/hyper",
