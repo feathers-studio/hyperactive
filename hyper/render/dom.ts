@@ -1,5 +1,4 @@
 import { guessEnv } from "../guessEnv.ts";
-import { Attr } from "../lib/attributes.ts";
 import { Falsy, isFalsy } from "../util.ts";
 import { isState, SimpleStateRO } from "../state.ts";
 import { Document, HTMLElement, Node, Text } from "../lib/dom.ts";

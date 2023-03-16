@@ -1,4 +1,4 @@
-const res = await fetch("https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/lib.dom.d.ts");
+const res = await fetch("https://unpkg.com/@types/web/index.d.ts");
 const domlib = await res.text();
 
 const NBSP = String.fromCharCode(160);
