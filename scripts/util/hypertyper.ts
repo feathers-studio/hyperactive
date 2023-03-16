@@ -116,6 +116,10 @@ export function* desc(desc: string) {
 	yield " */" + eol;
 }
 
+export function see(href: string, title?: string) {
+	return "@see {@link " + [href, title].filter(Boolean).join(" ") + "}";
+}
+
 const idRegex = /^(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])*$/;
 
 export function* member(name: string, type: string | Generator<string>, level: number) {

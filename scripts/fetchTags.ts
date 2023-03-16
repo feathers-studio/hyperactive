@@ -1,17 +1,23 @@
-import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.34-alpha/deno-dom-wasm.ts";
+import { DOMParser, Element, HTMLCollection } from "https://deno.land/x/deno_dom@v0.1.36-alpha/deno-dom-wasm.ts";
 import { html2md } from "./util/html2md.ts";
 import * as typer from "./util/hypertyper.ts";
 
 const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Element").then(res => res.text());
 const document = new DOMParser().parseFromString(html, "text/html")!;
 
+const baseURL = "https://developer.mozilla.org";
+
 const tags = (
 	[...document.querySelectorAll("section:not([aria-labelledby=obsolete_and_deprecated_elements]) tr")] as Element[]
 )
 	.flatMap(x => {
 		const y = x.children[0];
-		const description = html2md(x.children[1].innerHTML, { baseURL: "https://developer.mozilla.org" });
-		return [...y.querySelectorAll("a")].map(x => ({ title: x.textContent.replace(/<|>/g, ""), description }));
+		const description = html2md(x.children[1].innerHTML, { baseURL });
+		return [...(y.querySelectorAll("a") as unknown as HTMLCollection)].map(x => {
+			let href = "";
+			for (const attr of x.attributes) if (attr.nodeName === "href") href = attr.value;
+			return { title: x.textContent.replace(/<|>/g, ""), href, description };
+		});
 	})
 	.sort((a, b) => a.title.localeCompare(b.title));
 
@@ -31,8 +37,8 @@ const tags = (
 		tags.filter(tag => tag.title !== "var"),
 		function* (opts) {
 			yield typer.collectString(
-				(function* ({ title, description }: typeof opts) {
-					yield* typer.desc(description);
+				(function* ({ title, href, description }: typeof opts) {
+					yield* typer.desc([description, typer.see(baseURL + href, "MDN | " + title)].join("\n\n"));
 					yield* typer.statement(typer.exports(typer.constant(title, `elements.${title}`)));
 				})(opts),
 			);
