@@ -2,7 +2,7 @@ import { Tag } from "./lib/tags.ts";
 import { EmptyElements } from "./lib/emptyElements.ts";
 import { Attr } from "./lib/attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
-import { isState, SimpleState, SimpleStateRO } from "./state.ts";
+import State, { isState } from "./state.ts";
 
 export type NonEmptyElement = Exclude<Tag, EmptyElements>;
 
@@ -44,8 +44,8 @@ export type HyperNodeish<T extends Tag = Tag> =
 	| HyperTextNode
 	| HyperHTMLStringNode
 	| Falsy
-	| SimpleState<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>
-	| SimpleStateRO<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>;
+	| State.Simple<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>
+	| State.SimpleRO<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>;
 
 // deno-lint-ignore no-explicit-any
 export const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNode =>

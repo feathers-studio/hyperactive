@@ -2,45 +2,49 @@ export const STATE = Symbol("@hyperactive/state");
 
 export type Subscriber<T> = (val: T) => void;
 
-// deno-lint-ignore no-explicit-any
-export type SimpleStateRO<T = any> = {
-	init: T;
-	subscribe: (f: Subscriber<T>) => void;
-	transform: <U, Mapper extends (t: T) => U>(f: Mapper) => ReturnType<SimpleState<U>["readonly"]>;
-	[STATE]: true;
-};
-
-// deno-lint-ignore no-explicit-any
-export type SimpleState<T = any> = SimpleStateRO<T> & {
-	publish: (next: T) => void;
-	readonly: () => SimpleStateRO<T>;
-};
-
-// deno-lint-ignore no-explicit-any
-export const isState = (n: any): n is SimpleState | SimpleStateRO => Boolean(n[STATE]);
-
-const SimpleState = <T>(init: T): SimpleState<T> => {
-	const subscribers: Subscriber<T>[] = [];
-
-	const publish: SimpleState<T>["publish"] = next =>
-		Promise.resolve(next).then(val => subscribers.forEach(subscriber => subscriber(val)));
-
-	const subscribe: SimpleState<T>["subscribe"] = f => subscribers.push(f);
-
-	const transform: SimpleState<T>["transform"] = f => {
-		const s = SimpleState<ReturnType<typeof f>>(f(init) as ReturnType<typeof f>);
-		subscribe(value => s.publish(f(value) as ReturnType<typeof f>));
-		return s.readonly();
+export namespace State {
+	// deno-lint-ignore no-explicit-any
+	export type SimpleRO<T = any> = {
+		init: T;
+		listen: (f: Subscriber<T>) => void;
+		map: <U, Mapper extends (t: T) => U>(f: Mapper) => ReturnType<Simple<U>["readonly"]>;
+		[STATE]: true;
 	};
 
-	const readonly: SimpleState<T>["readonly"] = () => ({
-		init,
-		subscribe,
-		transform,
-		[STATE]: true,
-	});
+	// deno-lint-ignore no-explicit-any
+	export type Simple<T = any> = SimpleRO<T> & {
+		publish: (next: T) => void;
+		readonly: () => SimpleRO<T>;
+	};
 
-	return { init, publish, subscribe, transform, readonly, [STATE]: true };
-};
+	export const isState = (n: any): n is State.Simple | State.SimpleRO => Boolean(n[STATE]);
 
-export const State = { simple: SimpleState };
+	export function simple<T>(init: T): Simple<T> {
+		const subscribers: Subscriber<T>[] = [];
+
+		const publish: Simple<T>["publish"] = next =>
+			Promise.resolve(next).then(val => subscribers.forEach(subscriber => subscriber(val)));
+
+		const listen: Simple<T>["listen"] = f => subscribers.push(f);
+
+		const map: Simple<T>["map"] = f => {
+			const s = simple<ReturnType<typeof f>>(f(init) as ReturnType<typeof f>);
+			listen(value => s.publish(f(value) as ReturnType<typeof f>));
+			return s.readonly();
+		};
+
+		const readonly: Simple<T>["readonly"] = () => ({
+			init,
+			listen,
+			map,
+			[STATE]: true,
+		});
+
+		return { init, publish, listen, map, readonly, [STATE]: true };
+	}
+}
+
+// deno-lint-ignore no-explicit-any
+export const isState = State.isState;
+
+export default State;
