@@ -2,7 +2,7 @@
 
 import { Tag } from "./tags.ts";
 import { AriaRoles, AriaAttributes } from "./aria.ts";
-import { HTMLElement, DOMEvents } from "./dom.ts";
+import { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.ts";
 import { Falsy } from "../util.ts";
 type MaybeString = string | Falsy;
 
@@ -22,7 +22,7 @@ type GlobalAttrs = {
 	/**
 	 * Indicates whether the element's content is editable.
 	 */
-	contenteditable: "true" | "false";
+	contenteditable: "true" | "plaintext-only" | "false";
 	/**
 	 * Defines the ID of a `<menu>` element which will
 	 * serve as the element's context menu.
@@ -41,7 +41,7 @@ type GlobalAttrs = {
 	 * Prevents rendering of given element, while keeping child elements, e.g.
 	 * script elements, active.
 	 */
-	hidden: boolean;
+	hidden: "until-found" | "hidden";
 	/**
 	 * Often used with CSS to style a specific element. The value of this
 	 * attribute must be unique.
@@ -296,7 +296,7 @@ type ButtonAttributes = {
 	 */
 	formaction: string;
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this attribute sets the encoding type to use during form submission. If
 	 * this attribute is specified, it overrides the
 	 * enctype attribute of the button's
@@ -304,7 +304,7 @@ type ButtonAttributes = {
 	 */
 	formenctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this attribute sets the submission method to use during form submission
 	 * (GET, POST, etc.). If this attribute is
 	 * specified, it overrides the method attribute of the
@@ -312,7 +312,7 @@ type ButtonAttributes = {
 	 */
 	formmethod: "GET" | "POST" | "dialog";
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this boolean attribute specifies that the form is not to be validated
 	 * when it is submitted. If this attribute is specified, it overrides the
 	 * novalidate attribute of the button's
@@ -320,7 +320,7 @@ type ButtonAttributes = {
 	 */
 	formnovalidate: boolean;
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this attribute specifies the browsing context (for example, tab, window,
 	 * or inline frame) in which to display the response that is received after
 	 * submitting the form. If this attribute is specified, it overrides the
@@ -390,26 +390,6 @@ type ColgroupAttributes = {
 	 */
 	bgcolor: string;
 	span: string;
-};
-
-type CommandAttributes = {
-	/**
-	 * Indicates whether the element should be checked on page load.
-	 */
-	checked: boolean;
-	/**
-	 * Indicates whether the user can interact with the element.
-	 */
-	disabled: boolean;
-	/**
-	 * Specifies a picture which represents the command.
-	 */
-	icon: string;
-	radiogroup: string;
-	/**
-	 * Defines the type of the element.
-	 */
-	type: string;
 };
 
 type ContenteditableAttributes = {
@@ -604,12 +584,6 @@ type IframeAttributes = {
 	 */
 	height: number;
 	/**
-	 * Indicates the relative fetch priority for the resource.
-	 *
-	 * @experimental
-	 */
-	importance: string;
-	/**
 	 * Indicates if the element should be loaded lazily
 	 * (loading="lazy") or loaded immediately
 	 * (loading="eager").
@@ -670,12 +644,6 @@ type ImgAttributes = {
 	 * Specifies the height of the element.
 	 */
 	height: number;
-	/**
-	 * Indicates the relative fetch priority for the resource.
-	 *
-	 * @experimental
-	 */
-	importance: string;
 	/**
 	 * Indicates that the image is part of a server-side image map.
 	 */
@@ -750,7 +718,7 @@ type InputAttributes = {
 	 */
 	formaction: string;
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this attribute sets the encoding type to use during form submission. If
 	 * this attribute is specified, it overrides the
 	 * enctype attribute of the button's
@@ -758,7 +726,7 @@ type InputAttributes = {
 	 */
 	formenctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this attribute sets the submission method to use during form submission
 	 * (GET, POST, etc.). If this attribute is
 	 * specified, it overrides the method attribute of the
@@ -766,7 +734,7 @@ type InputAttributes = {
 	 */
 	formmethod: "GET" | "POST" | "dialog";
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this boolean attribute specifies that the form is not to be validated
 	 * when it is submitted. If this attribute is specified, it overrides the
 	 * novalidate attribute of the button's
@@ -774,7 +742,7 @@ type InputAttributes = {
 	 */
 	formnovalidate: boolean;
 	/**
-	 * If the button/input is a submit button (type="submit"),
+	 * If the button/input is a submit button (e.g. type="submit"),
 	 * this attribute specifies the browsing context (for example, tab, window,
 	 * or inline frame) in which to display the response that is received after
 	 * submitting the form. If this attribute is specified, it overrides the
@@ -932,12 +900,6 @@ type LinkAttributes = {
 	 */
 	hreflang: string;
 	/**
-	 * Indicates the relative fetch priority for the resource.
-	 *
-	 * @experimental
-	 */
-	importance: string;
-	/**
 	 * Specifies a
 	 * Subresource Integrity
 	 * value that allows browsers to verify what they fetch.
@@ -1085,13 +1047,17 @@ type ObjectAttributes = {
 type OlAttributes = {
 	/**
 	 * Indicates whether the list should be displayed in a descending order
-	 * instead of a ascending.
+	 * instead of an ascending order.
 	 */
 	reversed: boolean;
 	/**
 	 * Defines the first number if other than 1.
 	 */
 	start: number;
+	/**
+	 * Defines the type of the element.
+	 */
+	type: "1" | "a" | "A" | "i" | "I";
 };
 
 type OptgroupAttributes = {
@@ -1195,12 +1161,6 @@ type ScriptAttributes = {
 	 * parsed.
 	 */
 	defer: boolean;
-	/**
-	 * Indicates the relative fetch priority for the resource.
-	 *
-	 * @experimental
-	 */
-	importance: string;
 	/**
 	 * Specifies a
 	 * Subresource Integrity
@@ -1582,6 +1542,10 @@ type VideoAttributes = {
 	 */
 	muted: boolean;
 	/**
+	 * A Boolean attribute indicating that the video is to be played "inline"; that is, within the element's playback area. Note that the absence of this attribute does not imply that the video will always be played in fullscreen.
+	 */
+	playsinline: boolean;
+	/**
 	 * A URL indicating a poster frame to show until the user plays or seeks.
 	 */
 	poster: string;
@@ -1614,7 +1578,6 @@ type UniqueElementAttrs = {
 	caption: CaptionAttributes;
 	col: ColAttributes;
 	colgroup: ColgroupAttributes;
-	command: CommandAttributes;
 	contenteditable: ContenteditableAttributes;
 	data: DataAttributes;
 	del: DelAttributes;
@@ -1676,12 +1639,14 @@ export type DataAttr = `data-${string}`;
 
 type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
 
+type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
+
 export type Attr<T extends Tag = Tag> = MappedPartial<
 	GlobalAttrs & { [data in DataAttr]?: string } & {
 		/**
 		 * ref callback is called on mount of element with the DOM element.
 		 */
-		ref: (el: HTMLElement) => void;
+		ref: (el: TagToHTMLElement<T>) => void;
 		/**
 		 * When the element lacks suitable ARIA-semantics, authors must
 		 * assign an ARIA-role. Addition of ARIA semantics only exposes

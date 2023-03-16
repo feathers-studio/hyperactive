@@ -81,6 +81,8 @@ const manual: Entry[] = [
 				progress: `number`,
 			}[el] || null),
 	],
+	// ["autocomplete", () => `boolean`],
+	// ["draggable", () => `boolean`],
 ];
 
 const parseEnum = (str: string) => [...str.matchAll(/"\S+"/g)].flat().map(each => each.replaceAll('"', ""));

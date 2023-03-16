@@ -30,7 +30,7 @@ function htmlStringToElement(html: string): Node | null {
 
 function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 	for (const attr in attrs) {
-		const value = attrs[attr as keyof Attr];
+		const value = attrs[attr];
 		// if (value === "") el.setAttribute(prefix + attr, "");
 		if (!value) return;
 		else if (attr === "ref" && typeof value === "function") value(el);

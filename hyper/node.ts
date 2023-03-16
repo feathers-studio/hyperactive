@@ -12,9 +12,32 @@ export class HyperHTMLStringNode {
 	constructor(public htmlString: string) {}
 }
 
-export class HyperNode<T extends Tag = Tag, Attrs extends Attr = Attr> {
-	constructor(public tag: T, public attrs: Attrs, public children: (HyperNode | HyperTextNode)[]) {}
-}
+type UnionKeys<T> = T extends unknown ? keyof T : never;
+type AddOptionalKeys<K extends PropertyKey> = { readonly [P in K]?: never };
+
+/**
+ * We might not need this
+ * // TODO(mkr): investigate and remove if unnecessary
+ * @see https://millsp.github.io/ts-toolbelt/modules/union_strict.html
+ */
+type Deunionize<B extends object | undefined, T extends B = B> = T extends object
+	? T & AddOptionalKeys<Exclude<UnionKeys<B>, keyof T>>
+	: T;
+
+export type HyperNode<T extends Tag = Tag> = {
+	[T in Tag]: {
+		tag: T;
+		attrs: Attr<T>;
+		children: (HyperNode<Tag> | HyperTextNode)[];
+	};
+}[T];
+
+// TypeScript constructors cannot return custom types, including unions.
+// Instead, we create a class expression and assert it to the correct constructor type which returns the HyperNode union.
+
+export const HyperNode = class _HyperNode<T extends Tag> {
+	constructor(public tag: T, public attrs: Attr<T>, public children: (HyperNode | HyperTextNode)[]) {}
+} as new <T extends Tag = Tag>(tag: T, attrs: Attr<T>, children: (HyperNode | HyperTextNode)[]) => HyperNode<T>;
 
 export type HyperNodeish<T extends Tag = Tag> =
 	| HyperNode<T>
@@ -28,8 +51,8 @@ export type HyperNodeish<T extends Tag = Tag> =
 export const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNode =>
 	n instanceof HyperNode || n instanceof HyperHTMLStringNode || typeof n === "string";
 
-export function normaliseParams(props?: Attr | HyperNodeish, childNodes?: HyperNodeish[]) {
-	const [attrs, children] =
+export function normaliseParams<T extends Tag>(props?: Attr<T> | HyperNodeish, childNodes?: HyperNodeish[]) {
+	const [attrs, children]: [Attr<T>, HyperNodeish[]] =
 		isHyperNode(props) || isFalsy(props) || isState(props)
 			? [{}, [props, ...(childNodes || [])]]
 			: [props || {}, childNodes || []];
