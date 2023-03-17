@@ -48,7 +48,7 @@ const toDOM = function toDOM<N extends HyperNodeish>(parent: HTMLElement, node: 
 	if (typeof node === "string") return document.createTextNode(node);
 	if (isFalsy(node)) return null;
 	if (node instanceof HyperHTMLStringNode) return htmlStringToElement(node.htmlString);
-	if (State.is(node)) {
+	if (State.isState(node)) {
 		let init = toDOM(parent, node.init);
 
 		node.listen(val => {
