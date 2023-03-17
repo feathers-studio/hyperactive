@@ -1,6 +1,6 @@
 import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
 import { EmptyElements } from "../lib/emptyElements.ts";
-import { isState } from "../state.ts";
+import { Ref } from "../state.ts";
 import { escapeAttr, escapeTextNode, type Falsy, isFalsy } from "../util.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -30,7 +30,7 @@ export function renderHTML(node: HyperNodeish): string {
 	if (isFalsy(node)) return "";
 	if (typeof node === "string") return escapeTextNode(node);
 	if (node instanceof HyperHTMLStringNode) return node.htmlString;
-	if (isState(node)) return renderHTML(node.init);
+	if (Ref.isRef(node)) return renderHTML(node.value);
 
 	let stringified = "<" + node.tag;
 

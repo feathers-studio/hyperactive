@@ -1,6 +1,6 @@
 import { guessEnv } from "../guessEnv.ts";
 import { Falsy, isFalsy } from "../util.ts";
-import State from "../state.ts";
+import { Ref, ReadonlyRef } from "../state.ts";
 import { Document, HTMLElement, Node, Text } from "../lib/dom.ts";
 import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
 
@@ -17,7 +17,7 @@ type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? null
 	: N extends string
 	? Text
-	: N extends State.SimpleRO<string>
+	: N extends ReadonlyRef<string>
 	? Text
 	: HTMLElement;
 
@@ -44,12 +44,12 @@ function attrifyDOM(el: HTMLElement, attrs: AttributeObject, prefix = "") {
 	}
 }
 
-const toDOM = function toDOM<N extends HyperNodeish>(parent: HTMLElement, node: N): Node | null {
+const toDOM = function toDOM(parent: HTMLElement, node: HyperNodeish): Node | null {
 	if (typeof node === "string") return document.createTextNode(node);
 	if (isFalsy(node)) return null;
 	if (node instanceof HyperHTMLStringNode) return htmlStringToElement(node.htmlString);
-	if (State.isState(node)) {
-		let init = toDOM(parent, node.init);
+	if (Ref.isRef(node)) {
+		let init = toDOM(parent, node.value);
 
 		node.listen(val => {
 			const update = toDOM(parent, val);
@@ -79,7 +79,7 @@ const toDOM = function toDOM<N extends HyperNodeish>(parent: HTMLElement, node: 
 	}
 
 	return el;
-} as <N extends HyperNodeish>(parent: HTMLElement, node: N) => NodeToDOM<N>;
+};
 
 class DOMNotFound extends Error {
 	constructor(env?: string) {

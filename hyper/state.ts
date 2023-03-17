@@ -1,50 +1,49 @@
-export const STATE = Symbol("@hyperactive/state");
-
 export type Subscriber<T> = (val: T) => void;
 
-export namespace State {
-	// deno-lint-ignore no-explicit-any
-	export type SimpleRO<T = any> = {
-		init: T;
-		listen: (f: Subscriber<T>) => void;
-		map: <U, Mapper extends (t: T) => U>(f: Mapper) => ReturnType<Simple<U>["readonly"]>;
-		[STATE]: true;
-	};
+export class ReadonlyRef<T = any> {
+	protected subscribers: Subscriber<T>[] = [];
 
-	// deno-lint-ignore no-explicit-any
-	export type Simple<T = any> = SimpleRO<T> & {
-		publish: (next: T) => void;
-		readonly: () => SimpleRO<T>;
-	};
+	constructor(public value: T) {}
 
-	export const isState = (n: any): n is State.Simple | State.SimpleRO => Boolean(n[STATE]);
+	listen(f: Subscriber<T>) {
+		this.subscribers.push(f);
+	}
 
-	export function simple<T>(init: T): Simple<T> {
-		const subscribers: Subscriber<T>[] = [];
+	map<U>(mapper: (t: T) => U) {
+		const s = new Ref(mapper(this.value));
+		// publish mapped changes when value changes
+		this.listen(value => s.publish(mapper(value)));
+		// return readonly so mapped state can't be published into
+		return s.readonly();
+	}
 
-		const publish: Simple<T>["publish"] = next =>
-			Promise.resolve(next).then(val => subscribers.forEach(subscriber => subscriber(val)));
+	effect(effector: (t: T) => void) {
+		// trigger effect when value changes
+		this.listen(effector);
+	}
 
-		const listen: Simple<T>["listen"] = f => subscribers.push(f);
-
-		const map: Simple<T>["map"] = f => {
-			const s = simple<ReturnType<typeof f>>(f(init) as ReturnType<typeof f>);
-			listen(value => s.publish(f(value) as ReturnType<typeof f>));
-			return s.readonly();
-		};
-
-		const readonly: Simple<T>["readonly"] = () => ({
-			init,
-			listen,
-			map,
-			[STATE]: true,
-		});
-
-		return { init, publish, listen, map, readonly, [STATE]: true };
+	into(state: Ref<T>) {
+		this.listen(value => state.publish(value));
 	}
 }
 
-// deno-lint-ignore no-explicit-any
-export const isState = State.isState;
+export class Ref<T = any> extends ReadonlyRef<T> {
+	constructor(value: T) {
+		super(value);
+	}
 
-export default State;
+	static isRef<X>(x: X): x is Extract<X, Ref | ReadonlyRef> {
+		return x instanceof ReadonlyRef;
+	}
+
+	publish(next: T | Promise<T>) {
+		return Promise.resolve(next).then(val => {
+			this.value = val;
+			this.subscribers.forEach(subscriber => subscriber(val));
+		});
+	}
+
+	readonly() {
+		return new ReadonlyRef(this.value);
+	}
+}

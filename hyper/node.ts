@@ -2,7 +2,7 @@ import { Tag } from "./lib/tags.ts";
 import { EmptyElements } from "./lib/emptyElements.ts";
 import { Attr } from "./lib/attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
-import State, { isState } from "./state.ts";
+import { Ref, ReadonlyRef } from "./state.ts";
 
 export type NonEmptyElement = Exclude<Tag, EmptyElements>;
 
@@ -24,13 +24,13 @@ type Deunionize<B extends object | undefined, T extends B = B> = T extends objec
 	? T & AddOptionalKeys<Exclude<UnionKeys<B>, keyof T>>
 	: T;
 
-export type HyperNode<T extends Tag = Tag> = {
-	[T in Tag]: {
-		tag: T;
-		attrs: Attr<T>;
-		children: (HyperNode<Tag> | HyperTextNode)[];
-	};
-}[T];
+interface HN<T extends Tag = Tag> {
+	tag: T;
+	attrs: Attr<T>;
+	children: (HyperNode<Tag> | HyperTextNode)[];
+}
+
+export type HyperNode<T extends Tag = Tag> = { [T in Tag]: HN<T> }[T];
 
 // TypeScript constructors cannot return custom types, including unions.
 // Instead, we create a class expression and assert it to the correct constructor type which returns the HyperNode union.
@@ -44,16 +44,16 @@ export type HyperNodeish<T extends Tag = Tag> =
 	| HyperTextNode
 	| HyperHTMLStringNode
 	| Falsy
-	| State.Simple<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>
-	| State.SimpleRO<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>;
+	| Ref<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>
+	| ReadonlyRef<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>;
 
 // deno-lint-ignore no-explicit-any
-export const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNode =>
+const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNode =>
 	n instanceof HyperNode || n instanceof HyperHTMLStringNode || typeof n === "string";
 
 export function normaliseParams<T extends Tag>(props?: Attr<T> | HyperNodeish, childNodes?: HyperNodeish[]) {
 	const [attrs, children]: [Attr<T>, HyperNodeish[]] =
-		isHyperNode(props) || isFalsy(props) || isState(props)
+		isHyperNode(props) || isFalsy(props) || Ref.isRef(props)
 			? [{}, [props, ...(childNodes || [])]]
 			: [props || {}, childNodes || []];
 

@@ -20,18 +20,16 @@ export namespace Hyper {
 		[selector: string]: Hyper.Element<T>;
 	}
 
-	export type Element<T extends Tag = Tag, Attrs extends Attr<T> = Attr<T>> = T extends EmptyElements
-		? Hyper.Empty<T>
-		: Hyper.Base<T>;
+	export type Element<T extends Tag = Tag> = T extends EmptyElements ? Hyper.Empty<T> : Hyper.Base<T>;
 }
 export type Expand<T> = T extends object ? (T extends infer O ? { [K in keyof O]: O[K] } : never) : T;
 export type ExpandDeep<T> = T extends object ? (T extends infer O ? { [K in keyof O]: ExpandDeep<O[K]> } : never) : T;
 function createSelectorProxy<T extends Tag>(
 	element: T,
-	hyperElement: Hyper.Element<T, Attr<T>>,
+	hyperElement: Hyper.Element<T>,
 	loaded?: string,
-): Hyper.Element<T, Attr<T>> {
-	type hE = Hyper.Element<T, Attr<T>>;
+): Hyper.Element<T> {
+	type hE = Hyper.Element<T>;
 
 	return new Proxy(hyperElement, {
 		get(_: hE, selector: string) {
