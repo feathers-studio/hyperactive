@@ -91,6 +91,14 @@ export function* type(name: string, type: string | Generator<string>) {
 	yield* decl("type", name, type);
 }
 
+export function* iface(name: string, type: string | Generator<string>) {
+	const iter = typeof type === "string" ? id(type) : type;
+
+	const first = iter.next().value as string;
+	yield `interface ${name}${first.startsWith("\n") ? "" : " "}${first}`;
+	yield* iter;
+}
+
 const docLineStart = " *";
 
 export const docLine = (line: string) => {

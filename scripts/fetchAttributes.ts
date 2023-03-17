@@ -66,7 +66,7 @@ const composeCustom = (attr: Attribute, element?: string) => ({
 	type: getSpecialType(attr.prop)(element || "global") || "string",
 });
 
-const globalType = typer.type("GlobalAttrs", typer.struct(globalAttr.map(attr => composeCustom(attr))));
+const globalType = typer.iface("GlobalAttrs", typer.struct(globalAttr.map(attr => composeCustom(attr))));
 
 const capitalise = (name: string) => name[0].toUpperCase() + name.slice(1);
 const toElementAttrType = (name: string) => capitalise(name) + "Attributes";
@@ -75,12 +75,15 @@ function* elementTypes() {
 	const sorted = Object.keys(elements).sort((a, b) => a.localeCompare(b));
 	for (const element of sorted) {
 		yield typer.statement(
-			typer.type(toElementAttrType(element), typer.struct(elements[element].map(attr => composeCustom(attr, element)))),
+			typer.iface(
+				toElementAttrType(element),
+				typer.struct(elements[element].map(attr => composeCustom(attr, element))),
+			),
 		);
 	}
 
 	yield typer.statement(
-		typer.type(
+		typer.iface(
 			"UniqueElementAttrs",
 			typer.struct(sorted.map(element => ({ prop: element, type: toElementAttrType(element) }))),
 		),

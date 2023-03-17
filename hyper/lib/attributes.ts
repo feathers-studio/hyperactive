@@ -6,7 +6,7 @@ import { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.ts";
 import { Falsy } from "../util.ts";
 type MaybeString = string | Falsy;
 
-type GlobalAttrs = {
+interface GlobalAttrs {
 	/**
 	 * Keyboard shortcut to activate or add focus to the element.
 	 */
@@ -86,7 +86,7 @@ type GlobalAttrs = {
 	translate: "yes" | "no";
 }
 
-type AAttributes = {
+interface AAttributes {
 	/**
 	 * Indicates that the hyperlink is to be used for downloading a resource.
 	 */
@@ -126,7 +126,7 @@ type AAttributes = {
 	target: string;
 };
 
-type AppletAttributes = {
+interface AppletAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -146,7 +146,7 @@ type AppletAttributes = {
 	codebase: string;
 };
 
-type AreaAttributes = {
+interface AreaAttributes {
 	/**
 	 * Alternative text in case an image can't be displayed.
 	 */
@@ -194,7 +194,7 @@ type AreaAttributes = {
 	target: string;
 };
 
-type AudioAttributes = {
+interface AudioAttributes {
 	/**
 	 * The audio or video should play as soon as possible.
 	 */
@@ -231,7 +231,7 @@ type AudioAttributes = {
 	src: string;
 };
 
-type BaseAttributes = {
+interface BaseAttributes {
 	/**
 	 * The URL of a linked resource.
 	 */
@@ -244,7 +244,7 @@ type BaseAttributes = {
 	target: string;
 };
 
-type BgsoundAttributes = {
+interface BgsoundAttributes {
 	/**
 	 * Indicates whether the media should start playing from the start when
 	 * it's finished.
@@ -252,14 +252,14 @@ type BgsoundAttributes = {
 	loop: boolean;
 };
 
-type BlockquoteAttributes = {
+interface BlockquoteAttributes {
 	/**
 	 * Contains a URI which points to the source of the quote or change.
 	 */
 	cite: string;
 };
 
-type BodyAttributes = {
+interface BodyAttributes {
 	/**
 	 * Specifies the URL of an image file.
 	 *
@@ -277,7 +277,7 @@ type BodyAttributes = {
 	bgcolor: string;
 };
 
-type ButtonAttributes = {
+interface ButtonAttributes {
 	/**
 	 * The element should be automatically focused after the page loaded.
 	 */
@@ -344,7 +344,7 @@ type ButtonAttributes = {
 	value: string;
 };
 
-type CanvasAttributes = {
+interface CanvasAttributes {
 	/**
 	 * Specifies the height of the element.
 	 */
@@ -355,29 +355,14 @@ type CanvasAttributes = {
 	width: number;
 };
 
-type CaptionAttributes = {
+interface CaptionAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
 	align: string;
 };
 
-type ColAttributes = {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-	/**
-	 * Background color of the element.
-	 *
-	 * > Note: This is a legacy attribute. Please use the
-	 * CSS background-color property instead.
-	 */
-	bgcolor: string;
-	span: string;
-};
-
-type ColgroupAttributes = {
+interface ColAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -392,7 +377,22 @@ type ColgroupAttributes = {
 	span: string;
 };
 
-type ContenteditableAttributes = {
+interface ColgroupAttributes {
+	/**
+	 * Specifies the horizontal alignment of the element.
+	 */
+	align: string;
+	/**
+	 * Background color of the element.
+	 *
+	 * > Note: This is a legacy attribute. Please use the
+	 * CSS background-color property instead.
+	 */
+	bgcolor: string;
+	span: string;
+};
+
+interface ContenteditableAttributes {
 	/**
 	 * The enterkeyhint
 	 * specifies what action label (or icon) to present for the enter key on
@@ -413,7 +413,7 @@ type ContenteditableAttributes = {
 	inputmode: "none" | "text" | "tel" | "email" | "url" | "numeric" | "decimal" | "search";
 };
 
-type DataAttributes = {
+interface DataAttributes {
 	/**
 	 * Defines a default value which will be displayed in the element on page
 	 * load.
@@ -421,7 +421,7 @@ type DataAttributes = {
 	value: string;
 };
 
-type DelAttributes = {
+interface DelAttributes {
 	/**
 	 * Contains a URI which points to the source of the quote or change.
 	 */
@@ -432,7 +432,7 @@ type DelAttributes = {
 	datetime: string;
 };
 
-type DetailsAttributes = {
+interface DetailsAttributes {
 	/**
 	 * Indicates whether the contents are currently visible (in the case of
 	 * a `<details>` element) or whether the dialog is active
@@ -442,7 +442,7 @@ type DetailsAttributes = {
 	open: boolean;
 };
 
-type DialogAttributes = {
+interface DialogAttributes {
 	/**
 	 * Indicates whether the contents are currently visible (in the case of
 	 * a `<details>` element) or whether the dialog is active
@@ -452,7 +452,7 @@ type DialogAttributes = {
 	open: boolean;
 };
 
-type EmbedAttributes = {
+interface EmbedAttributes {
 	/**
 	 * Specifies the height of the element.
 	 */
@@ -471,7 +471,7 @@ type EmbedAttributes = {
 	width: number;
 };
 
-type FieldsetAttributes = {
+interface FieldsetAttributes {
 	/**
 	 * Indicates whether the user can interact with the element.
 	 */
@@ -487,7 +487,7 @@ type FieldsetAttributes = {
 	name: string;
 };
 
-type FontAttributes = {
+interface FontAttributes {
 	/**
 	 * This attribute sets the text color using either a named color or a
 	 * color specified in the hexadecimal #RRGGBB format.
@@ -499,7 +499,7 @@ type FontAttributes = {
 	color: string;
 };
 
-type FormAttributes = {
+interface FormAttributes {
 	/**
 	 * List of types the server accepts, typically a file type.
 	 */
@@ -547,7 +547,7 @@ type FormAttributes = {
 	target: string;
 };
 
-type HrAttributes = {
+interface HrAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -563,7 +563,7 @@ type HrAttributes = {
 	color: string;
 };
 
-type IframeAttributes = {
+interface IframeAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -616,7 +616,7 @@ type IframeAttributes = {
 	width: number;
 };
 
-type ImgAttributes = {
+interface ImgAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -676,7 +676,7 @@ type ImgAttributes = {
 	width: number;
 };
 
-type InputAttributes = {
+interface InputAttributes {
 	/**
 	 * List of types the server accepts, typically a file type.
 	 */
@@ -828,7 +828,7 @@ type InputAttributes = {
 	width: number;
 };
 
-type InsAttributes = {
+interface InsAttributes {
 	/**
 	 * Contains a URI which points to the source of the quote or change.
 	 */
@@ -839,7 +839,7 @@ type InsAttributes = {
 	datetime: string;
 };
 
-type KeygenAttributes = {
+interface KeygenAttributes {
 	/**
 	 * The element should be automatically focused after the page loaded.
 	 */
@@ -867,7 +867,7 @@ type KeygenAttributes = {
 	name: string;
 };
 
-type LabelAttributes = {
+interface LabelAttributes {
 	/**
 	 * Describes elements which belongs to this one.
 	 */
@@ -878,7 +878,7 @@ type LabelAttributes = {
 	form: string;
 };
 
-type LiAttributes = {
+interface LiAttributes {
 	/**
 	 * Defines a default value which will be displayed in the element on page
 	 * load.
@@ -886,7 +886,7 @@ type LiAttributes = {
 	value: number;
 };
 
-type LinkAttributes = {
+interface LinkAttributes {
 	/**
 	 * How the element handles cross-origin requests
 	 */
@@ -925,7 +925,7 @@ type LinkAttributes = {
 	type: `${string}/${string}`;
 };
 
-type MapAttributes = {
+interface MapAttributes {
 	/**
 	 * Name of the element. For example used by the server to identify the
 	 * fields in form submits.
@@ -933,7 +933,7 @@ type MapAttributes = {
 	name: string;
 };
 
-type MarqueeAttributes = {
+interface MarqueeAttributes {
 	/**
 	 * Background color of the element.
 	 *
@@ -948,14 +948,14 @@ type MarqueeAttributes = {
 	loop: boolean;
 };
 
-type MenuAttributes = {
+interface MenuAttributes {
 	/**
 	 * Defines the type of the element.
 	 */
 	type: string;
 };
 
-type MetaAttributes = {
+interface MetaAttributes {
 	/**
 	 * Declares the character encoding of the page or script.
 	 */
@@ -976,7 +976,7 @@ type MetaAttributes = {
 	name: string;
 };
 
-type MeterAttributes = {
+interface MeterAttributes {
 	/**
 	 * Indicates the form that is the owner of the element.
 	 */
@@ -1008,7 +1008,7 @@ type MeterAttributes = {
 	value: number;
 };
 
-type ObjectAttributes = {
+interface ObjectAttributes {
 	/**
 	 * The border width.
 	 *
@@ -1044,7 +1044,7 @@ type ObjectAttributes = {
 	width: number;
 };
 
-type OlAttributes = {
+interface OlAttributes {
 	/**
 	 * Indicates whether the list should be displayed in a descending order
 	 * instead of an ascending order.
@@ -1060,7 +1060,7 @@ type OlAttributes = {
 	type: "1" | "a" | "A" | "i" | "I";
 };
 
-type OptgroupAttributes = {
+interface OptgroupAttributes {
 	/**
 	 * Indicates whether the user can interact with the element.
 	 */
@@ -1071,7 +1071,7 @@ type OptgroupAttributes = {
 	label: string;
 };
 
-type OptionAttributes = {
+interface OptionAttributes {
 	/**
 	 * Indicates whether the user can interact with the element.
 	 */
@@ -1091,7 +1091,7 @@ type OptionAttributes = {
 	value: string;
 };
 
-type OutputAttributes = {
+interface OutputAttributes {
 	/**
 	 * Describes elements which belongs to this one.
 	 */
@@ -1107,7 +1107,7 @@ type OutputAttributes = {
 	name: string;
 };
 
-type ParamAttributes = {
+interface ParamAttributes {
 	/**
 	 * Name of the element. For example used by the server to identify the
 	 * fields in form submits.
@@ -1120,7 +1120,7 @@ type ParamAttributes = {
 	value: string;
 };
 
-type ProgressAttributes = {
+interface ProgressAttributes {
 	/**
 	 * Indicates the form that is the owner of the element.
 	 */
@@ -1136,14 +1136,14 @@ type ProgressAttributes = {
 	value: number;
 };
 
-type QAttributes = {
+interface QAttributes {
 	/**
 	 * Contains a URI which points to the source of the quote or change.
 	 */
 	cite: string;
 };
 
-type ScriptAttributes = {
+interface ScriptAttributes {
 	/**
 	 * Executes the script asynchronously.
 	 */
@@ -1181,7 +1181,7 @@ type ScriptAttributes = {
 	type: "module" | `${string}/${string}`;
 };
 
-type SelectAttributes = {
+interface SelectAttributes {
 	/**
 	 * Indicates whether controls in this form can by default have their values
 	 * automatically completed by the browser.
@@ -1221,7 +1221,7 @@ type SelectAttributes = {
 	size: number;
 };
 
-type SourceAttributes = {
+interface SourceAttributes {
 	/**
 	 * Specifies a hint of the media for which the linked resource was
 	 * designed.
@@ -1242,7 +1242,7 @@ type SourceAttributes = {
 	type: `${string}/${string}`;
 };
 
-type StyleAttributes = {
+interface StyleAttributes {
 	/**
 	 * Specifies a hint of the media for which the linked resource was
 	 * designed.
@@ -1254,7 +1254,7 @@ type StyleAttributes = {
 	type: string;
 };
 
-type TableAttributes = {
+interface TableAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -1283,7 +1283,7 @@ type TableAttributes = {
 	border: string;
 };
 
-type TbodyAttributes = {
+interface TbodyAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -1297,7 +1297,7 @@ type TbodyAttributes = {
 	bgcolor: string;
 };
 
-type TdAttributes = {
+interface TdAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -1332,7 +1332,7 @@ type TdAttributes = {
 	rowspan: number;
 };
 
-type TextareaAttributes = {
+interface TextareaAttributes {
 	/**
 	 * Indicates whether controls in this form can by default have their values
 	 * automatically completed by the browser.
@@ -1408,7 +1408,7 @@ type TextareaAttributes = {
 	wrap: "soft" | "hard";
 };
 
-type TfootAttributes = {
+interface TfootAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -1422,7 +1422,7 @@ type TfootAttributes = {
 	bgcolor: string;
 };
 
-type ThAttributes = {
+interface ThAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -1462,21 +1462,21 @@ type ThAttributes = {
 	scope: "row" | "col" | "rowgroup" | "colgroup";
 };
 
-type TheadAttributes = {
+interface TheadAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
 	align: string;
 };
 
-type TimeAttributes = {
+interface TimeAttributes {
 	/**
 	 * Indicates the date and time associated with the element.
 	 */
 	datetime: string;
 };
 
-type TrAttributes = {
+interface TrAttributes {
 	/**
 	 * Specifies the horizontal alignment of the element.
 	 */
@@ -1490,7 +1490,7 @@ type TrAttributes = {
 	bgcolor: string;
 };
 
-type TrackAttributes = {
+interface TrackAttributes {
 	/**
 	 * Indicates that the track should be enabled unless the user's preferences
 	 * indicate something different.
@@ -1511,7 +1511,7 @@ type TrackAttributes = {
 	srclang: string;
 };
 
-type VideoAttributes = {
+interface VideoAttributes {
 	/**
 	 * The audio or video should play as soon as possible.
 	 */
@@ -1564,7 +1564,7 @@ type VideoAttributes = {
 	width: number;
 };
 
-type UniqueElementAttrs = {
+interface UniqueElementAttrs {
 	a: AAttributes;
 	applet: AppletAttributes;
 	area: AreaAttributes;
