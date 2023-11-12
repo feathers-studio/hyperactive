@@ -110,10 +110,11 @@ export const docLine = (line: string) => {
 	return docLineStart + " " + line;
 };
 
-type Prop = {
+export type Prop = {
 	prop: string;
 	type: string | Prop[];
 	desc?: string;
+	noSmartKey?: boolean;
 };
 
 const indent = "\t";
@@ -130,8 +131,8 @@ export function see(href: string, title?: string) {
 
 const idRegex = /^(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])*$/;
 
-export function* member(name: string, type: string | Generator<string>, level: number) {
-	yield (idRegex.test(name) ? name : `["${name}"]`) + ": ";
+export function* member(name: string, type: string | Generator<string>, level: number, noSmartKey?: boolean) {
+	yield (noSmartKey || idRegex.test(name) ? name : `["${name}"]`) + ": ";
 	if (typeof type === "string") {
 		yield type;
 		yield ";";
@@ -144,8 +145,8 @@ export function* member(name: string, type: string | Generator<string>, level: n
 export function* struct(members: Prop[], level = 1) {
 	yield "{" + eol;
 
-	for (const { prop, type, desc: descr } of members) {
-		const proptype = member(prop, Array.isArray(type) ? struct(type, 2) : type, level);
+	for (const { prop, type, desc: descr, noSmartKey } of members) {
+		const proptype = member(prop, Array.isArray(type) ? struct(type, 2) : type, level, noSmartKey);
 		if (descr) for (const l of desc(descr)) yield indent.repeat(level) + l;
 		yield indent.repeat(level);
 		yield* proptype;

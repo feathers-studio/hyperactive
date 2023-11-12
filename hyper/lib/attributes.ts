@@ -24,11 +24,6 @@ interface GlobalAttrs {
 	 */
 	contenteditable: "true" | "plaintext-only" | "false";
 	/**
-	 * Defines the ID of a `<menu>` element which will
-	 * serve as the element's context menu.
-	 */
-	contextmenu: string;
-	/**
 	 * Defines the text direction. Allowed values are ltr (Left-To-Right) or
 	 * rtl (Right-To-Left)
 	 */
@@ -126,26 +121,6 @@ interface AAttributes {
 	target: string;
 };
 
-interface AppletAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-	/**
-	 * Alternative text in case an image can't be displayed.
-	 */
-	alt: string;
-	/**
-	 * Specifies the URL of the applet's class file to be loaded and executed.
-	 */
-	code: string;
-	/**
-	 * This attribute gives the absolute or relative URL of the directory where
-	 * applets' .class files referenced by the code attribute are stored.
-	 */
-	codebase: string;
-};
-
 interface AreaAttributes {
 	/**
 	 * Alternative text in case an image can't be displayed.
@@ -163,10 +138,6 @@ interface AreaAttributes {
 	 * The URL of a linked resource.
 	 */
 	href: string;
-	/**
-	 * Specifies the language of the linked resource.
-	 */
-	hreflang: string;
 	/**
 	 * Specifies a hint of the media for which the linked resource was
 	 * designed.
@@ -244,14 +215,6 @@ interface BaseAttributes {
 	target: string;
 };
 
-interface BgsoundAttributes {
-	/**
-	 * Indicates whether the media should start playing from the start when
-	 * it's finished.
-	 */
-	loop: boolean;
-};
-
 interface BlockquoteAttributes {
 	/**
 	 * Contains a URI which points to the source of the quote or change.
@@ -278,10 +241,6 @@ interface BodyAttributes {
 };
 
 interface ButtonAttributes {
-	/**
-	 * The element should be automatically focused after the page loaded.
-	 */
-	autofocus: boolean;
 	/**
 	 * Indicates whether the user can interact with the element.
 	 */
@@ -355,18 +314,7 @@ interface CanvasAttributes {
 	width: number;
 };
 
-interface CaptionAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-};
-
 interface ColAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
 	/**
 	 * Background color of the element.
 	 *
@@ -378,10 +326,6 @@ interface ColAttributes {
 };
 
 interface ColgroupAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
 	/**
 	 * Background color of the element.
 	 *
@@ -549,10 +493,6 @@ interface FormAttributes {
 
 interface HrAttributes {
 	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-	/**
 	 * This attribute sets the text color using either a named color or a
 	 * color specified in the hexadecimal #RRGGBB format.
 	 *
@@ -564,10 +504,6 @@ interface HrAttributes {
 };
 
 interface IframeAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
 	/**
 	 * Specifies a feature-policy for the iframe.
 	 */
@@ -617,10 +553,6 @@ interface IframeAttributes {
 };
 
 interface ImgAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
 	/**
 	 * Alternative text in case an image can't be displayed.
 	 */
@@ -690,10 +622,6 @@ interface InputAttributes {
 	 * automatically completed by the browser.
 	 */
 	autocomplete: "on" | "off";
-	/**
-	 * The element should be automatically focused after the page loaded.
-	 */
-	autofocus: boolean;
 	/**
 	 * From the Media Capture specification,
 	 * specifies a new file can be captured.
@@ -837,34 +765,6 @@ interface InsAttributes {
 	 * Indicates the date and time associated with the element.
 	 */
 	datetime: string;
-};
-
-interface KeygenAttributes {
-	/**
-	 * The element should be automatically focused after the page loaded.
-	 */
-	autofocus: boolean;
-	/**
-	 * A challenge string that is submitted along with the public key.
-	 */
-	challenge: string;
-	/**
-	 * Indicates whether the user can interact with the element.
-	 */
-	disabled: boolean;
-	/**
-	 * Indicates the form that is the owner of the element.
-	 */
-	form: string;
-	/**
-	 * Specifies the type of key generated.
-	 */
-	keytype: string;
-	/**
-	 * Name of the element. For example used by the server to identify the
-	 * fields in form submits.
-	 */
-	name: string;
 };
 
 interface LabelAttributes {
@@ -1149,10 +1049,6 @@ interface ScriptAttributes {
 	 */
 	async: boolean;
 	/**
-	 * Declares the character encoding of the page or script.
-	 */
-	charset: "utf-8";
-	/**
 	 * How the element handles cross-origin requests
 	 */
 	crossorigin: "anonymous" | "use-credentials";
@@ -1187,10 +1083,6 @@ interface SelectAttributes {
 	 * automatically completed by the browser.
 	 */
 	autocomplete: "on" | "off";
-	/**
-	 * The element should be automatically focused after the page loaded.
-	 */
-	autofocus: boolean;
 	/**
 	 * Indicates whether the user can interact with the element.
 	 */
@@ -1256,10 +1148,6 @@ interface StyleAttributes {
 
 interface TableAttributes {
 	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-	/**
 	 * Specifies the URL of an image file.
 	 *
 	 * > Note: Although browsers and email clients may still
@@ -1285,10 +1173,6 @@ interface TableAttributes {
 
 interface TbodyAttributes {
 	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-	/**
 	 * Background color of the element.
 	 *
 	 * > Note: This is a legacy attribute. Please use the
@@ -1298,10 +1182,6 @@ interface TbodyAttributes {
 };
 
 interface TdAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
 	/**
 	 * Specifies the URL of an image file.
 	 *
@@ -1338,10 +1218,6 @@ interface TextareaAttributes {
 	 * automatically completed by the browser.
 	 */
 	autocomplete: "on" | "off";
-	/**
-	 * The element should be automatically focused after the page loaded.
-	 */
-	autofocus: boolean;
 	/**
 	 * Defines the number of columns in a textarea.
 	 */
@@ -1410,10 +1286,6 @@ interface TextareaAttributes {
 
 interface TfootAttributes {
 	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-	/**
 	 * Background color of the element.
 	 *
 	 * > Note: This is a legacy attribute. Please use the
@@ -1423,10 +1295,6 @@ interface TfootAttributes {
 };
 
 interface ThAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
 	/**
 	 * Specifies the URL of an image file.
 	 *
@@ -1462,13 +1330,6 @@ interface ThAttributes {
 	scope: "row" | "col" | "rowgroup" | "colgroup";
 };
 
-interface TheadAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
-};
-
 interface TimeAttributes {
 	/**
 	 * Indicates the date and time associated with the element.
@@ -1477,10 +1338,6 @@ interface TimeAttributes {
 };
 
 interface TrAttributes {
-	/**
-	 * Specifies the horizontal alignment of the element.
-	 */
-	align: string;
 	/**
 	 * Background color of the element.
 	 *
@@ -1566,16 +1423,13 @@ interface VideoAttributes {
 
 interface UniqueElementAttrs {
 	a: AAttributes;
-	applet: AppletAttributes;
 	area: AreaAttributes;
 	audio: AudioAttributes;
 	base: BaseAttributes;
-	bgsound: BgsoundAttributes;
 	blockquote: BlockquoteAttributes;
 	body: BodyAttributes;
 	button: ButtonAttributes;
 	canvas: CanvasAttributes;
-	caption: CaptionAttributes;
 	col: ColAttributes;
 	colgroup: ColgroupAttributes;
 	contenteditable: ContenteditableAttributes;
@@ -1592,7 +1446,6 @@ interface UniqueElementAttrs {
 	img: ImgAttributes;
 	input: InputAttributes;
 	ins: InsAttributes;
-	keygen: KeygenAttributes;
 	label: LabelAttributes;
 	li: LiAttributes;
 	link: LinkAttributes;
@@ -1619,51 +1472,47 @@ interface UniqueElementAttrs {
 	textarea: TextareaAttributes;
 	tfoot: TfootAttributes;
 	th: ThAttributes;
-	thead: TheadAttributes;
 	time: TimeAttributes;
 	tr: TrAttributes;
 	track: TrackAttributes;
 	video: VideoAttributes;
+	[k: string]: unknown;
 };
 
-type PropOr<T, P extends string | symbol | number, D> =
-	T extends Record<P, infer V> ? V : D;
+type PropOr<T, P extends string | symbol | number, D> = T extends Record<P, infer V> ? V : D;
 
 type Deunionise<T> =
 	| ([undefined] extends [T] ? undefined : never)
-	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined>; };
+	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined> };
 
 export type AllAttrs = Partial<Deunionise<UniqueElementAttrs[keyof UniqueElementAttrs]>>;
 
-export type DataAttr = `data-${string}`;
-
-type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
+export type DataAttr = { [data in `data-${string}`]?: string };
 
 type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
 
-export type Attr<T extends Tag = Tag> = MappedPartial<
-	GlobalAttrs & { [data in DataAttr]?: string } & {
-		/**
-		 * ref callback is called on mount of element with the DOM element.
-		 */
-		ref: (el: TagToHTMLElement<T>) => void;
-		/**
-		 * When the element lacks suitable ARIA-semantics, authors must
-		 * assign an ARIA-role. Addition of ARIA semantics only exposes
-		 * extra information to a browser's accessibility API, and does
-		 * not affect a page's DOM.
-		 *
-		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
-		 */
-		role: AriaRoles;
-		/**
-		 * ARIA is a set of attributes that define ways to make web content
-		 * and web applications (especially those developed with JavaScript)
-		 * more accessible to people with disabilities.
-		 *
-		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
-		 */
-		aria: AriaAttributes;
-	} & (UniqueElementAttrs & { [k: string]: unknown })[T] &
-		DOMEvents
->;
+interface Common<T extends Tag> {
+	/**
+	 * ref callback is called on mount of element with the DOM element.
+	 */
+	ref: (el: TagToHTMLElement<T>) => void;
+	/**
+	 * When the element lacks suitable ARIA-semantics, authors must
+	 * assign an ARIA-role. Addition of ARIA semantics only exposes
+	 * extra information to a browser's accessibility API, and does
+	 * not affect a page's DOM.
+	 *
+	 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
+	 */
+	role: AriaRoles;
+	/**
+	 * ARIA is a set of attributes that define ways to make web content
+	 * and web applications (especially those developed with JavaScript)
+	 * more accessible to people with disabilities.
+	 *
+	 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
+	 */
+	aria: AriaAttributes;
+}
+
+export type Attr<T extends Tag = Tag> = Partial<GlobalAttrs & DataAttr & Common<T> & UniqueElementAttrs[T] & DOMEvents>;

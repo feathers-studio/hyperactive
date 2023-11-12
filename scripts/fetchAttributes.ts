@@ -85,7 +85,11 @@ function* elementTypes() {
 	yield typer.statement(
 		typer.iface(
 			"UniqueElementAttrs",
-			typer.struct(sorted.map(element => ({ prop: element, type: toElementAttrType(element) }))),
+			typer.struct(
+				sorted
+					.map((element): typer.Prop => ({ prop: element, type: toElementAttrType(element) }))
+					.concat([{ prop: "[k: string]", type: "unknown", noSmartKey: true }]),
+			),
 		),
 	);
 }
@@ -101,47 +105,45 @@ export const imports = [
 ].join("\n");
 
 const prologue = `
-type PropOr<T, P extends string | symbol | number, D> =
-	T extends Record<P, infer V> ? V : D;
+
+type PropOr<T, P extends string | symbol | number, D> = T extends Record<P, infer V> ? V : D;
 
 type Deunionise<T> =
 	| ([undefined] extends [T] ? undefined : never)
-	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined>; };
+	| { [K in T extends unknown ? keyof T : never]: PropOr<NonNullable<T>, K, undefined> };
 
 export type AllAttrs = Partial<Deunionise<UniqueElementAttrs[keyof UniqueElementAttrs]>>;
 
-export type DataAttr = ${"`data-${string}`"};
-
-type MappedPartial<T> = {} & { [P in keyof T]?: T[P] };
+export type DataAttr = { [data in \`data-\${string}\`]?: string };
 
 type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
 
-export type Attr<T extends Tag = Tag> = MappedPartial<
-	GlobalAttrs & { [data in DataAttr]?: string } & {
-		/**
-		 * ref callback is called on mount of element with the DOM element.
-		 */
-		ref: (el: TagToHTMLElement<T>) => void;
-		/**
-		 * When the element lacks suitable ARIA-semantics, authors must
-		 * assign an ARIA-role. Addition of ARIA semantics only exposes
-		 * extra information to a browser's accessibility API, and does
-		 * not affect a page's DOM.
-		 *
-		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
-		 */
-		role: AriaRoles;
-		/**
-		 * ARIA is a set of attributes that define ways to make web content
-		 * and web applications (especially those developed with JavaScript)
-		 * more accessible to people with disabilities.
-		 *
-		 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
-		 */
-		aria: AriaAttributes;
-	} & (UniqueElementAttrs & { [k: string]: unknown })[T] &
-		DOMEvents
->;`.trim();
+interface Common<T extends Tag> {
+	/**
+	 * ref callback is called on mount of element with the DOM element.
+	 */
+	ref: (el: TagToHTMLElement<T>) => void;
+	/**
+	 * When the element lacks suitable ARIA-semantics, authors must
+	 * assign an ARIA-role. Addition of ARIA semantics only exposes
+	 * extra information to a browser's accessibility API, and does
+	 * not affect a page's DOM.
+	 *
+	 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques
+	 */
+	role: AriaRoles;
+	/**
+	 * ARIA is a set of attributes that define ways to make web content
+	 * and web applications (especially those developed with JavaScript)
+	 * more accessible to people with disabilities.
+	 *
+	 * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
+	 */
+	aria: AriaAttributes;
+}
+
+export type Attr<T extends Tag = Tag> = Partial<GlobalAttrs & DataAttr & Common<T> & UniqueElementAttrs[T] & DOMEvents>;
+`.trim();
 
 {
 	const target = "./hyper/lib/attributes.ts";
