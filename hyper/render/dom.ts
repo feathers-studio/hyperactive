@@ -1,6 +1,6 @@
 import { guessEnv } from "../guessEnv.ts";
 import { Falsy, isFalsy } from "../util.ts";
-import { State, ReadonlyState } from "../state.ts";
+import { State, type ReadonlyState } from "../state.ts";
 import { Document, HTMLElement, Node, Text } from "../lib/dom.ts";
 import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
 
