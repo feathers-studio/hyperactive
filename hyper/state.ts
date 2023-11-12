@@ -39,7 +39,7 @@ export class State<T = any> extends ReadonlyState<T> {
 	}
 
 	/**
-	 * Merge multiple refs into a single Ref
+	 * Merge multiple states into a single state
 	 */
 	static merge<T>(...states: [State<T>, ...State<T>[]]): MergedState<MapEntries<State<T>[]>>;
 

@@ -2,7 +2,7 @@ import { Tag } from "./lib/tags.ts";
 import { EmptyElements } from "./lib/emptyElements.ts";
 import { Attr } from "./lib/attributes.ts";
 import { Falsy, isFalsy } from "./util.ts";
-import { Ref, ReadonlyRef } from "./state.ts";
+import { State, ReadonlyState } from "./state.ts";
 
 export type NonEmptyElement = Exclude<Tag, EmptyElements>;
 
@@ -30,7 +30,9 @@ interface HN<T extends Tag = Tag> {
 	children: (HyperNode<Tag> | HyperTextNode)[];
 }
 
-export type HyperNode<T extends Tag = Tag> = { [T in Tag]: HN<T> }[T];
+export type HyperNodes = { [T in Tag]: HN<T> };
+
+export type HyperNode<T extends Tag = Tag> = HyperNodes[T];
 
 // TypeScript constructors cannot return custom types, including unions.
 // Instead, we create a class expression and assert it to the correct constructor type which returns the HyperNode union.
@@ -44,8 +46,8 @@ export type HyperNodeish<T extends Tag = Tag> =
 	| HyperTextNode
 	| HyperHTMLStringNode
 	| Falsy
-	| Ref<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>
-	| ReadonlyRef<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>;
+	| State<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>
+	| ReadonlyState<HyperNode<T> | HyperTextNode | HyperHTMLStringNode | Falsy>;
 
 // deno-lint-ignore no-explicit-any
 const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNode =>
@@ -53,7 +55,7 @@ const isHyperNode = (n: any): n is HyperNode | HyperHTMLStringNode | HyperTextNo
 
 export function normaliseParams<T extends Tag>(props?: Attr<T> | HyperNodeish, childNodes?: HyperNodeish[]) {
 	const [attrs, children]: [Attr<T>, HyperNodeish[]] =
-		isHyperNode(props) || isFalsy(props) || Ref.isRef(props)
+		isHyperNode(props) || isFalsy(props) || State.isState(props)
 			? [{}, [props, ...(childNodes || [])]]
 			: [props || {}, childNodes || []];
 

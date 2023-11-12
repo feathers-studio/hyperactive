@@ -1,6 +1,6 @@
 import { guessEnv } from "../guessEnv.ts";
 import { Falsy, isFalsy } from "../util.ts";
-import { Ref, ReadonlyRef } from "../state.ts";
+import { State, ReadonlyState } from "../state.ts";
 import { Document, HTMLElement, Node, Text } from "../lib/dom.ts";
 import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
 
@@ -17,7 +17,7 @@ type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? null
 	: N extends string
 	? Text
-	: N extends ReadonlyRef<string>
+	: N extends ReadonlyState<string>
 	? Text
 	: HTMLElement;
 
@@ -48,7 +48,7 @@ const toDOM = function toDOM(parent: HTMLElement, node: HyperNodeish): Node | nu
 	if (typeof node === "string") return document.createTextNode(node);
 	if (isFalsy(node)) return null;
 	if (node instanceof HyperHTMLStringNode) return htmlStringToElement(node.htmlString);
-	if (Ref.isRef(node)) {
+	if (State.isState(node)) {
 		let init = toDOM(parent, node.value);
 
 		node.listen(val => {

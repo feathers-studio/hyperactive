@@ -19,3 +19,5 @@ export type Falsy = SetContents<typeof Falsy>;
 
 // deno-lint-ignore no-explicit-any
 export const isFalsy = (n: any): n is Falsy => Falsy.has(n);
+
+export type Keyof<O> = Extract<keyof O, string>;
