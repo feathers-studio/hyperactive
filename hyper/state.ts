@@ -1,16 +1,20 @@
-import { Keyof as K } from "./util.ts";
+export type Subscriber<T> = (value: T) => void;
 
-type StateEntries<Obj extends Record<string, State>> = { [k in K<Obj>]: { key: k; value: Obj[k]["value"] } }[K<Obj>];
-type MapEntries<Rs extends State[]> = { [k in keyof Rs]: { key: k; value: Rs[k]["value"] } }[number];
-
-export type Subscriber<T> = (value: T, unused?: unknown) => void;
-export type KeyedSubscriber<K extends { key: unknown; value: unknown }> = (value: K["value"], key: K["key"]) => void;
-export type StateType<R extends State> = R extends State<infer U> ? U : never;
+type MergedStateValue<Obj extends Record<string, State>> = {
+	[key in keyof Obj]: [key: key, value: Obj[key]["value"]];
+}[keyof Obj];
 
 export class ReadonlyState<T = any> {
 	protected subscribers: Subscriber<T>[] = [];
+	#state: { value: T };
 
-	constructor(public value: T) {}
+	constructor(state: { value: T }) {
+		this.#state = state;
+	}
+
+	get value(): T {
+		return this.#state.value;
+	}
 
 	static isState<X>(x: X): x is Extract<X, State | ReadonlyState> {
 		return x instanceof ReadonlyState;
@@ -34,59 +38,48 @@ export class ReadonlyState<T = any> {
 }
 
 export class State<T = any> extends ReadonlyState<T> {
+	#state: { value: T };
+
 	constructor(value: T) {
-		super(value);
+		const state = { value };
+		super(state);
+		this.#state = state;
 	}
 
 	/**
 	 * Merge multiple states into a single state
 	 */
-	static merge<T>(...states: [State<T>, ...State<T>[]]): MergedState<MapEntries<State<T>[]>>;
+	static merge<T>(...states: [State<T>, ...State<T>[]]): State<[number, T]>;
 
-	static merge<RefMap extends { [k: string]: State }>(refs: RefMap): MergedState<StateEntries<RefMap>>;
+	static merge<RefMap extends { [k: string]: State }>(refs: RefMap): State<MergedStateValue<RefMap>>;
 
 	static merge<T, RefMap extends { [k: string]: State }>(
-		...refs: [State<T> | RefMap, ...State<T>[]]
-	): State<T> | MergedState<MapEntries<State<T>[]>> | MergedState<StateEntries<RefMap>> {
-		if (State.isState(refs[0])) {
-			const ref = new MergedState<MapEntries<State<T>[]>>(refs[0].value);
-			for (let i = 0; i < refs.length; i++) {
-				const r = refs[i] as State<T>;
-				r.listen(x => ref.publish(x, i));
+		...states: [State<T> | RefMap, ...State<T>[]]
+	): State<T> | State<[number, T]> | State<MergedStateValue<RefMap>> {
+		if (State.isState(states[0])) {
+			const merged = new State<[number, T]>([0, states[0].value]);
+			for (let index = 0; index < states.length; index++) {
+				const state = states[index] as State<T>;
+				state.listen(updated => merged.publish([index, updated]));
 			}
-			return ref;
+			return merged;
 		} else {
-			const ref = new MergedState<StateEntries<RefMap>>(null);
-			const rs = refs[0];
-			for (const r in rs) rs[r].listen(c => ref.publish(c, r));
-			return ref;
+			const obj = states[0];
+			type MergedValue = MergedStateValue<RefMap>;
+			const merged = new State<MergedValue>(Object.values(obj)[0]?.value);
+			for (const key in obj) obj[key].listen(updated => merged.publish([key, updated]));
+			return merged;
 		}
 	}
 
-	publish(next: T | Promise<T>, unused?: unknown) {
+	publish(next: T | Promise<T>) {
 		return Promise.resolve(next).then(val => {
-			this.value = val;
+			this.#state.value = val;
 			this.subscribers.forEach(subscriber => subscriber(val));
 		});
 	}
 
 	readonly() {
-		return new ReadonlyState(this.value);
-	}
-}
-
-export class MergedState<T extends { key: string | number; value: unknown }> extends State<T["value"]> {
-	// @ts-expect-error
-	protected subscribers: KeyedSubscriber<T>[];
-
-	listen(listener: KeyedSubscriber<T>): void {
-		this.subscribers.push(listener);
-	}
-
-	publish(value: T["value"] | Promise<T["value"]>, key: T["key"]) {
-		return Promise.resolve(value).then(val => {
-			this.value = val;
-			this.subscribers.forEach(subscriber => subscriber(val, key));
-		});
+		return new ReadonlyState(this.#state);
 	}
 }
