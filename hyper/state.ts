@@ -81,9 +81,10 @@ export class State<T = any> implements ReadonlyState<T> {
 	}
 
 	readonly() {
+		const it = this;
 		return {
 			get value(): T {
-				return this.value;
+				return it.value;
 			},
 			listen: this.listen.bind(this),
 			map: this.map.bind(this),
