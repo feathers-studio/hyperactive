@@ -1,0 +1,151 @@
+<body>
+	<style>
+		:root {
+			color: #fff;
+			font-family: "Courier New", Courier, monospace;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			width: 100vw;
+			min-height: 100vh;
+			overflow: hidden;
+		}
+
+		sink {
+			display: flex;
+			justify-content: space-between;
+			height: 8vh;
+			background: turquoise;
+			width: 100%;
+			padding: 1rem;
+			padding-left: 2rem;
+		}
+
+		sink h1 {
+			font-size: 1.2rem;
+			float: left;
+		}
+
+		button {
+			float: right;
+			top: 2rem;
+			right: 2rem;
+			background: inherit;
+			border: none;
+			padding: 0.5rem;
+			cursor: pointer;
+			color: rgb(0, 137, 200);
+			padding-left: 2rem;
+			border-left: 2px solid rgb(0, 137, 200);
+		}
+
+		button:hover {
+			color: white;
+			border-left: 2px solid white;
+		}
+
+		main {
+			width: 100%;
+			height: 92vh;
+			display: flex;
+		}
+
+		textarea,
+		output {
+			width: 50%;
+			height: 100%;
+			overflow: hidden;
+			font-size: 12px;
+			display: flex;
+			flex-direction: column;
+			border: none;
+		}
+
+		textarea {
+			resize: none;
+			padding: 2rem;
+			border: none;
+			margin: 0;
+		}
+
+		sink,
+		textarea,
+		hyper,
+		elements {
+			border: 2px solid #222;
+		}
+
+		textarea,
+		hyper,
+		elements {
+			color: white;
+			background: #000;
+		}
+
+		textarea,
+		hyper {
+			overflow: auto;
+		}
+
+		textarea,
+		hyper content {
+			white-space: pre;
+		}
+
+		hyper {
+			height: 90%;
+		}
+
+		elements {
+			height: 10%;
+			overflow: auto;
+		}
+
+		content {
+			display: block;
+			margin: 2rem;
+		}
+	</style>
+	<sink>
+		<h1>HTML to Hyperscript (mithril-toolset compatible)</h1>
+		<button onclick="copy('hyper content')">Copy Hyperscript</button>
+	</sink>
+	<main>
+		<textarea class="arrow">Type something here</textarea>
+		<output>
+			<hyper>
+				<content></content>
+			</hyper>
+			<elements>
+				<content></content>
+			</elements>
+		</output>
+	</main>
+	<script src="/htmlparser2.js"></script>
+	<script src="/compile.js"></script>
+	<script>
+		const input = document.querySelector("textarea");
+		const output = document.querySelector("hyper content");
+		const tags = document.querySelector("elements content");
+		input.addEventListener("input", () => {
+			const content = input.value;
+			let out = ``;
+			const stream = {
+				write: (...chunk) => (out += chunk.join("")),
+				pop: () => (out = out.slice(0, -1)),
+				end: () => (output.textContent = out),
+			};
+			const { elements } = window.compile(content, stream);
+			tags.textContent = [...elements].join(", ");
+		});
+		function copy(query) {
+			const el = document.querySelector(query);
+			navigator.clipboard.writeText(el.textContent);
+		}
+	</script>
+</body>
