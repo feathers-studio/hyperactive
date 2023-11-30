@@ -112,11 +112,11 @@
 		}
 	</style>
 	<sink>
-		<h1>HTML to Hyperscript (mithril-toolset compatible)</h1>
-		<button onclick="copy('hyper content')">Copy Hyperscript</button>
+		<h1>HTML to Hyperactive</h1>
+		<button onclick="copy('hyper content')">Copy</button>
 	</sink>
 	<main>
-		<textarea class="arrow">Type something here</textarea>
+		<textarea class="arrow" placeholder="Type something here"></textarea>
 		<output>
 			<hyper>
 				<content></content>
@@ -126,12 +126,13 @@
 			</elements>
 		</output>
 	</main>
-	<script src="/htmlparser2.js"></script>
-	<script src="/compile.js"></script>
-	<script>
+	<script type="module">
+		import { h2h } from "./h2h.js";
+
 		const input = document.querySelector("textarea");
 		const output = document.querySelector("hyper content");
 		const tags = document.querySelector("elements content");
+
 		input.addEventListener("input", () => {
 			const content = input.value;
 			let out = ``;
@@ -140,9 +141,10 @@
 				pop: () => (out = out.slice(0, -1)),
 				end: () => (output.textContent = out),
 			};
-			const { elements } = window.compile(content, stream);
+			const { elements } = h2h(content, stream);
 			tags.textContent = [...elements].join(", ");
 		});
+
 		function copy(query) {
 			const el = document.querySelector(query);
 			navigator.clipboard.writeText(el.textContent);

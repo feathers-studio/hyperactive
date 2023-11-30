@@ -1,7 +1,6 @@
-"use strict";
-const htmlparser = window.htmlparser2;
+import { Parser } from "https://esm.sh/htmlparser2@9.0.0";
 
-const html2hyperscript = (input, stream) => {
+export const h2h = (input, stream, opts) => {
 	const elements = new Set();
 	let indentLevel = 0;
 	let attrOpen = false;
@@ -9,9 +8,9 @@ const html2hyperscript = (input, stream) => {
 	let justClosed = false;
 	let size = 0;
 	const streamWrite = stream.write;
-	stream.write = (...chunk) => ((size += chunk.length), streamWrite(...chunk));
+	stream.write = (...chunk) => ((size += chunk.length), console.log(size), streamWrite(...chunk));
 
-	const parser = new htmlparser.Parser(
+	const parser = new Parser(
 		{
 			onopentag(name, attr) {
 				elements.add(name);
@@ -26,14 +25,17 @@ const html2hyperscript = (input, stream) => {
 				stream.write("\n" + "\t".repeat(indentLevel++) + `${name}`);
 				let attrKeys = Object.keys(attr);
 				if (attrKeys.length) {
-					let selector = "";
-					if (attr.id) selector += "#" + attr.id.split(" ").join("#");
-					if (attr.class) selector += "." + attr.class.split(" ").join(".");
-					if (selector) stream.write(`["${selector}"]`);
-					stream.write("(");
+					if (opts?.useFancySelectors) {
+						let selector = "";
+						if (attr.id) selector += "#" + attr.id.split(" ").join("#");
+						if (attr.class) selector += "." + attr.class.split(" ").join(".");
+						if (selector) stream.write(`["${selector}"]`);
 
-					delete attr.class;
-					delete attr.id;
+						delete attr.class;
+						delete attr.id;
+					}
+
+					stream.write("(");
 
 					attrKeys = Object.keys(attr);
 					if (attrKeys.length) {
@@ -48,11 +50,7 @@ const html2hyperscript = (input, stream) => {
 			oncomment(comments) {
 				justClosed = false;
 				(comments = comments.trim()) &&
-					comments
-						.split("\n")
-						.forEach(comment =>
-							stream.write("\n// " + "\t".repeat(indentLevel) + comment.trim()),
-						);
+					comments.split("\n").forEach(comment => stream.write("\n// " + "\t".repeat(indentLevel) + comment.trim()));
 			},
 
 			ontext(text) {
@@ -63,9 +61,7 @@ const html2hyperscript = (input, stream) => {
 				}
 				if (attrOpen) attrOpen = false;
 				justClosed = false;
-				const escapedTick = String.raw`\``;
-				text = text.replace(/`/g, escapedTick);
-				stream.write(`m.trust(String.raw\`${text}\`)`);
+				stream.write("`" + text.trim().replace(/`/g, "\\`") + "`");
 				textWritten = true;
 			},
 
@@ -97,5 +93,3 @@ const html2hyperscript = (input, stream) => {
 	parser.end();
 	return { elements, stream };
 };
-
-window.compile = html2hyperscript;
