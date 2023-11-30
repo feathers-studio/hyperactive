@@ -40,7 +40,7 @@ const manual: Entry[] = [
 				source: mime,
 				button: union("submit", "reset", "button"),
 				ol: union("1", "a", "A", "i", "I"),
-				script: `"module" | ${mime}`,
+				script: `"module" | "importmap" | ${mime}`,
 				input: union(
 					"hidden",
 					"text",

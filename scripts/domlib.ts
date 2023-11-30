@@ -106,7 +106,9 @@ This modified version is based on @types/web version ${version}.
 export const domLibVersion = "${version}";
 `.trim();
 
-await Deno.writeTextFile("hyper/vendor/dom.slim.ts", preface + "\n" + slim);
+const target = "hyper/vendor/dom.slim.ts";
+console.log("Writing", target);
+await Deno.writeTextFile(target, preface + "\n" + slim);
 
 // force this to be an ESM
 export {};

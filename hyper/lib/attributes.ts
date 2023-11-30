@@ -998,7 +998,7 @@ interface ScriptAttributes {
 	/**
 	 * Defines the type of the element.
 	 */
-	type: "module" | `${string}/${string}`;
+	type: "module" | "importmap" | `${string}/${string}`;
 };
 
 interface SelectAttributes {
