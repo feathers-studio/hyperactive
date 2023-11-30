@@ -8,16 +8,13 @@ export namespace Hyper {
 	export interface Empty<T extends Tag> {
 		// no children for empty tags
 		(props?: Attr<T>): HyperNode<T>;
-		[selector: string]: Hyper.Element<T>;
+		[selector: string]: Hyper.Empty<T>;
 	}
 
 	export interface Base<T extends Tag> {
-		// order must be preserved, otherwise TS thinks State -> Node is invalid
-		(childNode: HyperNodeish): HyperNode<T>;
 		(...childNodes: HyperNodeish[]): HyperNode<T>;
-		(props: Attr<T>): HyperNode<T>;
 		(props: Attr<T>, ...childNodes: HyperNodeish[]): HyperNode<T>;
-		[selector: string]: Hyper.Element<T>;
+		[selector: string]: Hyper.Base<T>;
 	}
 
 	export type Element<T extends Tag = Tag> = T extends EmptyElements ? Hyper.Empty<T> : Hyper.Base<T>;
