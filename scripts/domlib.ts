@@ -1,4 +1,7 @@
 const res = await fetch("https://unpkg.com/@types/web/index.d.ts");
+// unpkg will redirect us to the versioned URL
+const version = res.url.split("@types/web@")[1].split("/index.d.ts")[0];
+console.log("Using @types/web version", version);
 const domlib = await res.text();
 
 const NBSP = String.fromCharCode(160);
@@ -92,19 +95,15 @@ const slim = parsed
 
 const preface = `
 /*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
+This lib was borrowed and modified under the Apache 2.0 license from
+the @types/web package, originally published by Microsoft Corporation.
 
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
+See the full license here: https://github.com/microsoft/TypeScript-DOM-lib-generator/blob/main/LICENSE.txt
 
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
+This modified version is based on @types/web version ${version}.
 ***************************************************************************** */
+
+export const domLibVersion = "${version}";
 `.trim();
 
 await Deno.writeTextFile("hyper/vendor/dom.slim.ts", preface + "\n" + slim);
