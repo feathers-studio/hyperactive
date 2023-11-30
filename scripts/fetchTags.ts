@@ -22,11 +22,13 @@ const tags = (
 	.sort((a, b) => a.title.localeCompare(b.title));
 
 {
-	const custom = typer.statement(typer.exports(typer.type("CustomTag", "`${string}-${string}")));
-	const tag = typer.union(["CustomTag"].concat(tags.map(x => `"${x.title}"`)));
+	const custom = typer.statement(typer.exports(typer.type("CustomTag", "`${string}-${string}`")));
+	const tag = typer.statement(
+		typer.exports(typer.type("Tag", typer.union(["CustomTag"].concat(tags.map(x => `"${x.title}"`))))),
+	);
 	const program = typer.program(typer.preamble, custom, tag);
 
-	const target = "./hyper/elements.ts";
+	const target = "./hyper/lib/tags.ts";
 	console.log(`Writing ${target}`);
 	await typer.writer(target, program);
 }

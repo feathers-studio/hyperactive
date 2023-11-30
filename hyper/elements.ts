@@ -4,7 +4,7 @@
 import { elements } from "./element.ts";
 
 /**
- * Together with its href attribute, creates a hyperlink to web pages, files, email addresses, locations in the same page, or anything else a URL can address.
+ * Together with its href attribute, creates a hyperlink to web pages, files, email addresses, locations within the current page, or anything else a URL can address.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a MDN | a}
  */
@@ -32,7 +32,7 @@ export const address = elements.address;
 export const area = elements.area;
 
 /**
- * Represents a self-contained composition in a document, page, application, or site, which is intended to be independently distributable or reusable (e.g., in syndication). Examples include: a forum post, a magazine or newspaper article, or a blog entry, a product card, a user-submitted comment, an interactive widget or gadget, or any other independent item of content.
+ * Represents a self-contained composition in a document, page, application, or site, which is intended to be independently distributable or reusable (e.g., in syndication). Examples include a forum post, a magazine or newspaper article, a blog entry, a product card, a user-submitted comment, an interactive widget or gadget, or any other independent item of content.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article MDN | article}
  */
@@ -102,7 +102,7 @@ export const body = elements.body;
 export const br = elements.br;
 
 /**
- * An interactive element activated by a user with a mouse, keyboard, finger, voice command, or other assistive technology. Once activated, it then performs an action, such as submitting a [form](https://developer.mozilla.org/en-US/docs/Learn/Forms) or opening a dialog.
+ * An interactive element activated by a user with a mouse, keyboard, finger, voice command, or other assistive technology. Once activated, it performs an action, such as submitting a [form](https://developer.mozilla.org/en-US/docs/Learn/Forms) or opening a dialog.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button MDN | button}
  */
@@ -130,7 +130,7 @@ export const caption = elements.caption;
 export const cite = elements.cite;
 
 /**
- * Displays its contents styled in a fashion intended to indicate that the text is a short fragment of computer code. By default, the content text is displayed using the user agent default monospace font.
+ * Displays its contents styled in a fashion intended to indicate that the text is a short fragment of computer code. By default, the content text is displayed using the user agent's default monospace font.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code MDN | code}
  */
@@ -151,7 +151,7 @@ export const col = elements.col;
 export const colgroup = elements.colgroup;
 
 /**
- * Links a given piece of content with a machine-readable translation. If the content is time- or date-related, the time element must be used.
+ * Links a given piece of content with a machine-readable translation. If the content is time- or date-related, the`<time>` element must be used.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data MDN | data}
  */
@@ -221,7 +221,7 @@ export const dl = elements.dl;
 export const dt = elements.dt;
 
 /**
- * Marks text that has stress emphasis. The `<em>` element can be nested, with each level of nesting indicating a greater degree of emphasis.
+ * Marks text that has stress emphasis. The `<em>` element can be nested, with each nesting level indicating a greater degree of emphasis.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em MDN | em}
  */
@@ -256,7 +256,7 @@ export const figcaption = elements.figcaption;
 export const figure = elements.figure;
 
 /**
- * Represents a footer for its nearest ancestor [sectioning content](https://developer.mozilla.org/en-US/docs/Web/HTML/Content_categories#sectioning_content) or [sectioning root](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements) element. A `<footer>` typically contains information about the author of the section, copyright data or links to related documents.
+ * Represents a footer for its nearest ancestor [sectioning content](https://developer.mozilla.org/en-US/docs/Web/HTML/Content_categories#sectioning_content) or [sectioning root](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements) element. A `<footer>` typically contains information about the author of the section, copyright data, or links to related documents.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer MDN | footer}
  */
@@ -326,6 +326,13 @@ export const head = elements.head;
 export const header = elements.header;
 
 /**
+ * Represents a heading grouped with any secondary content, such as subheadings, an alternative title, or a tagline.
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hgroup MDN | hgroup}
+ */
+export const hgroup = elements.hgroup;
+
+/**
  * Represents a thematic break between paragraph-level elements: for example, a change of scene in a story, or a shift of topic within a section.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr MDN | hr}
@@ -340,7 +347,7 @@ export const hr = elements.hr;
 export const html = elements.html;
 
 /**
- * Represents a range of text that is set off from the normal text for some reason, such as idiomatic text, technical terms, taxonomical designations, among others. Historically, these have been presented using italicized type, which is the original source of the `<i>` naming of this element.
+ * Represents a range of text that is set off from the normal text for some reason, such as idiomatic text, technical terms, and taxonomical designations, among others. Historically, these have been presented using italicized type, which is the original source of the `<i>` naming of this element.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i MDN | i}
  */
@@ -361,7 +368,7 @@ export const iframe = elements.iframe;
 export const img = elements.img;
 
 /**
- * Used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent. The `<input>` element is one of the most powerful and complex in all of HTML due to the sheer number of combinations of input types and attributes.
+ * Used to create interactive controls for web-based forms to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent. The `<input>` element is one of the most powerful and complex in all of HTML due to the sheer number of combinations of input types and attributes.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input MDN | input}
  */
@@ -403,7 +410,7 @@ export const legend = elements.legend;
 export const li = elements.li;
 
 /**
- * Specifies relationships between the current document and an external resource. This element is most commonly used to link to CSS, but is also used to establish site icons (both "favicon" style icons and icons for the home screen and apps on mobile devices) among other things.
+ * Specifies relationships between the current document and an external resource. This element is most commonly used to link to CSS but is also used to establish site icons (both "favicon" style icons and icons for the home screen and apps on mobile devices) among other things.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link MDN | link}
  */
@@ -431,7 +438,7 @@ export const map = elements.map;
 export const mark = elements.mark;
 
 /**
- * The top-level element in MathML. Every valid MathML instance must be wrapped in it. In addition you must not nest a second `<math>` element in another, but you can have an arbitrary number of other child elements in it.
+ * The top-level element in MathML. Every valid MathML instance must be wrapped in it. In addition, you must not nest a second `<math>` element in another, but you can have an arbitrary number of other child elements in it.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/MathML/Element/math MDN | math}
  */
@@ -522,7 +529,7 @@ export const p = elements.p;
 export const picture = elements.picture;
 
 /**
- * Enables the embedding of another HTML page into the current one for the purposes of allowing smoother navigation into new pages.
+ * Enables the embedding of another HTML page into the current one to enable smoother navigation into new pages.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/portal MDN | portal}
  */
@@ -550,7 +557,7 @@ export const progress = elements.progress;
 export const q = elements.q;
 
 /**
- * Used to provide fall-back parentheses for browsers that do not support display of ruby annotations using the [`<ruby>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby) element. One `<rp>` element should enclose each of the opening and closing parentheses that wrap the [`<rt>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rt) element that contains the annotation's text.
+ * Used to provide fall-back parentheses for browsers that do not support the display of ruby annotations using the [`<ruby>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby) element. One `<rp>` element should enclose each of the opening and closing parentheses that wrap the [`<rt>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rt) element that contains the annotation's text.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rp MDN | rp}
  */
@@ -592,6 +599,13 @@ export const samp = elements.samp;
 export const script = elements.script;
 
 /**
+ * Represents a part that contains a set of form controls or other content related to performing a search or filtering operation.
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search MDN | search}
+ */
+export const search = elements.search;
+
+/**
  * Represents a generic standalone section of a document, which doesn't have a more specific semantic element to represent it. Sections should always have a heading, with very few exceptions.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section MDN | section}
@@ -606,14 +620,14 @@ export const section = elements.section;
 export const select = elements.select;
 
 /**
- * Part of the [Web Components](https://developer.mozilla.org/en-US/docs/Web/Web_Components) technology suite, this element is a placeholder inside a web component that you can fill with your own markup, which lets you create separate DOM trees and present them together.
+ * Part of the [Web Components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) technology suite, this element is a placeholder inside a web component that you can fill with your own markup, which lets you create separate DOM trees and present them together.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot MDN | slot}
  */
 export const slot = elements.slot;
 
 /**
- * Represents side-comments and small print, like copyright and legal text, independent of its styled presentation. By default, it renders text within it one font-size smaller, such as from small to x-small.
+ * Represents side-comments and small print, like copyright and legal text, independent of its styled presentation. By default, it renders text within it one font size smaller, such as from small to x-small.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/small MDN | small}
  */
@@ -627,7 +641,7 @@ export const small = elements.small;
 export const source = elements.source;
 
 /**
- * A generic inline container for phrasing content, which does not inherently represent anything. It can be used to group elements for styling purposes (using the class or id attributes), or because they share attribute values, such as lang. It should be used only when no other semantic element is appropriate. `<span>` is very much like a div element, but div is a [block-level element](https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements) whereas a `<span>` is an [inline element](https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements).
+ * A generic inline container for phrasing content, which does not inherently represent anything. It can be used to group elements for styling purposes (using the class or id attributes), or because they share attribute values, such as lang. It should be used only when no other semantic element is appropriate. `<span>` is very much like a div element, but div is a [block-level element](https://developer.mozilla.org/en-US/docs/Glossary/Block-level_content) whereas a `<span>` is an [inline-level element](https://developer.mozilla.org/en-US/docs/Glossary/Inline-level_content).
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span MDN | span}
  */
@@ -641,7 +655,7 @@ export const span = elements.span;
 export const strong = elements.strong;
 
 /**
- * Contains style information for a document, or part of a document. It contains CSS, which is applied to the contents of the document containing this element.
+ * Contains style information for a document or part of a document. It contains CSS, which is applied to the contents of the document containing this element.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style MDN | style}
  */
@@ -704,7 +718,7 @@ export const td = elements.td;
 export const template = elements.template;
 
 /**
- * Represents a multi-line plain-text editing control, useful when you want to allow users to enter a sizeable amount of free-form text, for example a comment on a review or feedback form.
+ * Represents a multi-line plain-text editing control, useful when you want to allow users to enter a sizeable amount of free-form text, for example, a comment on a review or feedback form.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea MDN | textarea}
  */
@@ -718,7 +732,7 @@ export const textarea = elements.textarea;
 export const tfoot = elements.tfoot;
 
 /**
- * Defines a cell as header of a group of table cells. The exact nature of this group is defined by the scope and headers attributes.
+ * Defines a cell as a header of a group of table cells. The exact nature of this group is defined by the scope and headers attributes.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th MDN | th}
  */
@@ -760,7 +774,7 @@ export const tr = elements.tr;
 export const track = elements.track;
 
 /**
- * Represents a span of inline text which should be rendered in a way that indicates that it has a non-textual annotation. This is rendered by default as a simple solid underline, but may be altered using CSS.
+ * Represents a span of inline text which should be rendered in a way that indicates that it has a non-textual annotation. This is rendered by default as a simple solid underline but may be altered using CSS.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u MDN | u}
  */
@@ -774,7 +788,7 @@ export const u = elements.u;
 export const ul = elements.ul;
 
 /**
- * Embeds a media player which supports video playback into the document. You can use `<video>` for audio content as well, but the audio element may provide a more appropriate user experience.
+ * Embeds a media player which supports video playback into the document. You can also use `<video>` for audio content, but the audio element may provide a more appropriate user experience.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video MDN | video}
  */
