@@ -74,14 +74,13 @@ const toElementAttrType = (name: string) => capitalise(name) + "Attributes";
 
 function* elementTypes() {
 	const sorted = Object.keys(elements).sort((a, b) => a.localeCompare(b));
-	for (const element of sorted) {
+	for (const element of sorted)
 		yield typer.statement(
 			typer.iface(
 				toElementAttrType(element),
 				typer.struct(elements[element].map(attr => composeCustom(attr, element))),
 			),
 		);
-	}
 
 	yield typer.statement(
 		typer.iface(
