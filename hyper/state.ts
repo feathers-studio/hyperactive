@@ -7,7 +7,7 @@ type MergedStateValue<Obj extends Record<string, State>> = {
 export interface ReadonlyState<T = any> {
 	value: T;
 	listen(listener: Subscriber<T>): void;
-	map<U>(mapper: (t: T) => U): ReadonlyState<U>;
+	transform<U>(transformer: (t: T) => U): ReadonlyState<U>;
 	into(state: State<T>): void;
 }
 
@@ -68,11 +68,11 @@ export class State<T = any> implements ReadonlyState<T> {
 		this.#subscribers.push(listener);
 	}
 
-	map<U>(mapper: (t: T) => U): ReadonlyState<U> {
-		const s = new State(mapper(this.value));
-		// publish mapped changes when value changes
-		this.listen(value => s.publish(mapper(value)));
-		// return readonly so mapped state can't be published into
+	transform<U>(transformer: (t: T) => U): ReadonlyState<U> {
+		const s = new State(transformer(this.value));
+		// publish transformed changes when value changes
+		this.listen(value => s.publish(transformer(value)));
+		// return readonly so transformed state can't be published into
 		return s.readonly();
 	}
 
@@ -87,7 +87,7 @@ export class State<T = any> implements ReadonlyState<T> {
 				return it.value;
 			},
 			listen: this.listen.bind(this),
-			map: this.map.bind(this),
+			transform: this.transform.bind(this),
 			into: this.into.bind(this),
 			[StateSymbol]: true,
 		};
