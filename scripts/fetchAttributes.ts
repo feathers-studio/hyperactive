@@ -75,20 +75,20 @@ const toElementAttrType = (name: string) => capitalise(name) + "Attributes";
 function* elementTypes() {
 	const sorted = Object.keys(elements).sort((a, b) => a.localeCompare(b));
 	for (const element of sorted)
-		yield typer.statement(
-			typer.iface(
-				toElementAttrType(element),
-				typer.struct(elements[element].map(attr => composeCustom(attr, element))),
-			),
+		yield typer.iface(
+			toElementAttrType(element),
+			typer.struct(elements[element].map(attr => composeCustom(attr, element))),
 		);
 
 	yield typer.statement(
-		typer.iface(
-			"UniqueElementAttrs",
-			typer.struct(
-				sorted
-					.map((element): typer.Prop => ({ prop: element, type: toElementAttrType(element) }))
-					.concat([{ prop: "[k: string]", type: "unknown", noSmartKey: true }]),
+		typer.exports(
+			typer.iface(
+				"UniqueElementAttrs",
+				typer.struct(
+					sorted
+						.map((element): typer.Prop => ({ prop: element, type: toElementAttrType(element) }))
+						.concat([{ prop: "[k: string]", type: "unknown", noSmartKey: true }]),
+				),
 			),
 		),
 	);
@@ -101,6 +101,7 @@ const imports = [
 	`import { GlobalAttrs } from "./global-attributes.ts";`,
 	`import { AriaRoles, AriaAttributes } from "./aria.ts";`,
 	`import { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.ts";`,
+	`import { Distribute, UnionToIntersection } from "../util.ts";`,
 ].join("\n");
 
 const prologue = `
@@ -115,13 +116,9 @@ export type AllAttrs = Partial<Deunionise<UniqueElementAttrs[keyof UniqueElement
 
 export type DataAttr = { [data in \`data-\${string}\`]?: string };
 
-type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
+export type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
 
-interface Common<T extends Tag> {
-	/**
-	 * ref callback is called on mount of element with the DOM element.
-	 */
-	ref: (el: TagToHTMLElement<T>) => void;
+export interface Common extends GlobalAttrs, DataAttr, DOMEvents {
 	/**
 	 * When the element lacks suitable ARIA-semantics, authors must
 	 * assign an ARIA-role. Addition of ARIA semantics only exposes
@@ -141,7 +138,9 @@ interface Common<T extends Tag> {
 	aria: AriaAttributes;
 }
 
-export type Attr<T extends Tag = Tag> = Partial<GlobalAttrs & DataAttr & Common<T> & UniqueElementAttrs[T] & DOMEvents>;
+export type RefCallback<T extends Tag> = UnionToIntersection<Distribute<T, (el: TagToHTMLElement<T>) => void>>;
+
+export type Attributes<T extends Tag> = Partial<Common & { ref: RefCallback<T> } & UniqueElementAttrs[T]>;
 `.trim();
 
 {

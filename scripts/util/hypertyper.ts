@@ -1,6 +1,8 @@
 // hypertyper ⚡️
 
-import { EvenUnion } from "./types.ts";
+export type AllUndef<U extends Record<string, unknown>> = { [x in keyof U]?: undefined };
+export type Expand<T> = T extends object ? (T extends infer O ? { [K in keyof O]: O[K] } : never) : T;
+export type EvenUnion<X> = Expand<{ [x in keyof X]: { [key in x]: X[x] } & AllUndef<Omit<X, x>> }[keyof X]>;
 
 export const eol = "\n";
 
@@ -184,7 +186,7 @@ export function* program(...statements: (string | Iterable<string>)[]) {
 	}
 }
 
-async function writeAll(w: Deno.Writer, arr: Uint8Array) {
+async function writeAll(w: Deno.FsFile, arr: Uint8Array) {
 	let nwritten = 0;
 	while (nwritten < arr.length) nwritten += await w.write(arr.subarray(nwritten));
 }

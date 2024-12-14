@@ -46,6 +46,7 @@ const globalAttr = chunk(
 					each.prop === "virtualkeyboardpolicy" || // re-evaluate later, MDN doesn't mark this as experimental in this location
 					each.prop === "role" || // will be added by fetchARIA.ts
 					each.prop === "data-*" || // will be re-added manually as data-${string} in fetchAttributes.ts
+					each.prop.includes("Non-standard") ||
 					each.prop.includes("Deprecated") ||
 					each.prop.includes("Experimental")
 				)
