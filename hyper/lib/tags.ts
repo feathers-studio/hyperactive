@@ -38,6 +38,7 @@ export type Tag =
 	| "dt"
 	| "em"
 	| "embed"
+	| "fencedframe"
 	| "fieldset"
 	| "figcaption"
 	| "figure"

@@ -4,6 +4,7 @@ import { Tag } from "./tags.ts";
 import { GlobalAttrs } from "./global-attributes.ts";
 import { AriaRoles, AriaAttributes } from "./aria.ts";
 import { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.ts";
+import { Distribute, UnionToIntersection } from "../util.ts";
 
 interface AAttributes {
 	/**
@@ -43,7 +44,7 @@ interface AAttributes {
 	 * (in the case of a `<form>` element)
 	 */
 	target: string;
-};
+}
 
 interface AreaAttributes {
 	/**
@@ -87,17 +88,13 @@ interface AreaAttributes {
 	 * (in the case of a `<form>` element)
 	 */
 	target: string;
-};
+}
 
 interface AudioAttributes {
 	/**
 	 * The audio or video should play as soon as possible.
 	 */
 	autoplay: boolean;
-	/**
-	 * Contains the time range of already buffered media.
-	 */
-	buffered: string;
 	/**
 	 * Indicates whether the browser should show playback controls to the user.
 	 */
@@ -124,7 +121,7 @@ interface AudioAttributes {
 	 * The URL of the embeddable content.
 	 */
 	src: string;
-};
+}
 
 interface BaseAttributes {
 	/**
@@ -137,14 +134,14 @@ interface BaseAttributes {
 	 * (in the case of a `<form>` element)
 	 */
 	target: string;
-};
+}
 
 interface BlockquoteAttributes {
 	/**
 	 * Contains a URI which points to the source of the quote or change.
 	 */
 	cite: string;
-};
+}
 
 interface BodyAttributes {
 	/**
@@ -162,7 +159,7 @@ interface BodyAttributes {
 	 * CSS background-color property instead.
 	 */
 	bgcolor: string;
-};
+}
 
 interface ButtonAttributes {
 	/**
@@ -225,7 +222,7 @@ interface ButtonAttributes {
 	 * load.
 	 */
 	value: string;
-};
+}
 
 interface CanvasAttributes {
 	/**
@@ -236,7 +233,7 @@ interface CanvasAttributes {
 	 * Specifies the width of the element.
 	 */
 	width: number;
-};
+}
 
 interface ColAttributes {
 	/**
@@ -247,7 +244,7 @@ interface ColAttributes {
 	 */
 	bgcolor: string;
 	span: string;
-};
+}
 
 interface ColgroupAttributes {
 	/**
@@ -258,7 +255,7 @@ interface ColgroupAttributes {
 	 */
 	bgcolor: string;
 	span: string;
-};
+}
 
 interface ContenteditableAttributes {
 	/**
@@ -267,8 +264,6 @@ interface ContenteditableAttributes {
 	 * virtual keyboards. The attribute can be used with form controls (such as
 	 * the value of textarea elements), or in elements in an
 	 * editing host (e.g., using contenteditable attribute).
-	 *
-	 * @experimental
 	 */
 	enterkeyhint: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
 	/**
@@ -279,7 +274,7 @@ interface ContenteditableAttributes {
 	 * (e.g., using contenteditable attribute).
 	 */
 	inputmode: "none" | "text" | "tel" | "email" | "url" | "numeric" | "decimal" | "search";
-};
+}
 
 interface DataAttributes {
 	/**
@@ -287,7 +282,7 @@ interface DataAttributes {
 	 * load.
 	 */
 	value: string;
-};
+}
 
 interface DelAttributes {
 	/**
@@ -298,7 +293,7 @@ interface DelAttributes {
 	 * Indicates the date and time associated with the element.
 	 */
 	datetime: string;
-};
+}
 
 interface DetailsAttributes {
 	/**
@@ -308,7 +303,7 @@ interface DetailsAttributes {
 	 * `<dialog>` element).
 	 */
 	open: boolean;
-};
+}
 
 interface DialogAttributes {
 	/**
@@ -318,7 +313,7 @@ interface DialogAttributes {
 	 * `<dialog>` element).
 	 */
 	open: boolean;
-};
+}
 
 interface EmbedAttributes {
 	/**
@@ -337,7 +332,7 @@ interface EmbedAttributes {
 	 * Specifies the width of the element.
 	 */
 	width: number;
-};
+}
 
 interface FieldsetAttributes {
 	/**
@@ -353,7 +348,7 @@ interface FieldsetAttributes {
 	 * fields in form submits.
 	 */
 	name: string;
-};
+}
 
 interface FontAttributes {
 	/**
@@ -365,7 +360,7 @@ interface FontAttributes {
 	 * CSS color property instead.
 	 */
 	color: string;
-};
+}
 
 interface FormAttributes {
 	/**
@@ -373,7 +368,7 @@ interface FormAttributes {
 	 */
 	accept: string;
 	/**
-	 * List of supported charsets.
+	 * The character set, which if provided must be "UTF-8".
 	 */
 	["accept-charset"]: "UTF-8";
 	/**
@@ -413,7 +408,7 @@ interface FormAttributes {
 	 * (in the case of a `<form>` element)
 	 */
 	target: string;
-};
+}
 
 interface HrAttributes {
 	/**
@@ -425,7 +420,7 @@ interface HrAttributes {
 	 * CSS color property instead.
 	 */
 	color: string;
-};
+}
 
 interface IframeAttributes {
 	/**
@@ -447,8 +442,6 @@ interface IframeAttributes {
 	 * Indicates if the element should be loaded lazily
 	 * (loading="lazy") or loaded immediately
 	 * (loading="eager").
-	 *
-	 * @experimental
 	 */
 	loading: "lazy" | "eager";
 	/**
@@ -474,7 +467,7 @@ interface IframeAttributes {
 	 * Specifies the width of the element.
 	 */
 	width: number;
-};
+}
 
 interface ImgAttributes {
 	/**
@@ -508,8 +501,6 @@ interface ImgAttributes {
 	 * Indicates if the element should be loaded lazily
 	 * (loading="lazy") or loaded immediately
 	 * (loading="eager").
-	 *
-	 * @experimental
 	 */
 	loading: "lazy" | "eager";
 	/**
@@ -530,7 +521,7 @@ interface ImgAttributes {
 	 * Specifies the width of the element.
 	 */
 	width: number;
-};
+}
 
 interface InputAttributes {
 	/**
@@ -667,7 +658,7 @@ interface InputAttributes {
 	/**
 	 * Defines the type of the element.
 	 */
-	type: "hidden" | "text" | "search" | "tel" | "url" | "email" | "password" | "date" | "month" | "week" | "time" | "datetime" | "number" | "range" | "color" | "checkbox" | "radio" | "file" | "submit" | "image" | "reset" | "button";
+	type: "button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week";
 	usemap: string;
 	/**
 	 * Defines a default value which will be displayed in the element on page
@@ -678,7 +669,7 @@ interface InputAttributes {
 	 * Specifies the width of the element.
 	 */
 	width: number;
-};
+}
 
 interface InsAttributes {
 	/**
@@ -689,7 +680,7 @@ interface InsAttributes {
 	 * Indicates the date and time associated with the element.
 	 */
 	datetime: string;
-};
+}
 
 interface LabelAttributes {
 	/**
@@ -700,7 +691,7 @@ interface LabelAttributes {
 	 * Indicates the form that is the owner of the element.
 	 */
 	form: string;
-};
+}
 
 interface LiAttributes {
 	/**
@@ -708,9 +699,13 @@ interface LiAttributes {
 	 * load.
 	 */
 	value: number;
-};
+}
 
 interface LinkAttributes {
+	/**
+	 * Specifies the type of content being loaded by the link.
+	 */
+	as: string;
 	/**
 	 * How the element handles cross-origin requests
 	 */
@@ -747,7 +742,7 @@ interface LinkAttributes {
 	 * Defines the type of the element.
 	 */
 	type: `${string}/${string}`;
-};
+}
 
 interface MapAttributes {
 	/**
@@ -755,7 +750,7 @@ interface MapAttributes {
 	 * fields in form submits.
 	 */
 	name: string;
-};
+}
 
 interface MarqueeAttributes {
 	/**
@@ -770,14 +765,14 @@ interface MarqueeAttributes {
 	 * it's finished.
 	 */
 	loop: boolean;
-};
+}
 
 interface MenuAttributes {
 	/**
 	 * Defines the type of the element.
 	 */
 	type: string;
-};
+}
 
 interface MetaAttributes {
 	/**
@@ -798,7 +793,7 @@ interface MetaAttributes {
 	 * fields in form submits.
 	 */
 	name: string;
-};
+}
 
 interface MeterAttributes {
 	/**
@@ -830,7 +825,7 @@ interface MeterAttributes {
 	 * load.
 	 */
 	value: number;
-};
+}
 
 interface ObjectAttributes {
 	/**
@@ -866,7 +861,7 @@ interface ObjectAttributes {
 	 * Specifies the width of the element.
 	 */
 	width: number;
-};
+}
 
 interface OlAttributes {
 	/**
@@ -882,7 +877,7 @@ interface OlAttributes {
 	 * Defines the type of the element.
 	 */
 	type: "1" | "a" | "A" | "i" | "I";
-};
+}
 
 interface OptgroupAttributes {
 	/**
@@ -893,7 +888,7 @@ interface OptgroupAttributes {
 	 * Specifies a user-readable title of the element.
 	 */
 	label: string;
-};
+}
 
 interface OptionAttributes {
 	/**
@@ -913,7 +908,7 @@ interface OptionAttributes {
 	 * load.
 	 */
 	value: string;
-};
+}
 
 interface OutputAttributes {
 	/**
@@ -929,7 +924,7 @@ interface OutputAttributes {
 	 * fields in form submits.
 	 */
 	name: string;
-};
+}
 
 interface ParamAttributes {
 	/**
@@ -942,7 +937,7 @@ interface ParamAttributes {
 	 * load.
 	 */
 	value: string;
-};
+}
 
 interface ProgressAttributes {
 	/**
@@ -958,14 +953,14 @@ interface ProgressAttributes {
 	 * load.
 	 */
 	value: number;
-};
+}
 
 interface QAttributes {
 	/**
 	 * Contains a URI which points to the source of the quote or change.
 	 */
 	cite: string;
-};
+}
 
 interface ScriptAttributes {
 	/**
@@ -999,7 +994,7 @@ interface ScriptAttributes {
 	 * Defines the type of the element.
 	 */
 	type: "module" | "importmap" | `${string}/${string}`;
-};
+}
 
 interface SelectAttributes {
 	/**
@@ -1035,7 +1030,7 @@ interface SelectAttributes {
 	 * password then it's the number of characters.
 	 */
 	size: number;
-};
+}
 
 interface SourceAttributes {
 	/**
@@ -1056,7 +1051,7 @@ interface SourceAttributes {
 	 * Defines the type of the element.
 	 */
 	type: `${string}/${string}`;
-};
+}
 
 interface StyleAttributes {
 	/**
@@ -1068,7 +1063,7 @@ interface StyleAttributes {
 	 * Defines the type of the element.
 	 */
 	type: string;
-};
+}
 
 interface TableAttributes {
 	/**
@@ -1093,7 +1088,7 @@ interface TableAttributes {
 	 * CSS border property instead.
 	 */
 	border: string;
-};
+}
 
 interface TbodyAttributes {
 	/**
@@ -1103,7 +1098,7 @@ interface TbodyAttributes {
 	 * CSS background-color property instead.
 	 */
 	bgcolor: string;
-};
+}
 
 interface TdAttributes {
 	/**
@@ -1134,7 +1129,7 @@ interface TdAttributes {
 	 * Defines the number of rows a table cell should span over.
 	 */
 	rowspan: number;
-};
+}
 
 interface TextareaAttributes {
 	/**
@@ -1157,8 +1152,6 @@ interface TextareaAttributes {
 	 * virtual keyboards. The attribute can be used with form controls (such as
 	 * the value of textarea elements), or in elements in an
 	 * editing host (e.g., using contenteditable attribute).
-	 *
-	 * @experimental
 	 */
 	enterkeyhint: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
 	/**
@@ -1206,7 +1199,7 @@ interface TextareaAttributes {
 	 * Indicates whether the text should be wrapped.
 	 */
 	wrap: "soft" | "hard";
-};
+}
 
 interface TfootAttributes {
 	/**
@@ -1216,7 +1209,7 @@ interface TfootAttributes {
 	 * CSS background-color property instead.
 	 */
 	bgcolor: string;
-};
+}
 
 interface ThAttributes {
 	/**
@@ -1252,14 +1245,14 @@ interface ThAttributes {
 	 * th element) relates to.
 	 */
 	scope: "row" | "col" | "rowgroup" | "colgroup";
-};
+}
 
 interface TimeAttributes {
 	/**
 	 * Indicates the date and time associated with the element.
 	 */
 	datetime: string;
-};
+}
 
 interface TrAttributes {
 	/**
@@ -1269,7 +1262,7 @@ interface TrAttributes {
 	 * CSS background-color property instead.
 	 */
 	bgcolor: string;
-};
+}
 
 interface TrackAttributes {
 	/**
@@ -1290,17 +1283,13 @@ interface TrackAttributes {
 	 */
 	src: string;
 	srclang: string;
-};
+}
 
 interface VideoAttributes {
 	/**
 	 * The audio or video should play as soon as possible.
 	 */
 	autoplay: boolean;
-	/**
-	 * Contains the time range of already buffered media.
-	 */
-	buffered: string;
 	/**
 	 * Indicates whether the browser should show playback controls to the user.
 	 */
@@ -1343,9 +1332,9 @@ interface VideoAttributes {
 	 * Specifies the width of the element.
 	 */
 	width: number;
-};
+}
 
-interface UniqueElementAttrs {
+export interface UniqueElementAttrs {
 	a: AAttributes;
 	area: AreaAttributes;
 	audio: AudioAttributes;
@@ -1413,13 +1402,9 @@ export type AllAttrs = Partial<Deunionise<UniqueElementAttrs[keyof UniqueElement
 
 export type DataAttr = { [data in `data-${string}`]?: string };
 
-type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
+export type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
 
-interface Common<T extends Tag> {
-	/**
-	 * ref callback is called on mount of element with the DOM element.
-	 */
-	ref: (el: TagToHTMLElement<T>) => void;
+export interface Common extends GlobalAttrs, DataAttr, DOMEvents {
 	/**
 	 * When the element lacks suitable ARIA-semantics, authors must
 	 * assign an ARIA-role. Addition of ARIA semantics only exposes
@@ -1439,4 +1424,6 @@ interface Common<T extends Tag> {
 	aria: AriaAttributes;
 }
 
-export type Attr<T extends Tag = Tag> = Partial<GlobalAttrs & DataAttr & Common<T> & UniqueElementAttrs[T] & DOMEvents>;
+export type RefCallback<T extends Tag> = UnionToIntersection<Distribute<T, (el: TagToHTMLElement<T>) => void>>;
+
+export type Attributes<T extends Tag> = Partial<Common & { ref: RefCallback<T> } & UniqueElementAttrs[T]>;

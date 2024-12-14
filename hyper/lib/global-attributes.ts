@@ -8,14 +8,14 @@ export interface GlobalAttrs {
 	 */
 	accesskey: string;
 	/**
-	 * Controls whether and how text input is automatically capitalized as it is entered/edited by the user. It can have the following values:
-	 *
-	 * off or none, no autocapitalization is applied (all letters default to lowercase)
-	 * on or sentences, the first letter of each sentence defaults to a capital letter; all other letters default to lowercase
-	 * words, the first letter of each word defaults to a capital letter; all other letters default to lowercase
-	 * characters, all letters should default to uppercase
+	 * Controls whether inputted text is automatically capitalized and, if so, in what manner.
 	 */
 	autocapitalize: "on" | "off" | "none" | "sentences" | "words" | "characters";
+	/**
+	 * Controls whether input text is automatically corrected for spelling errors.
+	 * This can be applied to elements that have editable text except for `<input>` elements with the attribute: type="password", type="email", or type="url".
+	 */
+	autocorrect: "on" | "off";
 	/**
 	 * Indicates that an element is to be focused on page load, or as soon as the `<dialog>` it is part of is displayed. This attribute is a boolean, initially false.
 	 */
@@ -29,6 +29,7 @@ export interface GlobalAttrs {
 	 *
 	 * true or the empty string, which indicates that the element must be editable;
 	 * false, which indicates that the element must not be editable.
+	 * plaintext-only, which indicates the element's raw text is editable, but rich text formatting is disabled.
 	 */
 	contenteditable: "true" | "plaintext-only" | "false";
 	/**
@@ -50,6 +51,10 @@ export interface GlobalAttrs {
 	 * Hints what action label (or icon) to present for the enter key on virtual keyboards.
 	 */
 	enterkeyhint: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
+	/**
+	 * Used to transitively export shadow parts from a nested shadow tree into a containing light tree.
+	 */
+	exportparts: string;
 	/**
 	 * An enumerated attribute indicating that the element is not yet, or is no longer, relevant. For example, it can be used to hide elements of the page that can't be used until the login process has been completed. The browser won't render such elements. This attribute must not be used to hide content that could legitimately be shown.
 	 */
@@ -140,4 +145,11 @@ export interface GlobalAttrs {
 	 * no, which indicates that the element will not be translated.
 	 */
 	translate: "yes" | "no";
+	/**
+	 * Used to control the behavior of the browser's writing suggestions in an input field, a section of a page, or the entire page.
+	 *
+	 * false, which disables the browser's writing suggestions.
+	 * true or an empty string, which enables writing suggestions.
+	 */
+	writingsuggestions: "true" | "false";
 }

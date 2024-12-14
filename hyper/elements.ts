@@ -88,7 +88,7 @@ export const bdo = elements.bdo;
 export const blockquote = elements.blockquote;
 
 /**
- * represents the content of an HTML document. There can be only one such element in a document.
+ * Represents the content of an HTML document. There can be only one such element in a document.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body MDN | body}
  */
@@ -137,7 +137,7 @@ export const cite = elements.cite;
 export const code = elements.code;
 
 /**
- * Defines a column within a table and is used for defining common semantics on all common cells. It is generally found within a [`<colgroup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup) element.
+ * Defines one or more columns in a column group represented by its implicit or explicit parent [`<colgroup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup) element. The `<col>` element is only valid as a child of a [`<colgroup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup) element that has no [span](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup#span) attribute defined.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/col MDN | col}
  */
@@ -151,7 +151,7 @@ export const col = elements.col;
 export const colgroup = elements.colgroup;
 
 /**
- * Links a given piece of content with a machine-readable translation. If the content is time- or date-related, the`<time>` element must be used.
+ * Links a given piece of content with a machine-readable translation. If the content is time- or date-related, the `<time>` element must be used.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data MDN | data}
  */
@@ -233,6 +233,13 @@ export const em = elements.em;
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed MDN | embed}
  */
 export const embed = elements.embed;
+
+/**
+ * Represents a nested browsing context, like `<iframe>` but with more native privacy features built in.
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fencedframe MDN | fencedframe}
+ */
+export const fencedframe = elements.fencedframe;
 
 /**
  * Used to group several controls as well as labels ([`<label>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label)) within a web form.
@@ -578,7 +585,7 @@ export const rt = elements.rt;
 export const ruby = elements.ruby;
 
 /**
- * Renders text with a strikethrough, or a line through it. Use the `<s>` element to represent things that are no longer relevant or no longer accurate. However, `<s>` is not appropriate when indicating document edits; for that, use the del and ins elements, as appropriate.
+ * Renders text with a strikethrough, or a line through it. Use the `<s>` element to represent things that are no longer relevant or no longer accurate. However, `<s>` is not appropriate when indicating document edits; for that, use the [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del) and [`<ins>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins) elements, as appropriate.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s MDN | s}
  */
@@ -690,21 +697,21 @@ export const sup = elements.sup;
 export const svg = elements.svg;
 
 /**
- * Represents tabular data — that is, information presented in a two-dimensional table comprised of rows and columns of cells containing data.
+ * Represents tabular data—that is, information presented in a two-dimensional table comprised of rows and columns of cells containing data.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table MDN | table}
  */
 export const table = elements.table;
 
 /**
- * Encapsulates a set of table rows ([`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr) elements), indicating that they comprise the body of the table ([`<table>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)).
+ * Encapsulates a set of table rows ([`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr) elements), indicating that they comprise the body of a table's (main) data.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody MDN | tbody}
  */
 export const tbody = elements.tbody;
 
 /**
- * Defines a cell of a table that contains data. It participates in the `<em>`table model`</em>`.
+ * A child of the [`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr) element, it defines a cell of a table that contains data.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td MDN | td}
  */
@@ -725,21 +732,21 @@ export const template = elements.template;
 export const textarea = elements.textarea;
 
 /**
- * Defines a set of rows summarizing the columns of the table.
+ * Encapsulates a set of table rows ([`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr) elements), indicating that they comprise the foot of a table with information about the table's columns. This is usually a summary of the columns, e.g., a sum of the given numbers in a column.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot MDN | tfoot}
  */
 export const tfoot = elements.tfoot;
 
 /**
- * Defines a cell as a header of a group of table cells. The exact nature of this group is defined by the scope and headers attributes.
+ * A child of the [`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr) element, it defines a cell as the header of a group of table cells. The nature of this group can be explicitly defined by the [scope](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th#scope) and [headers](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th#headers) attributes.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th MDN | th}
  */
 export const th = elements.th;
 
 /**
- * Defines a set of rows defining the head of the columns of the table.
+ * Encapsulates a set of table rows ([`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr) elements), indicating that they comprise the head of a table with information about the table's columns. This is usually in the form of column headers ([`<th>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th) elements).
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead MDN | thead}
  */
@@ -753,7 +760,7 @@ export const thead = elements.thead;
 export const time = elements.time;
 
 /**
- * Defines the document's title that is shown in a [browser](https://developer.mozilla.org/en-US/docs/Glossary/Browser)'s title bar or a page's tab. It only contains text; tags within the element are ignored.
+ * Defines the document's title that is shown in a [browser](https://developer.mozilla.org/en-US/docs/Glossary/Browser)'s title bar or a page's tab. It only contains text; HTML tags within the element, if any, are also treated as plain text.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title MDN | title}
  */
@@ -774,7 +781,7 @@ export const tr = elements.tr;
 export const track = elements.track;
 
 /**
- * Represents a span of inline text which should be rendered in a way that indicates that it has a non-textual annotation. This is rendered by default as a simple solid underline but may be altered using CSS.
+ * Represents a span of inline text which should be rendered in a way that indicates that it has a non-textual annotation. This is rendered by default as a single solid underline but may be altered using CSS.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u MDN | u}
  */
