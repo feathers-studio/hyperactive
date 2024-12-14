@@ -1,26 +1,29 @@
 import { h, HyperNode, HyperNodeish, NonEmptyElement, normaliseParams } from "./node.ts";
 import { Tag } from "./lib/tags.ts";
 import { EmptyElements } from "./lib/emptyElements.ts";
-import { Attr } from "./lib/attributes.ts";
 import { parseSelector } from "./parse.ts";
+import { isNonNullable } from "./util.ts";
+import { Attributes } from "./lib/attributes.ts";
 
 export namespace Hyper {
 	export interface Empty<T extends Tag> {
 		// no children for empty tags
-		(props?: Attr<T>): HyperNode<T>;
+		(props?: Attributes<T>): HyperNode<T>;
 		[selector: string]: Hyper.Empty<T>;
 	}
 
 	export interface Base<T extends Tag> {
+		(props: Attributes<T>): HyperNode<T>;
 		(...childNodes: HyperNodeish[]): HyperNode<T>;
-		(props: Attr<T>, ...childNodes: HyperNodeish[]): HyperNode<T>;
+		(props: Attributes<T>, ...childNodes: HyperNodeish[]): HyperNode<T>;
 		[selector: string]: Hyper.Base<T>;
 	}
 
 	export type Element<T extends Tag = Tag> = T extends EmptyElements ? Hyper.Empty<T> : Hyper.Base<T>;
 }
-export type Expand<T> = T extends object ? (T extends infer O ? { [K in keyof O]: O[K] } : never) : T;
-export type ExpandDeep<T> = T extends object ? (T extends infer O ? { [K in keyof O]: ExpandDeep<O[K]> } : never) : T;
+
+export type Elements = { [k in Tag]: Hyper.Element<k> };
+
 function createSelectorProxy<T extends Tag>(
 	element: T,
 	hyperElement: Hyper.Element<T>,
@@ -32,25 +35,16 @@ function createSelectorProxy<T extends Tag>(
 		get(_: hE, selector: string) {
 			const parsed = parseSelector([loaded, selector].filter(Boolean).join(" "));
 
-			const hyperElement = function hyperElement(props?: Attr<T> | HyperNodeish, ...childNodes: HyperNodeish[]) {
+			const hyperElement = function hyperElement(props?: Attributes<T> | HyperNodeish, ...childNodes: HyperNodeish[]) {
 				const { attrs, children } = normaliseParams(props, childNodes);
 
 				const merged = {
 					...attrs,
 					id: parsed.id || attrs.id,
-					class: [
-						parsed.class,
-						// this cast is safe, and helps narrow x in the flatMap below
-						(attrs as Attr<Tag>).class,
-					].flatMap(x => (x ? x : undefined)),
+					class: [parsed.class, attrs.class].flatMap(x => (x ? x : undefined)),
 				};
 
-				return new HyperNode(
-					element,
-					merged,
-					// filter falsy nodes
-					children.filter(Boolean) as HyperNode[],
-				);
+				return new HyperNode(element, merged, children.filter(isNonNullable));
 			} as hE;
 
 			return createSelectorProxy(element, hyperElement, selector);
@@ -58,16 +52,14 @@ function createSelectorProxy<T extends Tag>(
 	});
 }
 
-export type Elements = { [k in Tag]: Hyper.Element<k> };
-
 export const elements = new Proxy({} as Elements, {
-	get<E extends Tag>(target: Elements, element: E): Hyper.Element<E> {
+	get<T extends Tag>(target: Elements, element: T): Hyper.Element<T> {
 		const fromCache = target[element];
 		if (fromCache) return fromCache;
 
 		const hyperElement = function hyperElement(...params: any[]) {
 			return h(element as NonEmptyElement, ...params);
-		} as Elements[E];
+		} as Elements[T];
 
 		target[element] = hyperElement;
 		return createSelectorProxy(element, hyperElement);

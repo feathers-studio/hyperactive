@@ -1,3 +1,7 @@
+export type Distribute<T extends string, U> = { [K in T]: U }[T];
+export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+export type Keyof<O> = Extract<keyof O, string>;
+
 const escapables = {
 	"<": "&lt;",
 	">": "&gt;",
@@ -20,4 +24,4 @@ export type Falsy = SetContents<typeof Falsy>;
 // deno-lint-ignore no-explicit-any
 export const isFalsy = (n: any): n is Falsy => Falsy.has(n);
 
-export type Keyof<O> = Extract<keyof O, string>;
+export const isNonNullable = <T>(n: T): n is NonNullable<T> => n != null;

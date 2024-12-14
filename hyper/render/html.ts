@@ -1,26 +1,40 @@
 import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
 import { EmptyElements } from "../lib/emptyElements.ts";
 import { State } from "../state.ts";
-import { escapeAttr, escapeTextNode, type Falsy, isFalsy } from "../util.ts";
+import { escapeAttr, escapeTextNode, isFalsy } from "../util.ts";
+import { Tag } from "../lib/tags.ts";
+import { Attributes } from "../lib/attributes.ts";
 
-// deno-lint-ignore no-explicit-any
-type AnyFunction = (...props: any[]) => void;
+function eventListeners(attrs: Attributes<Tag>["on"]) {
+	// noop
+	return false;
+}
 
-type AttributePrimitive = string | number | boolean | AnyFunction | Falsy;
-type AttributeValue = AttributePrimitive | (string | Falsy)[] | Record<string, AttributePrimitive>;
-type AttributeObject = Record<string, AttributeValue>;
+function aria(attrs: Attributes<Tag>["aria"]) {
+	if (!attrs) return "";
+	return (
+		Object.entries(attrs)
+			// @ts-expect-error aria properties will allow booleans in the future
+			.map(([attr, value]) => (value ? `aria-${attr}="${value === true ? "" : value}"` : ""))
+			.join(" ")
+	);
+}
 
-function attrifyHTML(attrs: AttributeObject, prefix = ""): string {
+function attrifyHTML(attrs: Attributes<Tag>): string {
 	return Object.entries(attrs)
-		.map(([attr, value]) => {
-			if (attr === "on" || typeof value === "function") return "";
-			if (!value) return "";
-			if (Array.isArray(value)) return attrifyHTML({ [attr]: value.filter(x => x).join(" ") }, prefix);
-			if (typeof value === "object") return attrifyHTML(value, attr + "-");
-			if (typeof value === "boolean")
-				if (value) return `${prefix + attr}`;
-				else return "";
-			if (value) return `${prefix + attr}="${escapeAttr(String(value))}"`;
+		.map(([k, v]) => {
+			const attr = k as keyof Attributes<Tag>;
+
+			if (attr === "on") return eventListeners(attrs[attr]);
+			if (attr === "aria") return aria(attrs[attr]);
+			if (attr === "ref") return false;
+
+			const value = v as Attributes<Tag>[keyof Attributes<Tag>];
+
+			if (value === true) return attr;
+			if (value === "") return attr;
+			if (Array.isArray(value)) return `${attr}="${escapeAttr(value.filter(Boolean).join(" "))}"`;
+			if (value) return `${attr}="${escapeAttr(String(value))}"`;
 		})
 		.filter(Boolean)
 		.join(" ");

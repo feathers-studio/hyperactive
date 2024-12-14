@@ -67,7 +67,17 @@ Deno.test({
 	name: "renderHTML complex",
 	fn: () => {
 		assertEquals(
-			renderHTML(div({ id: "hello", class: "world" }, p(h1({ class: "hello" }, "hello world", br())))),
+			renderHTML(
+				div(
+					{
+						id: "hello",
+						class: "world",
+						ref: el => console.log(el),
+						on: { mousemove: e => console.log(e) },
+					},
+					p(h1({ class: "hello" }, "hello world", br())),
+				),
+			),
 			`<div id="hello" class="world"><p><h1 class="hello">hello world<br /></h1></p></div>`,
 		);
 	},
