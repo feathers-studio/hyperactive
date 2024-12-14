@@ -101,7 +101,6 @@ const imports = [
 	`import { GlobalAttrs } from "./global-attributes.ts";`,
 	`import { AriaRoles, AriaAttributes } from "./aria.ts";`,
 	`import { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.ts";`,
-	`import { Distribute, UnionToIntersection } from "../util.ts";`,
 ].join("\n");
 
 const prologue = `
@@ -138,7 +137,7 @@ export interface Common extends GlobalAttrs, DataAttr, DOMEvents {
 	aria: AriaAttributes;
 }
 
-export type RefCallback<T extends Tag> = UnionToIntersection<Distribute<T, (el: TagToHTMLElement<T>) => void>>;
+export type RefCallback<T extends Tag> = (el: TagToHTMLElement<T>) => void;
 
 export type Attributes<T extends Tag> = Partial<Common & { ref: RefCallback<T> } & UniqueElementAttrs[T]>;
 `.trim();

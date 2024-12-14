@@ -44,7 +44,7 @@ export function renderHTML(node: HyperNodeish): string {
 	if (isFalsy(node)) return "";
 	if (typeof node === "string") return escapeTextNode(node);
 	if (node instanceof HyperHTMLStringNode) return node.htmlString;
-	if (State.isState(node)) return renderHTML(node.value);
+	if (State.isState(node)) return renderHTML(node.get());
 
 	let stringified = "<" + node.tag;
 

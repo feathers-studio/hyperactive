@@ -1,30 +1,38 @@
-export type Subscriber<T> = (value: T) => void;
+export type Subscriber = (value: any) => void;
 
 type MergedStateValue<Obj extends Record<string, State>> = {
-	[key in keyof Obj]: [key: key, value: Obj[key]["value"]];
+	[key in keyof Obj]: [key: key, value: ReturnType<Obj[key]["get"]>];
 }[keyof Obj];
-
-export interface ReadonlyState<T = any> {
-	value: T;
-	listen(listener: Subscriber<T>): void;
-	transform<U>(transformer: (t: T) => U): ReadonlyState<U>;
-	into(state: State<T>): void;
-}
 
 const StateSymbol = Symbol("@hyperactive/state");
 
-export class State<T = any> implements ReadonlyState<T> {
-	#subscribers: Subscriber<T>[] = [];
+export class ReadonlyState<T = any> {
+	#subscribers: Subscriber[] = [];
 	#state: { value: T };
-	[StateSymbol] = true;
+	[StateSymbol] = true as true;
 
 	constructor(value: T) {
-		const state = { value };
-		this.#state = state;
+		this.#state = { value };
 	}
 
-	get value(): T {
+	get(): T {
 		return this.#state.value;
+	}
+
+	listen(listener: (value: T) => void) {
+		this.#subscribers.push(listener);
+	}
+
+	transform<U>(transformer: (t: T) => U): ReadonlyState<U> {
+		const s = new State(transformer(this.get()));
+		// publish transformed changes when value changes
+		this.listen(value => s.set(transformer(value)));
+		// return readonly so transformed state can't be published into
+		return s.readonly();
+	}
+
+	into(state: State<T>) {
+		this.listen(value => state.set(value));
 	}
 
 	static isState<X>(x: X): x is Extract<X, State | ReadonlyState> {
@@ -42,54 +50,39 @@ export class State<T = any> implements ReadonlyState<T> {
 		...states: [State<T> | RefMap, ...State<T>[]]
 	): ReadonlyState<[number, T]> | ReadonlyState<MergedStateValue<RefMap>> {
 		if (State.isState(states[0])) {
-			const merged = new State<[number, T]>([0, states[0].value]);
+			const merged = new State<[number, T]>([0, states[0].get()]);
 			for (let index = 0; index < states.length; index++) {
 				const state = states[index] as State<T>;
-				state.listen(updated => merged.publish([index, updated]));
+				state.listen(updated => merged.set([index, updated]));
 			}
 			return merged.readonly();
 		} else {
 			const obj = states[0];
 			type MergedValue = MergedStateValue<RefMap>;
-			const merged = new State<MergedValue>(Object.values(obj)[0]?.value);
-			for (const key in obj) obj[key].listen(updated => merged.publish([key, updated]));
+			const merged = new State<MergedValue>(Object.values(obj)[0]?.get());
+			for (const key in obj) obj[key].listen(updated => merged.set([key, updated]));
 			return merged.readonly();
 		}
 	}
+}
 
-	publish(next: T | Promise<T>) {
+export class State<T = any> extends ReadonlyState<T> {
+	#subscribers: Subscriber[] = [];
+	#state: { value: T };
+
+	constructor(value: T) {
+		super(value);
+		this.#state = { value };
+	}
+
+	set(next: T | Promise<T>) {
 		return Promise.resolve(next).then(val => {
 			this.#state.value = val;
 			this.#subscribers.forEach(subscriber => subscriber(val));
 		});
 	}
 
-	listen(listener: Subscriber<T>) {
-		this.#subscribers.push(listener);
-	}
-
-	transform<U>(transformer: (t: T) => U): ReadonlyState<U> {
-		const s = new State(transformer(this.value));
-		// publish transformed changes when value changes
-		this.listen(value => s.publish(transformer(value)));
-		// return readonly so transformed state can't be published into
-		return s.readonly();
-	}
-
-	into(state: State<T>) {
-		this.listen(value => state.publish(value));
-	}
-
-	readonly() {
-		const it = this;
-		return {
-			get value(): T {
-				return it.value;
-			},
-			listen: this.listen.bind(this),
-			transform: this.transform.bind(this),
-			into: this.into.bind(this),
-			[StateSymbol]: true,
-		};
+	readonly(): ReadonlyState<T> {
+		return new ReadonlyState(this.get());
 	}
 }

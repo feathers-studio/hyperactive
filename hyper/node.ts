@@ -18,18 +18,17 @@ export class HyperNode<T extends Tag> {
 
 export type HyperChild<T extends Tag> = HyperNode<T> | HyperHTMLStringNode | HyperTextNode;
 export type HyperNodeMaybe<T extends Tag> = HyperChild<T> | Falsy;
-export type HyperNodeish = HyperNodeMaybe<Tag> | ReadonlyState<HyperNodeMaybe<Tag>>;
+export type HyperNodeish = HyperNodeMaybe<any> | ReadonlyState<HyperNodeMaybe<any>> | State<HyperNodeMaybe<any>>;
 
-const isHyperNode = (n: any): n is HyperNode<Tag> | HyperHTMLStringNode | HyperTextNode =>
+const isHyperChild = (n: any): n is HyperChild<any> =>
 	n instanceof HyperNode || n instanceof HyperHTMLStringNode || typeof n === "string";
 
-export const isHyperNodeish = (x: any): x is HyperNodeish => isHyperNode(x) || isFalsy(x) || State.isState(x);
+export const isHyperNodeish = (x: any): x is HyperNodeish => isHyperChild(x) || isFalsy(x) || State.isState(x);
 
 export function normaliseParams<T extends Tag>(props?: Attributes<T> | HyperNodeish, childNodes?: HyperNodeish[]) {
-	const [attrs, children]: [Attributes<T>, HyperNodeish[]] =
-		isHyperNode(props) || isFalsy(props) || State.isState(props)
-			? [{}, [props, ...(childNodes || [])]]
-			: [props || {}, childNodes || []];
+	const [attrs, children]: [Attributes<T>, HyperNodeish[]] = isHyperNodeish(props)
+		? [{}, [props, ...(childNodes || [])]]
+		: [props || {}, childNodes || []];
 
 	return { attrs, children };
 }

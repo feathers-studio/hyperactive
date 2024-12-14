@@ -60,7 +60,7 @@ const toDOM = function toDOM(parent: HTMLElement, node: HyperNodeish): Node | nu
 	if (isFalsy(node)) return null;
 	if (node instanceof HyperHTMLStringNode) return htmlStringToElement(node.htmlString);
 	if (State.isState(node)) {
-		let init = toDOM(parent, node.value);
+		let init = toDOM(parent, node.get());
 
 		node.listen(val => {
 			const update = toDOM(parent, val);
