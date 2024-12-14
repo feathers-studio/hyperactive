@@ -2,7 +2,7 @@ import { fetchGlobalAttributes } from "./fetchGlobalAttributes.ts";
 import { fetchAttributes } from "./fetchAttributes.ts";
 import { fetchARIA } from "./fetchARIA.ts";
 import { fetchTags } from "./fetchTags.ts";
-// import { domlib } from "./domlib.ts";
+import { domlib } from "./domlib.ts";
 
 import { join } from "node:path";
 
@@ -51,4 +51,10 @@ if (requested.includes("tags")) {
 		console.log(`Writing ${target}`);
 		await writeTo(target, content());
 	}
+}
+
+if (requested.includes("dom")) {
+	const target = join(root, "../vendor/dom.slim.ts");
+	console.log(`Writing ${target}`);
+	await writeTo(target, domlib());
 }
