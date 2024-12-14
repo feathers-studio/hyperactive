@@ -186,31 +186,8 @@ export function* program(...statements: (string | Iterable<string>)[]) {
 	}
 }
 
-async function writeAll(w: Deno.FsFile, arr: Uint8Array) {
-	let nwritten = 0;
-	while (nwritten < arr.length) nwritten += await w.write(arr.subarray(nwritten));
-}
-
-const sleep = (t: number) => new Promise(r => setTimeout(r, t));
-
-type Opts = { pause?: number };
-
-export function collectString(program: Iterable<string>) {
-	let output = "";
-	for (const segment of program) output += segment;
-	return output;
-}
-
-export async function writer(filename: string, program: Iterable<string>, opts: Opts = {}) {
-	const writer = await Deno.open(filename, { write: true, create: true, truncate: true });
-
-	const encoder = new TextEncoder();
-	const encode = encoder.encode.bind(encoder);
-
-	for (const segment of program) {
-		if (opts.pause) await sleep(opts.pause);
-		await writeAll(writer, encode(segment));
-	}
-
-	writer.close();
+export function collect(xs: Iterable<string>) {
+	let out = "";
+	for (const x of xs) out += x;
+	return out;
 }

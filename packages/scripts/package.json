@@ -4,5 +4,11 @@
 	"private": true,
 	"scripts": {
 		"build": "bun run gen.ts"
+	},
+	"dependencies": {
+		"jsdom": "^25.0.1"
+	},
+	"devDependencies": {
+		"@types/jsdom": "^21.1.7"
 	}
 }
