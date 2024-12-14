@@ -186,8 +186,14 @@ export function* program(...statements: (string | Iterable<string>)[]) {
 	}
 }
 
-export function collect(xs: Iterable<string>) {
+export function collectSync(xs: Iterable<string>) {
 	let out = "";
 	for (const x of xs) out += x;
+	return out;
+}
+
+export async function collect(xs: Iterable<string> | AsyncIterable<string>) {
+	let out = "";
+	for await (const x of xs) out += x;
 	return out;
 }

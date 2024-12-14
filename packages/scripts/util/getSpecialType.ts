@@ -1,14 +1,14 @@
-import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.12-alpha/deno-dom-wasm.ts";
+import { JSDOM } from "jsdom";
 
 const html = await fetch("https://html.spec.whatwg.org/multipage/indices.html").then(res => res.text());
 
-const document = new DOMParser().parseFromString(html, "text/html")!;
+const { document } = new JSDOM(html).window;
 
 const rows = [...document.querySelectorAll("#attributes-1 tbody tr")]
 	.map(row => [...row.children])
 	.map(([name, , , value]) => ({
-		name: name.textContent.trim(),
-		value: value.textContent.trim(),
+		name: name.textContent!.trim(),
+		value: value.textContent!.trim(),
 	}));
 
 type Entry = [string, (el: string) => string | null];

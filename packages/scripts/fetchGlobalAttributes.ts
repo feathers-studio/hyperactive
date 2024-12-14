@@ -10,7 +10,7 @@ export async function* fetchGlobalAttributes() {
 	const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes").then(res =>
 		res.text(),
 	);
-	const document = new DOMParser().parseFromString(html, "text/html")!;
+	const { document } = new JSDOM(html).window;
 
 	const exists = <T>(x: T | null | undefined): x is T => x != null;
 
@@ -30,7 +30,7 @@ export async function* fetchGlobalAttributes() {
 			const type =
 				getSpecialType(prop)(prop) ||
 				(ul
-					? typer.collect(
+					? typer.collectSync(
 							typer.union(
 								Array.from(ul.querySelectorAll("li code"))
 									.map(code => code.textContent?.trim())
@@ -59,8 +59,8 @@ export async function* fetchGlobalAttributes() {
 	const globalAttrType = typer.exports(typer.iface("GlobalAttrs", typer.struct(globalAttr)));
 
 	{
-		yield `import { Falsy } from "../util.ts";`;
-		yield `type MaybeString = string | Falsy;`;
+		yield `import { Falsy } from "../util.ts";\n\n`;
+		yield `type MaybeString = string | Falsy;\n\n`;
 		yield* globalAttrType;
 	}
 }

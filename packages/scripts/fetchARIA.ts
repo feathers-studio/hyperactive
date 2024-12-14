@@ -6,7 +6,7 @@ const chunk = <X extends unknown>(arr: X[], size: number): X[][] =>
 
 export async function* fetchARIA() {
 	{
-		yield typer.preamble + "\n";
+		yield typer.preamble + "\n\n";
 	}
 
 	{
@@ -24,9 +24,11 @@ export async function* fetchARIA() {
 		yield* typer.statement(typer.exports(typer.type("AriaRoles", typer.union(roles))));
 	}
 
+	yield "\n\n";
+
 	{
 		const html = await fetch("https://www.w3.org/TR/wai-aria-1.0/states_and_properties").then(res => res.text());
-		const document = new DOMParser().parseFromString(html, "text/html")!;
+		const { document } = new JSDOM(html).window;
 
 		const allData = [...document.querySelectorAll("#index_state_prop dt, #index_state_prop dd")];
 

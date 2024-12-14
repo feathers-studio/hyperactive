@@ -28,7 +28,16 @@ export async function* fetchTags() {
 			typer.exports(typer.type("Tag", typer.union(["CustomTag"].concat(tags.map(x => `"${x.title}"`))))),
 		);
 
-		yield { file: "tags.ts", content: typer.program(typer.preamble, custom, tag) };
+		yield {
+			file: "tags.ts",
+			*content() {
+				yield typer.preamble;
+				yield "\n\n";
+				yield* custom;
+				yield "\n\n";
+				yield* tag;
+			},
+		};
 	}
 
 	{
@@ -37,6 +46,7 @@ export async function* fetchTags() {
 			tags.filter(tag => tag.title !== "var"),
 			function* (opts) {
 				yield* (function* ({ title, href, description }: typeof opts) {
+					yield "\n\n";
 					yield* typer.desc([description, typer.see(baseURL + href, "MDN | " + title)].join("\n\n"));
 					yield* typer.statement(typer.exports(typer.constant(title, `elements.${title}`)));
 				})(opts);
@@ -44,8 +54,13 @@ export async function* fetchTags() {
 		);
 
 		yield {
-			file: "elements.ts",
-			content: typer.program(typer.preamble, typer.imports("./element.ts", { imports: ["elements"] }), ...types),
+			file: "../elements.ts",
+			*content() {
+				yield typer.preamble;
+				yield "\n\n";
+				yield* typer.imports("./element.ts", { imports: ["elements"] });
+				yield* types;
+			},
 		};
 	}
 }
