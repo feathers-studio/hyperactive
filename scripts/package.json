@@ -1,0 +1,8 @@
+{
+	"name": "@hyperactive/scripts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "bun run gen.ts"
+	}
+}

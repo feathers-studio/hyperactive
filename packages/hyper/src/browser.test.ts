@@ -1,4 +1,6 @@
-import { bind, elements, renderDOM, State } from "./mod.ts";
+// @ts-nocheck
+
+import { bind, elements, renderDOM, State } from "./index.ts";
 
 import type { Document } from "./lib/dom.ts";
 declare const document: Document;

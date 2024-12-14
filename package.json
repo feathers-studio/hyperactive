@@ -1,0 +1,12 @@
+{
+	"name": "hyperactive",
+	"private": true,
+	"workspaces": [
+		"scripts",
+		"packages/*"
+	],
+	"type": "module",
+	"dependencies": {
+		"typescript": "^5.7.2"
+	}
+}

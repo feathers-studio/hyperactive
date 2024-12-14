@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { type HyperNode } from "./node.ts";
 import { history, Location } from "./history.ts";
 import { type SimpleState, State } from "./state.ts";

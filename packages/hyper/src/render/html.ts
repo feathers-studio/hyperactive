@@ -1,9 +1,9 @@
-import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
+import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
 import { EmptyElements } from "../lib/emptyElements.ts";
 import { State } from "../state.ts";
 import { escapeAttr, escapeTextNode, isFalsy } from "../util.ts";
-import { Tag } from "../lib/tags.ts";
-import { Attributes } from "../lib/attributes.ts";
+import type { Tag } from "../lib/tags.ts";
+import type { Attributes } from "../lib/attributes.ts";
 
 function eventListeners(attrs: Attributes<Tag>["on"]) {
 	// noop

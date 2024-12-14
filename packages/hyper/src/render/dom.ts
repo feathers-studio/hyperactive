@@ -1,14 +1,14 @@
 import { guessEnv } from "../guessEnv.ts";
 import { Falsy, isFalsy } from "../util.ts";
 import { State, type ReadonlyState } from "../state.ts";
-import { Document, HTMLElement, Node, Text } from "../lib/dom.ts";
-import { HyperHTMLStringNode, HyperNodeish } from "../node.ts";
-import { Tag } from "../lib/tags.ts";
-import { Attributes } from "../lib/attributes.ts";
+import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
+import type { Document, HTMLElement, Node, Text } from "../lib/dom.ts";
+import type { Tag } from "../lib/tags.ts";
+import type { Attributes } from "../lib/attributes.ts";
 
 declare const document: Document;
 
-type NodeToDOM<N extends HyperNodeish> = N extends Falsy
+export type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? null
 	: N extends string
 	? Text

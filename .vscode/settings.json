@@ -1,9 +1,3 @@
 {
-	"deno.enable": true,
-	"deno.lint": false,
-	"deno.unstable": true,
-	"deno.suggest.imports.hosts": {
-		"https://deno.land": true
-	},
-	"editor.formatOnSave": true
+	"typescript.tsdk": "node_modules/typescript/lib"
 }

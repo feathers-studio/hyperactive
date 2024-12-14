@@ -1,4 +1,4 @@
-import { SetContents } from "../util.ts";
+import type { SetContents } from "../util.ts";
 
 export const EmptyElements = new Set([
 	"area",

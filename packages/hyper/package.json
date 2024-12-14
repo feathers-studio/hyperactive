@@ -1,0 +1,13 @@
+{
+	"name": "@hyperactive/hyper",
+	"module": "lib/index.js",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"scripts": {
+		"check": "tsc --noEmit",
+		"build": "tsc",
+		"test": "bun test --coverage"
+	},
+	"type": "module"
+}

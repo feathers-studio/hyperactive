@@ -1,9 +1,10 @@
-import { h, HyperNode, HyperNodeish, NonEmptyElement, normaliseParams } from "./node.ts";
-import { Tag } from "./lib/tags.ts";
-import { EmptyElements } from "./lib/emptyElements.ts";
+import { h, HyperNode, normaliseParams } from "./node.ts";
 import { parseSelector } from "./parse.ts";
 import { isNonNullable } from "./util.ts";
-import { Attributes } from "./lib/attributes.ts";
+import type { HyperNodeish, NonEmptyElement } from "./node.ts";
+import type { Tag } from "./lib/tags.ts";
+import type { EmptyElements } from "./lib/emptyElements.ts";
+import type { Attributes } from "./lib/attributes.ts";
 
 export namespace Hyper {
 	export interface Empty<T extends Tag> {
