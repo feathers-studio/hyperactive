@@ -1,22 +1,23 @@
 export type Subscriber = (value: any) => void;
 
-type MergedStateValue<Obj extends Record<string, State>> = {
-	[key in keyof Obj]: [key: key, value: ReturnType<Obj[key]["value"]>];
-}[keyof Obj];
+type ComposedStateValue<Obj extends Record<string, State>> = {
+	[key in keyof Obj]: Obj[key]["value"];
+};
 
 const StateSymbol = Symbol("@hyperactive/state");
 
 export class ReadonlyState<T = any> {
-	#subscribers: Subscriber[] = [];
-	#state: { value: T };
 	[StateSymbol] = true as true;
 
-	constructor(value: T) {
-		this.#state = { value };
+	protected subscribers: Subscriber[] = [];
+	protected state: { value: T };
+
+	constructor(value: T, private source?: ReadonlyState<T>) {
+		this.state = { value };
 	}
 
 	get value(): T {
-		return this.#state.value;
+		return this.state.value;
 	}
 
 	map<U>(mapper: (t: T) => U): ReadonlyState<U> {
@@ -31,34 +32,26 @@ export class ReadonlyState<T = any> {
 		this.listen(value => state.update(value));
 	}
 
-	static isState<X>(x: X): x is Extract<X, State | ReadonlyState> {
-		return x && typeof x === "object" && StateSymbol in x;
+	static isState(x: any): x is State | ReadonlyState {
+		return x instanceof State || x instanceof ReadonlyState;
 	}
 
 	/**
-	 * Merge multiple states into a single state
+	 * Compose multiple states into a single state
 	 */
-	static merge<T>(...states: [State<T>, ...State<T>[]]): State<[number, T]>;
+	static compose<RefMap extends { [k: string]: State }>(refs: RefMap): ReadonlyState<ComposedStateValue<RefMap>> {
+		type Composed = ComposedStateValue<RefMap>;
 
-	static merge<RefMap extends { [k: string]: State }>(refs: RefMap): State<MergedStateValue<RefMap>>;
+		// lazily initialised below
+		const initialValue = {} as Composed;
+		const merged = new State<Composed>(initialValue);
 
-	static merge<T, RefMap extends { [k: string]: State }>(
-		...states: [State<T> | RefMap, ...State<T>[]]
-	): ReadonlyState<[number, T]> | ReadonlyState<MergedStateValue<RefMap>> {
-		if (State.isState(states[0])) {
-			const merged = new State<[number, T]>([0, states[0].value()]);
-			for (let index = 0; index < states.length; index++) {
-				const state = states[index] as State<T>;
-				state.listen(updated => merged.update([index, updated]));
-			}
-			return merged.readonly();
-		} else {
-			const obj = states[0];
-			type MergedValue = MergedStateValue<RefMap>;
-			const merged = new State<MergedValue>(Object.values(obj)[0]?.value());
-			for (const key in obj) obj[key].listen(updated => merged.update([key, updated]));
-			return merged.readonly();
+		for (const key in refs) {
+			initialValue[key] = refs[key].value;
+			refs[key].listen(updated => merged.updateWith(value => ({ ...value, [key]: updated })));
 		}
+
+		return merged.readonly();
 	}
 
 	filter(predicate: (value: T) => boolean): ReadonlyState<T> {
@@ -84,32 +77,33 @@ export class ReadonlyState<T = any> {
 	}
 
 	listen(listener: (value: T) => void): () => void {
-		this.#subscribers.push(listener);
+		if (this.source) return this.source.listen(listener);
+
+		this.subscribers.push(listener);
 		// Return cleanup function
 		return () => {
-			const index = this.#subscribers.indexOf(listener);
-			if (index > -1) this.#subscribers.splice(index, 1);
+			const index = this.subscribers.indexOf(listener);
+			if (index > -1) this.subscribers.splice(index, 1);
 		};
 	}
 }
 
 export class State<T = any> extends ReadonlyState<T> {
-	#subscribers: Subscriber[] = [];
-	#state: { value: T };
-
 	constructor(value: T) {
 		super(value);
-		this.#state = { value };
 	}
 
-	update(next: T | Promise<T>) {
-		return Promise.resolve(next).then(val => {
-			this.#state.value = val;
-			this.#subscribers.forEach(subscriber => subscriber(val));
-		});
+	update(next: T) {
+		this.state.value = next;
+		this.subscribers.forEach(subscriber => subscriber(this.value));
+	}
+
+	updateWith(updater: (value: T) => T) {
+		this.state.value = updater(this.value);
+		this.subscribers.forEach(subscriber => subscriber(this.value));
 	}
 
 	readonly(): ReadonlyState<T> {
-		return new ReadonlyState(this.value);
+		return new ReadonlyState(this.value, this);
 	}
 }

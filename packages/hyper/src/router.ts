@@ -1,26 +1,24 @@
-// @ts-nocheck
-
 import { type HyperNode } from "./node.ts";
-import { history, Location } from "./history.ts";
-import { type SimpleState, State } from "./state.ts";
+import { history, type Location } from "./history.ts";
+import { State } from "./state.ts";
 
-type RouteFragment = [URLPattern, HyperNode | null];
+type RouteFragment = [(path: string) => boolean, HyperNode<any> | null];
 
-export function leaf(pathlike: string, node: HyperNode | null): RouteFragment {
-	return [new URLPattern({ pathname: pathlike }), node];
+export function leaf(pathlike: (path: string) => boolean, node: HyperNode<any> | null): RouteFragment {
+	return [pathlike, node];
 }
 
-export function router(...routes: RouteFragment[]): SimpleState<HyperNode | null> {
-	const match = (routes: RouteFragment[], location: Location): HyperNode | null => {
-		for (const [pattern, node] of routes) if (pattern.test(location)) return node;
+export function router(...routes: RouteFragment[]): State<HyperNode<any> | null> {
+	const match = (routes: RouteFragment[], location: Location): HyperNode<any> | null => {
+		for (const [pattern, node] of routes) if (pattern(location.pathname)) return node;
 		return null;
 	};
 
 	// Initial setup
-	const state = State.simple<HyperNode | null>(match(routes, history.location));
+	const state = new State<HyperNode<any> | null>(match(routes, history.location));
 
 	// Update when history is updated
-	history.listen(update => state.publish(match(routes, update.location)));
+	history.listen(update => state.update(match(routes, update.location)));
 
 	return state;
 }
