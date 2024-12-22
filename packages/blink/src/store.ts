@@ -12,6 +12,7 @@ export const queries = {
 					`INSERT INTO users (username, password) VALUES (:username, :password) RETURNING *`,
 				)
 				.get(user),
+		list: () => db.query<User, []>(`SELECT * FROM users`).all(),
 		update: (user: Pick<User, "username" | "password">) =>
 			db
 				.query<User, Pick<User, "username" | "password">>(
@@ -85,3 +86,6 @@ export const queries = {
 		}
 	}
 }
+
+const users = queries.users.list();
+console.log(users.length, "users in the database:", users.map(user => user.username).join(", "));
