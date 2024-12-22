@@ -1,17 +1,10 @@
 import { config } from "./config";
 
 import { join } from "node:path";
-import { queries } from "./store";
 import { authenticate } from "./middleware/auth";
 import { login, logout, loginPage } from "./pages/auth";
 import { dashboard } from "./pages/dashboard";
 import * as links from "./pages/links";
-
-// Create admin user if it doesn't exist
-if (!queries.users.get("admin")) {
-	queries.users.create({ username: "admin", password: await Bun.password.hash("password") });
-	console.log("Created admin user");
-}
 
 const ASSETS_ROOT = join(__dirname, "../assets/");
 
