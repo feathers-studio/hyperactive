@@ -53,15 +53,15 @@ export async function dashboard(request: Request, { user, url }: { user: User; u
 		body(
 			{ class: "container" },
 			nav(
-				h1("Blink"),
+				h1(a({ href: "/" }, "Blink")),
 				form(input({ class: "link", type: "submit", value: "Logout", formaction: "/logout", formmethod: "POST" })),
 			),
 			section(
 				form(
 					{ role: "group", action: "/links", method: "POST", enctype: "application/x-www-form-urlencoded" },
-					input({ name: "title", type: "text", placeholder: "Title", value: _title }),
 					input({ name: "target", type: "text", placeholder: "https://example.com", value: _target }),
-					button("Submit"),
+					input({ name: "title", type: "text", placeholder: "Title (optional)", value: _title }),
+					button("Shorten!"),
 				),
 				hgroup(
 					error

@@ -129,7 +129,7 @@ export function generateMeta(meta: Meta, fallback_root: string) {
 	const card = "summary_large_image";
 
 	const title = meta.title ?? meta.meta_title ?? "Link Preview";
-	const description = meta.description ?? meta.meta_description ?? "This link was shortened using Blink ✨";
+	const description = meta.description ?? meta.meta_description ?? "This link was shortened using Blink";
 
 	const img = meta.meta_image ?? `${fallback_root}/assets/img/1200x630.jpg`;
 

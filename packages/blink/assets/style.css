@@ -2676,3 +2676,8 @@ td a {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
+
+h1 a {
+	text-decoration: none;
+	color: inherit;
+}

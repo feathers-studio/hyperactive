@@ -1,7 +1,7 @@
 import { body, form, h1, head, hgroup, input, link, p, title } from "@hyperactive/hyper/elements";
 import { parse as cookie } from "cookie";
 import { queries } from "../store";
-import { days, html, redirectClear } from "../utils";
+import { days, generateMeta, html, redirectClear } from "../utils";
 
 export async function login(request: Request, { ip }: { ip: string | null }) {
 	const body = await request.formData();
@@ -48,12 +48,14 @@ export async function loginPage(request: Request, { url }: { url: URL }) {
 	const error = url.searchParams.get("error");
 
 	return html(
-		{},
+		// @ts-expect-error "prefix" is not a valid prop, but og protocol uses it
+		{ prefix: "http://ogp.me/ns#" },
 		head(
 			title("Blink"),
 			link({ rel: "icon", type: "image/png", href: "/assets/img/favicon-96x96.png", sizes: "96x96" }),
 			link({ rel: "shortcut icon", href: "/assets/img/favicon.ico" }),
 			link({ rel: "stylesheet", href: "/assets/style.css" }),
+			...generateMeta({ title: "Blink", description: "Shorten links using Blink" }, url.protocol + "//" + url.host),
 		),
 		body(
 			{ class: "container" },

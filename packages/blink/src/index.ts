@@ -15,6 +15,12 @@ Bun.serve({
 	async fetch(request, server) {
 		const method = request.method;
 		const url = new URL(request.url);
+		{
+			const proto = request.headers.get("x-forwarded-proto");
+			const host = request.headers.get("x-forwarded-host");
+			if (proto) url.protocol = proto;
+			if (host) url.host = host;
+		}
 		const ip = request.headers.get("x-forwarded-for") ?? server.requestIP(request)?.address ?? null;
 
 		console.log(`${method} ${url.pathname}${url.search} [${ip}]`);

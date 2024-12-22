@@ -1,4 +1,4 @@
-import { a, body, head, link, meta, noscript, p } from "@hyperactive/hyper/elements";
+import { a, body, head, link as link_tag, meta, noscript, p } from "@hyperactive/hyper/elements";
 import { customAlphabet } from "nanoid";
 import { queries } from "../store";
 import type { User } from "../types";
@@ -31,7 +31,7 @@ export async function POST(request: Request, { user }: { user: User }) {
 		if (attempts > 100) return redirect("/", {}, { error: "Failed to generate unique slug", title, target });
 	}
 
-	if (title) meta.title = title;
+	if (title) (meta.title = title), (meta.meta_title = title);
 
 	queries.links.create({ ...meta, target, slug, user_id: user.id });
 
@@ -41,27 +41,27 @@ export async function POST(request: Request, { user }: { user: User }) {
 export async function GET(request: Request, { url, ip }: { url: URL; ip: string | null }) {
 	const slug = url.pathname.slice(1);
 
-	const l = queries.links.get(slug);
-	if (!l) return new Response("Link not found", { status: 404 });
+	const link = queries.links.get(slug);
+	if (!link) return new Response("Link not found", { status: 404 });
 
 	const user_agent = request.headers.get("user-agent");
-	queries.visits.create({ link_id: l.id, ip_address: ip, user_agent });
+	queries.visits.create({ link_id: link.id, ip_address: ip, user_agent });
 
-	const tags = generateMeta(l, "https://" + url.host);
+	const tags = generateMeta(link, url.protocol + "//" + url.host);
 
 	return html(
 		// @ts-expect-error "prefix" is not a valid prop, but og protocol uses it
 		{ prefix: "http://ogp.me/ns#" },
 		head(
-			link({ rel: "icon", type: "image/png", href: "/assets/img/favicon-96x96.png", sizes: "96x96" }),
-			link({ rel: "shortcut icon", href: "/assets/img/favicon.ico" }),
+			link_tag({ rel: "icon", type: "image/png", href: "/assets/img/favicon-96x96.png", sizes: "96x96" }),
+			link_tag({ rel: "shortcut icon", href: "/assets/img/favicon.ico" }),
 			...tags,
-			meta({ "http-equiv": "refresh", "content": `0; url=${l.target}` }),
+			meta({ "http-equiv": "refresh", "content": `0; url=${link.target}` }),
 		),
 		body(
-			p("Redirecting you to ", a({ href: l.target }, l.target)),
+			p("Redirecting you to ", a({ href: link.target }, link.target)),
 			// script(`window.location.href = ${JSON.stringify(l.target)};`),
-			noscript("If you are not redirected automatically, please ", a({ href: l.target }, "click here")),
+			noscript("If you are not redirected automatically, please ", a({ href: link.target }, "click here")),
 		),
 	)();
 }
