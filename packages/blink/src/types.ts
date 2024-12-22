@@ -24,6 +24,7 @@ export type Link = {
 	slug: string;
 	target: string;
 	title?: string | null;
+	description?: string | null;
 	meta_title?: string | null;
 	meta_description?: string | null;
 	meta_image?: string | null;

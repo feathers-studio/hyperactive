@@ -25,6 +25,9 @@ Bun.serve({
 
 		console.log(`${method} ${url.pathname}${url.search} [${ip}]`);
 
+		const accept = request.headers.get("Accept");
+		const withJSON = accept?.includes("application/json") ?? false;
+
 		if (method === "GET") {
 			if (url.pathname.startsWith("/assets/")) {
 				const assetPath = join(ASSETS_ROOT, url.pathname.slice("/assets/".length));
@@ -42,24 +45,26 @@ Bun.serve({
 		}
 
 		if (method === "POST") {
-			if (url.pathname === "/login") return login(request, { ip });
-			if (url.pathname === "/logout") return logout(request);
+			if (url.pathname === "/login") return login(request, { ip, withJSON });
+			if (url.pathname === "/logout") return logout(request, { withJSON });
 		}
 
 		const user = await authenticate(request);
 		if (user instanceof Response) {
-			if (url.pathname === "/") return loginPage(request, { url });
+			if (url.pathname === "/") {
+				return loginPage(request, { url });
+			}
 		} else {
 			if (url.pathname === "/") {
 				return dashboard(request, { user, url });
 			}
 
 			if (url.pathname === "/links") {
-				if (method === "POST") return links.POST(request, { user });
+				if (method === "POST") return links.POST(request, { user, withJSON });
 			}
 		}
 
-		return links.GET(request, { url, ip });
+		return links.GET(request, { url, ip, withJSON });
 	},
 });
 

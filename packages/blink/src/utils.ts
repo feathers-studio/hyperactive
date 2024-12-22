@@ -48,6 +48,9 @@ export const redirect = (
 		},
 	});
 
+export const json = (body: any, status = 200, headers: Record<string, string> = {}) =>
+	new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...headers } });
+
 export const html =
 	(...elements: Parameters<typeof html_tag>) =>
 	(headers: Record<string, string> = {}) =>

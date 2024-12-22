@@ -1,20 +1,33 @@
 import { body, form, h1, head, hgroup, input, link, p, title } from "@hyperactive/hyper/elements";
 import { parse as cookie } from "cookie";
 import { queries } from "../store";
-import { days, generateMeta, html, redirectClear } from "../utils";
+import { days, generateMeta, html, json, redirectClear } from "../utils";
 
-export async function login(request: Request, { ip }: { ip: string | null }) {
+interface LoginParams {
+	ip: string | null;
+	withJSON: boolean;
+}
+
+export async function login(request: Request, { ip, withJSON }: LoginParams) {
 	const body = await request.formData();
 	const username = body.get("username")?.toString();
 	const password = body.get("password")?.toString();
 
-	if (!username || !password) return new Response("Invalid username or password", { status: 401 });
+	if (!username || !password) {
+		if (withJSON) return json({ error: "Invalid username or password" }, 401);
+		return new Response("Invalid username or password", { status: 401 });
+	}
 
 	const result = queries.users.getByUsername(username);
-	if (!result) return redirectClear("/?error=Invalid username or password");
-
-	if (!(await Bun.password.verify(password, result.password)))
+	if (!result) {
+		if (withJSON) return json({ error: "Invalid username or password" }, 401);
 		return redirectClear("/?error=Invalid username or password");
+	}
+
+	if (!(await Bun.password.verify(password, result.password))) {
+		if (withJSON) return json({ error: "Invalid username or password" }, 401);
+		return redirectClear("/?error=Invalid username or password");
+	}
 
 	const session = queries.sessions.create({
 		token: crypto.randomUUID(),
@@ -24,21 +37,36 @@ export async function login(request: Request, { ip }: { ip: string | null }) {
 		expires_at: new Date(Date.now() + days(30) * 1000).toISOString(),
 	});
 
-	if (!session) return redirectClear("/?error=Failed to create session");
+	if (!session) {
+		if (withJSON) return json({ error: "Failed to create session" }, 500);
+		return redirectClear("/?error=Failed to create session");
+	}
 
+	if (withJSON) return json({ token: session.token, expires_at: session.expires_at }, 200);
 	return redirectClear("/", {
 		"Set-Cookie": `token=${session.token}; Max-Age=${days(30)}; HttpOnly; Secure; SameSite=Strict`,
 	});
 }
 
-export async function logout(request: Request) {
+interface LogoutParams {
+	withJSON: boolean;
+}
+
+export async function logout(request: Request, { withJSON }: LogoutParams) {
 	const token = cookie(request.headers.get("cookie") ?? "").token;
-	if (!token) return redirectClear("/?error=No token");
+	if (!token) {
+		if (withJSON) return json({ error: "No token" }, 401);
+		return redirectClear("/?error=No token");
+	}
 
 	const changes = await queries.sessions.logout(token);
 
-	if (!changes.changes) return redirectClear("/?error=Could not find active session");
+	if (!changes.changes) {
+		if (withJSON) return json({ error: "Could not find active session" }, 401);
+		return redirectClear("/?error=Could not find active session");
+	}
 
+	if (withJSON) return json({}, 200);
 	return redirectClear("/", {
 		"Set-Cookie": `token=; Max-Age=0; HttpOnly; Secure; SameSite=Strict`,
 	});
