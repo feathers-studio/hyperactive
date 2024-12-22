@@ -1,15 +1,15 @@
 {
 	"compilerOptions": {
 		// Enable latest features
-		"lib": ["ESNext"],
-		"target": "ESNext",
-		"module": "NodeNext",
+		"lib": ["ES2022"],
+		"target": "ES2022",
+		"module": "CommonJS",
 		"moduleDetection": "force",
-		"moduleResolution": "NodeNext",
+		"moduleResolution": "node",
 
 		"allowImportingTsExtensions": true,
 		"rewriteRelativeImportExtensions": true,
-		"verbatimModuleSyntax": true,
+		"declaration": true,
 
 		// Best practices
 		"strict": true,

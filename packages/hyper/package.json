@@ -9,5 +9,9 @@
 		"build": "tsc",
 		"test": "bun test --coverage"
 	},
+	"exports": {
+		".": "./lib/index.js",
+		"./elements": "./lib/elements.js"
+	},
 	"type": "module"
 }
