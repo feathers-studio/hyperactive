@@ -7,7 +7,7 @@ db.exec("PRAGMA journal_mode = WAL;");
 
 const migrations = [
 	{
-		up: () => {
+		up() {
 			// Create tables
 
 			db.exec(
@@ -72,7 +72,7 @@ const migrations = [
 				);
 			}
 		},
-		down: () => {
+		down() {
 			db.exec("DROP TABLE IF EXISTS users");
 			db.exec("DROP TABLE IF EXISTS sessions");
 			db.exec("DROP TABLE IF EXISTS links");
@@ -81,11 +81,52 @@ const migrations = [
 		},
 	},
 	{
-		up: () => {
+		up() {
 			db.exec("UPDATE db_meta SET value = '2' WHERE key = 'version'");
 		},
-		down: () => {
+		down() {
 			db.exec("UPDATE db_meta SET value = '1' WHERE key = 'version'");
+		},
+	},
+	{
+		up() {
+			// this migration was written at a time when the app didn't have many users
+			// so we can drop the sessions table and create a new one with the foreign key constraint
+			db.exec("DROP TABLE IF EXISTS sessions");
+
+			db.exec(
+				`CREATE TABLE IF NOT EXISTS sessions (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					token TEXT UNIQUE,
+					ip_address TEXT,
+					user_agent TEXT NOT NULL,
+					expires_at DATETIME NOT NULL,
+					last_active_at DATETIME,
+					logged_out_at DATETIME,
+					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+					updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+					user_id INTEGER NOT NULL,
+					FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+				)`,
+			);
+		},
+		down() {
+			db.exec("DROP TABLE IF EXISTS sessions");
+
+			db.exec(
+				`CREATE TABLE IF NOT EXISTS sessions (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					token TEXT UNIQUE,
+					username TEXT NOT NULL,
+					ip_address TEXT,
+					user_agent TEXT NOT NULL,
+					expires_at DATETIME NOT NULL,
+					last_active_at DATETIME,
+					logged_out_at DATETIME,
+					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+					updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+				)`,
+			);
 		},
 	},
 ];

@@ -50,4 +50,4 @@ Bun.serve({
 	},
 });
 
-console.log(`Blink is running on ${config.port}`);
+console.log(`Blink is running on http://localhost:${config.port}`);

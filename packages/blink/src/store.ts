@@ -4,8 +4,9 @@ import type { User, Session, Link, Visit } from "./types";
 
 export const queries = {
 	users: {
-		get: (username: string) =>
+		getByUsername: (username: string) =>
 			db.query<User, { username: string }>(`SELECT * FROM users WHERE username = :username`).get({ username }),
+		getById: (id: number) => db.query<User, { id: number }>(`SELECT * FROM users WHERE id = :id`).get({ id }),
 		create: (user: Omit<User, "id" | "created_at" | "updated_at">) =>
 			db
 				.query<User, Omit<User, "id" | "created_at" | "updated_at">>(
@@ -32,7 +33,7 @@ export const queries = {
 			db
 				.query<Session, { token: string }>(
 					`UPDATE sessions
-						SET last_active_at = CURRENT_TIMESTAMP
+						SET last_active_at = CURRENT_TIMESTAMP, expires_at = CURRENT_TIMESTAMP + INTERVAL '30 days'
 						WHERE token = :token AND logged_out_at IS NULL AND expires_at > CURRENT_TIMESTAMP
 						RETURNING *`,
 				)
@@ -76,7 +77,7 @@ export const queries = {
 
 {
 	for (const user of config.users) {
-		const existing = queries.users.get(user.username);
+		const existing = queries.users.getByUsername(user.username);
 		if (!existing) {
 			console.log(`Creating user ${user.username}`);
 			queries.users.create({ username: user.username, password: await Bun.password.hash(user.password) });

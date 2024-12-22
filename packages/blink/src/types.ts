@@ -9,7 +9,7 @@ export type User = {
 export type Session = {
 	id: number;
 	token: string;
-	username: string;
+	user_id: number;
 	ip_address: string | null;
 	user_agent: string | null;
 	expires_at: string;
