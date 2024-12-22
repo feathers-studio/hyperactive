@@ -1,6 +1,7 @@
 import type { User } from "../types";
 import { queries } from "../store";
 import { customAlphabet } from "nanoid";
+import { redirect } from "../utils";
 
 const alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz_-";
 const nanoid = customAlphabet(alphabet, 8);
@@ -10,27 +11,20 @@ export async function POST(request: Request, { user }: { user: User }) {
 	const title = formData.get("title")?.toString();
 	let target = formData.get("target")?.toString();
 
-	if (!target)
-		return new Response("Invalid form data", {
-			status: 302,
-			headers: { Location: `/?title=${title}&target=${target}&error=Target is required` },
-		});
+	if (!target) return redirect(`/?title=${title}&target=${target}&error=Target is required`);
 
 	try {
 		const url = new URL(target);
 		target = url.toString();
 	} catch (error) {
-		return new Response("Invalid target URL", {
-			status: 302,
-			headers: { Location: `/?title=${title}&target=${target}&error=Invalid target URL` },
-		});
+		return redirect(`/?title=${title}&target=${target}&error=Invalid target URL`);
 	}
 
 	let slug: string;
 	let attempts = 0;
 	while (queries.links.get((slug = nanoid()))) {
 		attempts++;
-		if (attempts > 100) return new Response("Failed to generate unique slug", { status: 500 });
+		if (attempts > 100) return redirect("/?error=Failed to generate unique slug");
 	}
 
 	queries.links.create({ title, target, slug, user_id: user.id });

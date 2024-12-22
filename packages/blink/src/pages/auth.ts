@@ -2,7 +2,7 @@ import { h1, body, head, html, link, title, input, form, hgroup, p } from "@hype
 import { renderHTML } from "@hyperactive/hyper";
 import { queries } from "../store";
 import { parse as cookie } from "cookie";
-import { redirect } from "../utils";
+import { redirectClear } from "../utils";
 
 const day = 1000 * 60 * 60 * 24;
 
@@ -14,9 +14,10 @@ export async function login(request: Request, { ip }: { ip: string | null }) {
 	if (!username || !password) return new Response("Invalid username or password", { status: 401 });
 
 	const result = queries.users.getByUsername(username);
-	if (!result) return redirect("/?error=Invalid username or password");
+	if (!result) return redirectClear("/?error=Invalid username or password");
 
-	if (!(await Bun.password.verify(password, result.password))) return redirect("/?error=Invalid username or password");
+	if (!(await Bun.password.verify(password, result.password)))
+		return redirectClear("/?error=Invalid username or password");
 
 	const session = queries.sessions.create({
 		token: crypto.randomUUID(),
@@ -26,22 +27,22 @@ export async function login(request: Request, { ip }: { ip: string | null }) {
 		expires_at: new Date(Date.now() + day * 30).toISOString(),
 	});
 
-	if (!session) return redirect("/?error=Failed to create session");
+	if (!session) return redirectClear("/?error=Failed to create session");
 
-	return redirect("/", {
+	return redirectClear("/", {
 		"Set-Cookie": `token=${session.token}; Max-Age=${day * 30}; HttpOnly; Secure; SameSite=Strict`,
 	});
 }
 
 export async function logout(request: Request) {
 	const token = cookie(request.headers.get("cookie") ?? "").token;
-	if (!token) return redirect("/?error=No token");
+	if (!token) return redirectClear("/?error=No token");
 
 	const changes = await queries.sessions.logout(token);
 
-	if (!changes.changes) return redirect("/?error=Could not find active session");
+	if (!changes.changes) return redirectClear("/?error=Could not find active session");
 
-	return redirect("/", {
+	return redirectClear("/", {
 		"Set-Cookie": `token=; Max-Age=0; HttpOnly; Secure; SameSite=Strict`,
 	});
 }
