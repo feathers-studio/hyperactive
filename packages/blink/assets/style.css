@@ -2640,6 +2640,8 @@ textarea {
 	}
 }
 
+/* -- Custom -- */
+
 .muted {
 	color: var(--pico-muted-color);
 }
@@ -2659,4 +2661,18 @@ input.link[type="submit"] {
 	padding: 0;
 	margin: 0;
 	height: auto;
+}
+
+td {
+	max-width: 20rem;
+}
+
+td p,
+td a {
+	display: block;
+	margin: 0;
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }

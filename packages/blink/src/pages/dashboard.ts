@@ -1,34 +1,30 @@
+import { parse as cookie } from "cookie";
 import {
-	h1,
-	body,
-	head,
-	html,
-	link,
-	title,
-	input,
-	form,
-	button,
-	ul,
 	a,
-	li,
+	body,
+	button,
+	form,
+	h1,
+	head,
+	hgroup,
+	i,
+	input,
+	link,
+	meta,
+	nav,
 	p,
-	h3,
-	code,
+	section,
 	table,
-	thead,
-	tr,
-	th,
 	tbody,
 	td,
-	i,
-	nav,
-	h2,
-	hgroup,
-	section,
+	th,
+	thead,
+	title,
+	tr,
 } from "@hyperactive/hyper/elements";
-import { renderHTML } from "@hyperactive/hyper";
-import type { User } from "../types";
 import { queries } from "../store";
+import type { User } from "../types";
+import { html, days } from "../utils";
 
 export async function dashboard(request: Request, { user, url }: { user: User; url: URL }) {
 	const error = url.searchParams.get("error");
@@ -42,8 +38,18 @@ export async function dashboard(request: Request, { user, url }: { user: User; u
 	const limit = Number(url.searchParams.get("limit")) || 10;
 
 	const listLinks = queries.links.list({ user_id: user.id, page, limit });
-	const html_page = html(
-		head(title("Blink"), link({ rel: "stylesheet", href: "/assets/style.css" })),
+
+	const session = cookie(request.headers.get("cookie") ?? "").token;
+
+	return html(
+		{},
+		head(
+			title("Blink"),
+			meta({ name: "viewport", content: "width=device-width, initial-scale=1" }),
+			link({ rel: "icon", type: "image/png", href: "/assets/img/favicon-96x96.png", sizes: "96x96" }),
+			link({ rel: "shortcut icon", href: "/assets/img/favicon.ico" }),
+			link({ rel: "stylesheet", href: "/assets/style.css" }),
+		),
 		body(
 			{ class: "container" },
 			nav(
@@ -74,16 +80,19 @@ export async function dashboard(request: Request, { user, url }: { user: User; u
 					tbody(
 						...listLinks.map(link =>
 							tr(
-								td(link.title || i("-")),
-								td(a({ href: "/" + link.slug }, url.host, "/", link.slug)),
-								td(a({ href: link.target }, link.target)),
+								td(p(link.title || i("-"))),
+								td(
+									a({ href: "/" + link.slug, target: "_blank", rel: "noopener noreferrer" }, url.host, "/", link.slug),
+								),
+								td(a({ href: link.target, target: "_blank", rel: "noopener noreferrer" }, link.target)),
 								td(String(link.visits)),
 							),
 						),
 					),
 				),
 		),
-	);
-
-	return new Response(renderHTML(html_page), { headers: { "Content-Type": "text/html" } });
+	)({
+		// Refresh Cookie expires every time the page is loaded
+		"Set-Cookie": `token=${session}; Max-Age=${days(30)}; HttpOnly; Secure; SameSite=Strict`,
+	});
 }

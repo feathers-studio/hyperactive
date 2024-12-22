@@ -23,7 +23,10 @@ export type Link = {
 	user_id: number;
 	slug: string;
 	target: string;
-	title?: string;
+	title?: string | null;
+	meta_title?: string | null;
+	meta_description?: string | null;
+	meta_image?: string | null;
 	created_at: string;
 	updated_at: string;
 };

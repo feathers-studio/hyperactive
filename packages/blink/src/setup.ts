@@ -129,6 +129,26 @@ const migrations = [
 			);
 		},
 	},
+	{
+		up() {
+			db.exec("ALTER TABLE links ADD COLUMN meta_title TEXT");
+			db.exec("ALTER TABLE links ADD COLUMN meta_description TEXT");
+			db.exec("ALTER TABLE links ADD COLUMN meta_image TEXT");
+		},
+		down() {
+			db.exec("ALTER TABLE links DROP COLUMN meta_title");
+			db.exec("ALTER TABLE links DROP COLUMN meta_description");
+			db.exec("ALTER TABLE links DROP COLUMN meta_image");
+		},
+	},
+	{
+		up() {
+			db.exec("ALTER TABLE links ADD COLUMN description TEXT");
+		},
+		down() {
+			db.exec("ALTER TABLE links DROP COLUMN description");
+		},
+	},
 ];
 
 db.exec(

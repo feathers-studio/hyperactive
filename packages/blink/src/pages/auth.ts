@@ -1,10 +1,7 @@
-import { h1, body, head, html, link, title, input, form, hgroup, p } from "@hyperactive/hyper/elements";
-import { renderHTML } from "@hyperactive/hyper";
-import { queries } from "../store";
+import { body, form, h1, head, hgroup, input, link, p, title } from "@hyperactive/hyper/elements";
 import { parse as cookie } from "cookie";
-import { redirectClear } from "../utils";
-
-const day = 1000 * 60 * 60 * 24;
+import { queries } from "../store";
+import { days, html, redirectClear } from "../utils";
 
 export async function login(request: Request, { ip }: { ip: string | null }) {
 	const body = await request.formData();
@@ -24,13 +21,13 @@ export async function login(request: Request, { ip }: { ip: string | null }) {
 		user_id: result.id,
 		ip_address: ip,
 		user_agent: request.headers.get("user-agent"),
-		expires_at: new Date(Date.now() + day * 30).toISOString(),
+		expires_at: new Date(Date.now() + days(30) * 1000).toISOString(),
 	});
 
 	if (!session) return redirectClear("/?error=Failed to create session");
 
 	return redirectClear("/", {
-		"Set-Cookie": `token=${session.token}; Max-Age=${day * 30}; HttpOnly; Secure; SameSite=Strict`,
+		"Set-Cookie": `token=${session.token}; Max-Age=${days(30)}; HttpOnly; Secure; SameSite=Strict`,
 	});
 }
 
@@ -50,8 +47,14 @@ export async function logout(request: Request) {
 export async function loginPage(request: Request, { url }: { url: URL }) {
 	const error = url.searchParams.get("error");
 
-	const html_page = html(
-		head(title("Blink"), link({ rel: "stylesheet", href: "/assets/style.css" })),
+	return html(
+		{},
+		head(
+			title("Blink"),
+			link({ rel: "icon", type: "image/png", href: "/assets/img/favicon-96x96.png", sizes: "96x96" }),
+			link({ rel: "shortcut icon", href: "/assets/img/favicon.ico" }),
+			link({ rel: "stylesheet", href: "/assets/style.css" }),
+		),
 		body(
 			{ class: "container" },
 			h1("Blink"),
@@ -61,9 +64,7 @@ export async function loginPage(request: Request, { url }: { url: URL }) {
 				input({ name: "password", type: "password", placeholder: "Password" }),
 				input({ type: "submit", value: "Login" }),
 			),
+			hgroup(error && p({ class: "muted" }, "Error: ", error)),
 		),
-		hgroup(error && p({ class: "muted" }, "Error: ", error)),
-	);
-
-	return new Response(renderHTML(html_page), { headers: { "Content-Type": "text/html" } });
+	)();
 }

@@ -1,12 +1,16 @@
 import { config } from "./config";
 
-import { join } from "node:path";
+import { extname, join } from "node:path";
 import { authenticate } from "./middleware/auth";
 import { login, logout, loginPage } from "./pages/auth";
 import { dashboard } from "./pages/dashboard";
 import * as links from "./pages/links";
+import { lookup } from "mime-types";
+import { ellipses, generateETagFromFile, minutes, seconds } from "./utils";
 
 const ASSETS_ROOT = join(__dirname, "../assets/");
+
+const large_image_template = await Bun.file("./assets/img/1200x630.svg").text();
 
 Bun.serve({
 	port: config.port,
@@ -23,7 +27,13 @@ Bun.serve({
 				if (!assetPath.startsWith(ASSETS_ROOT)) {
 					return new Response("Access Denied", { status: 403 });
 				}
-				return new Response(Bun.file(assetPath));
+				return new Response(Bun.file(assetPath), {
+					headers: {
+						"Content-Type": lookup(extname(assetPath)) || "application/octet-stream",
+						"Cache-Control": `public, max-age=${seconds(10)}`,
+						"ETag": await generateETagFromFile(assetPath),
+					},
+				});
 			}
 		}
 
@@ -35,15 +45,14 @@ Bun.serve({
 		const user = await authenticate(request);
 		if (user instanceof Response) {
 			if (url.pathname === "/") return loginPage(request, { url });
-			return user;
-		}
+		} else {
+			if (url.pathname === "/") {
+				return dashboard(request, { user, url });
+			}
 
-		if (url.pathname === "/") {
-			return dashboard(request, { user, url });
-		}
-
-		if (url.pathname === "/links") {
-			if (method === "POST") return links.POST(request, { user });
+			if (url.pathname === "/links") {
+				if (method === "POST") return links.POST(request, { user });
+			}
 		}
 
 		return links.GET(request, { url, ip });

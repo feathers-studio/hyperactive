@@ -5,10 +5,13 @@
 	"dependencies": {
 		"@hyperactive/hyper": "workspace:*",
 		"cookie": "^1.0.2",
+		"jsdom": "^25.0.1",
+		"mime-types": "^2.1.35",
 		"nanoid": "^5.0.9"
 	},
 	"devDependencies": {
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"@types/mime-types": "^2.1.4"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"

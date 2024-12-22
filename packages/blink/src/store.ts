@@ -25,15 +25,15 @@ export const queries = {
 		create: (session: Omit<Session, "id" | "logged_out_at" | "created_at" | "updated_at">) =>
 			db
 				.query<Session, Omit<Session, "id" | "logged_out_at" | "created_at" | "updated_at">>(
-					`INSERT INTO sessions (token, username, ip_address, user_agent, expires_at)
-						VALUES (:token, :username, :ip_address, :user_agent, :expires_at) RETURNING *`,
+					`INSERT INTO sessions (token, user_id, ip_address, user_agent, expires_at)
+						VALUES (:token, :user_id, :ip_address, :user_agent, :expires_at) RETURNING *`,
 				)
 				.get(session),
 		access: (token: string) =>
 			db
 				.query<Session, { token: string }>(
 					`UPDATE sessions
-						SET last_active_at = CURRENT_TIMESTAMP, expires_at = CURRENT_TIMESTAMP + INTERVAL '30 days'
+						SET last_active_at = CURRENT_TIMESTAMP, expires_at = datetime('now', '+30 days')
 						WHERE token = :token AND logged_out_at IS NULL AND expires_at > CURRENT_TIMESTAMP
 						RETURNING *`,
 				)
@@ -48,7 +48,9 @@ export const queries = {
 		create: (link: Omit<Link, "id" | "created_at" | "updated_at">) =>
 			db
 				.query<Link, Omit<Link, "id" | "created_at" | "updated_at">>(
-					`INSERT INTO links (title, target, slug, user_id) VALUES (:title, :target, :slug, :user_id) RETURNING *`,
+					`INSERT INTO links (title, description, meta_title, meta_description, meta_image, target, slug, user_id)
+						VALUES (:title, :description, :meta_title, :meta_description, :meta_image, :target, :slug, :user_id)
+						RETURNING *`,
 				)
 				.get(link),
 		list: ({ user_id, page = 1, limit = 10 }: { user_id: number; page: number; limit: number }) =>
