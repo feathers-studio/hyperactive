@@ -1,0 +1,10 @@
+{
+	"port": 3000,
+	"database": "store.db",
+	"users": [
+		{
+			"username": "admin",
+			"password": "hunter2_ifYouDontChangeThisPasswordYouDeserveToBeHacked"
+		}
+	]
+}

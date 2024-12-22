@@ -1,0 +1,87 @@
+import { config } from "./config";
+import { db } from "./setup";
+import type { User, Session, Link, Visit } from "./types";
+
+export const queries = {
+	users: {
+		get: (username: string) =>
+			db.query<User, { username: string }>(`SELECT * FROM users WHERE username = :username`).get({ username }),
+		create: (user: Omit<User, "id" | "created_at" | "updated_at">) =>
+			db
+				.query<User, Omit<User, "id" | "created_at" | "updated_at">>(
+					`INSERT INTO users (username, password) VALUES (:username, :password) RETURNING *`,
+				)
+				.get(user),
+		update: (user: Pick<User, "username" | "password">) =>
+			db
+				.query<User, Pick<User, "username" | "password">>(
+					`UPDATE users SET username = :username, password = :password WHERE username = :username`,
+				)
+				.run(user),
+	},
+	sessions: {
+		create: (session: Omit<Session, "id" | "logged_out_at" | "created_at" | "updated_at">) =>
+			db
+				.query<Session, Omit<Session, "id" | "logged_out_at" | "created_at" | "updated_at">>(
+					`INSERT INTO sessions (token, username, ip_address, user_agent, expires_at)
+						VALUES (:token, :username, :ip_address, :user_agent, :expires_at) RETURNING *`,
+				)
+				.get(session),
+		access: (token: string) =>
+			db
+				.query<Session, { token: string }>(
+					`UPDATE sessions
+						SET last_active_at = CURRENT_TIMESTAMP
+						WHERE token = :token AND logged_out_at IS NULL AND expires_at > CURRENT_TIMESTAMP
+						RETURNING *`,
+				)
+				.get({ token }),
+		logout: (token: string) =>
+			db
+				.query<Session, { token: string }>(`UPDATE sessions SET logged_out_at = CURRENT_TIMESTAMP WHERE token = :token`)
+				.run({ token }),
+	},
+	links: {
+		get: (slug: string) => db.query<Link, { slug: string }>(`SELECT * FROM links WHERE slug = :slug`).get({ slug }),
+		create: (link: Omit<Link, "id" | "created_at" | "updated_at">) =>
+			db
+				.query<Link, Omit<Link, "id" | "created_at" | "updated_at">>(
+					`INSERT INTO links (title, target, slug, user_id) VALUES (:title, :target, :slug, :user_id) RETURNING *`,
+				)
+				.get(link),
+		list: ({ user_id, page = 1, limit = 10 }: { user_id: number; page: number; limit: number }) =>
+			db
+				.query<Link & { visits: number }, { user_id: number; offset: number; limit: number }>(
+					`SELECT links.*, 
+						(SELECT COUNT(*) FROM visits WHERE visits.link_id = links.id) AS visits
+						FROM links
+						WHERE links.user_id = :user_id
+						ORDER BY links.created_at DESC
+						LIMIT :limit
+						OFFSET :offset`,
+				)
+				.all({ user_id, offset: (page - 1) * limit, limit }),
+	},
+	visits: {
+		create: (visit: Omit<Visit, "id" | "created_at" | "updated_at">) =>
+			db
+				.query<Visit, Omit<Visit, "id" | "created_at" | "updated_at">>(
+					`INSERT INTO visits (link_id, ip_address, user_agent)
+						VALUES (:link_id, :ip_address, :user_agent) RETURNING *`,
+				)
+				.get(visit),
+	},
+};
+
+{
+	for (const user of config.users) {
+		const existing = queries.users.get(user.username);
+		if (!existing) {
+			console.log(`Creating user ${user.username}`);
+			queries.users.create(user);
+		} else if (!(await Bun.password.verify(existing.password, user.password))) {
+			console.log(`Updating password for user ${user.username}`);
+			queries.users.update(user);
+		}
+	}
+}
