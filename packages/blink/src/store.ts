@@ -79,7 +79,7 @@ export const queries = {
 		if (!existing) {
 			console.log(`Creating user ${user.username}`);
 			queries.users.create({ username: user.username, password: await Bun.password.hash(user.password) });
-		} else if (!(await Bun.password.verify(existing.password, user.password))) {
+		} else if (!(await Bun.password.verify(user.password, existing.password))) {
 			console.log(`Updating password for user ${user.username}`);
 			queries.users.update({ username: user.username, password: await Bun.password.hash(user.password) });
 		}
