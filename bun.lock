@@ -5,9 +5,6 @@
       "dependencies": {
         "typescript": "^5.7.2",
       },
-      "devDependencies": {
-        "@types/mime-types": "^2.1.4",
-      },
     },
     "packages/blink": {
       "name": "@feathers-studio/blink",

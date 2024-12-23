@@ -23,7 +23,7 @@ Bun.serve({
 		}
 		const ip = request.headers.get("x-forwarded-for") ?? server.requestIP(request)?.address ?? null;
 
-		console.log(`${method} ${url.pathname}${url.search} [${ip}]`);
+		console.log(`[${new Date().toISOString()}] ${method} ${url.pathname}${url.search} (${ip})`);
 
 		const accept = request.headers.get("Accept");
 		const withJSON = accept?.includes("application/json") ?? false;
