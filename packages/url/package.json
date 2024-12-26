@@ -1,0 +1,15 @@
+{
+	"name": "@hyperactive/url",
+	"module": "src/index.ts",
+	"type": "module",
+	"scripts": {
+		"prepublishOnly": "bun run build",
+		"build": "tsc"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.1.14"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	}
+}

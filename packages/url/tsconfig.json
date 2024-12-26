@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		// Enable latest features
+		"lib": ["ES2022"],
+		"target": "ES2022",
+		"module": "CommonJS",
+		"moduleDetection": "force",
+		"moduleResolution": "node",
+
+		"allowImportingTsExtensions": true,
+		"rewriteRelativeImportExtensions": true,
+		"declaration": true,
+
+		// Best practices
+		"strict": true,
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true,
+
+		// Some stricter flags (disabled by default)
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false,
+
+		"outDir": "./lib"
+	},
+	"include": ["src/**/*"],
+	"exclude": ["src/**/*.test.ts"]
+}
