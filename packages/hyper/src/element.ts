@@ -62,7 +62,7 @@ export const elements = new Proxy({} as Elements, {
 			return h(element as NonEmptyElement, ...params);
 		} as Elements[T];
 
-		target[element] = hyperElement;
-		return createSelectorProxy(element, hyperElement);
+		target[element] = createSelectorProxy(element, hyperElement) as any;
+		return target[element];
 	},
 });
