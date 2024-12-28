@@ -64,25 +64,6 @@ export async function* domlib() {
 		})
 		.filter((each): each is ParsedItem => !!each);
 
-	const required = ["GlobalEventHandlersEventMap", "HTMLElement", "Text", "Node", "Document"];
-	const tracked = new Set(required);
-
-	function exhaust(list: ParsedItem[]): ParsedItem[] {
-		const filtered = parsed
-			// pick the ones we've not already tracked
-			.filter(each => !tracked.has(each.name))
-			.filter(each => list.some(item => item.match.includes(each.name)))
-			.map(each => {
-				tracked.add(each.name);
-				return each;
-			});
-
-		if (!filtered.length) return list;
-		return exhaust(filtered);
-	}
-
-	exhaust(parsed.filter(each => each.type === "interface" && tracked.has(each.name)));
-
 	yield `
 /*! *****************************************************************************
 This lib was borrowed and modified under the Apache 2.0 license from
@@ -96,11 +77,7 @@ This modified version is based on @types/web version ${version}.
 export const domLibVersion = "${version}";
 `.trim();
 
-	// const target = "hyper/vendor/dom.slim.ts";
-	// console.log("Writing", target);
-	// await Deno.writeTextFile(target, preface + "\n" + slim);
-
-	for (const item of parsed.filter(item => tracked.has(item.name))) {
+	for (const item of parsed) {
 		yield "\n";
 
 		let ret = item.match.slice(1);

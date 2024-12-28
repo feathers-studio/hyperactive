@@ -146,7 +146,7 @@ export interface GlobalAttrs {
 	 */
 	translate: "yes" | "no";
 	/**
-	 * Used to control the behavior of the browser's writing suggestions in an input field, a section of a page, or the entire page.
+	 * An enumerated attribute indicating if browser-provided writing suggestions should be enabled under the scope of the element or not.
 	 *
 	 * false, which disables the browser's writing suggestions.
 	 * true or an empty string, which enables writing suggestions.

@@ -4,7 +4,7 @@
 import type { Tag } from "./tags.ts";
 import type { GlobalAttrs } from "./global-attributes.ts";
 import type { AriaRoles, AriaAttributes } from "./aria.ts";
-import type { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.ts";
+import type { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.extra.ts";
 
 interface AAttributes {
 	/**
@@ -658,7 +658,29 @@ interface InputAttributes {
 	/**
 	 * Defines the type of the element.
 	 */
-	type: "button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week";
+	type:
+		| "button"
+		| "checkbox"
+		| "color"
+		| "date"
+		| "datetime-local"
+		| "email"
+		| "file"
+		| "hidden"
+		| "image"
+		| "month"
+		| "number"
+		| "password"
+		| "radio"
+		| "range"
+		| "reset"
+		| "search"
+		| "submit"
+		| "tel"
+		| "text"
+		| "time"
+		| "url"
+		| "week";
 	usemap: string;
 	/**
 	 * Defines a default value which will be displayed in the element on page
@@ -1402,7 +1424,9 @@ export type AllAttrs = Partial<Deunionise<UniqueElementAttrs[keyof UniqueElement
 
 export type DataAttr = { [data in `data-${string}`]?: string };
 
-export type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
+export type TagToHTMLElement<T extends Tag> = T extends keyof HTMLElementTagNameMap
+	? HTMLElementTagNameMap[T]
+	: HTMLElement;
 
 export interface Common extends GlobalAttrs, DataAttr, DOMEvents {
 	/**

@@ -54,7 +54,7 @@ if (requested.includes("tags")) {
 }
 
 if (requested.includes("dom")) {
-	const target = join(root, "../vendor/dom.slim.ts");
+	const target = join(root, "dom.ts");
 	console.log(`Writing ${target}`);
 	await writeTo(target, domlib());
 }

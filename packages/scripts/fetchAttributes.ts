@@ -77,7 +77,7 @@ export async function* fetchAttributes() {
 	yield `import type { Tag } from "./tags.ts";\n`;
 	yield `import type { GlobalAttrs } from "./global-attributes.ts";\n`;
 	yield `import type { AriaRoles, AriaAttributes } from "./aria.ts";\n`;
-	yield `import type { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.ts";\n\n`;
+	yield `import type { HTMLElement, DOMEvents, HTMLElementTagNameMap } from "./dom.extra.ts";\n\n`;
 
 	const sorted = Object.keys(elements).sort((a, b) => a.localeCompare(b));
 	for (const element of sorted) {

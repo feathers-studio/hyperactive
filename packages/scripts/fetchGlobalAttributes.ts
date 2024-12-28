@@ -4,7 +4,6 @@ import { JSDOM } from "jsdom";
 
 import { getSpecialType } from "./util/getSpecialType.ts";
 import * as typer from "./util/hypertyper.ts";
-// import { Element } from "../hyper/vendor/dom.slim.ts";
 
 export async function* fetchGlobalAttributes() {
 	const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes").then(res =>
