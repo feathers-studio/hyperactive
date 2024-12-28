@@ -4,10 +4,10 @@ the @types/web package, originally published by Microsoft Corporation.
 
 See the full license here: https://github.com/microsoft/TypeScript-DOM-lib-generator/blob/main/LICENSE.txt
 
-This modified version is based on @types/web version 0.0.187.
+This modified version is based on @types/web version 0.0.188.
 ***************************************************************************** */
 
-export const domLibVersion = "0.0.187";
+export const domLibVersion = "0.0.188";
 export interface AddEventListenerOptions extends EventListenerOptions {
 	once?: boolean;
 	passive?: boolean;
@@ -49,6 +49,12 @@ export interface AesKeyGenParams extends Algorithm {
 export interface Algorithm {
 	name: string;
 }
+export interface AnalyserOptions extends AudioNodeOptions {
+	fftSize?: number;
+	maxDecibels?: number;
+	minDecibels?: number;
+	smoothingTimeConstant?: number;
+}
 export interface AnimationEventInit extends EventInit {
 	animationName?: string;
 	elapsedTime?: number;
@@ -66,12 +72,24 @@ export interface AudioBufferOptions {
 	numberOfChannels?: number;
 	sampleRate: number;
 }
+export interface AudioBufferSourceOptions {
+	buffer?: AudioBuffer | null;
+	detune?: number;
+	loop?: boolean;
+	loopEnd?: number;
+	loopStart?: number;
+	playbackRate?: number;
+}
 export interface AudioConfiguration {
 	bitrate?: number;
 	channels?: string;
 	contentType: string;
 	samplerate?: number;
 	spatialRendering?: boolean;
+}
+export interface AudioContextOptions {
+	latencyHint?: AudioContextLatencyCategory | number;
+	sampleRate?: number;
 }
 export interface AudioDataCopyToOptions {
 	format?: AudioSampleFormat;
@@ -88,10 +106,56 @@ export interface AudioDataInit {
 	timestamp: number;
 	transfer?: ArrayBuffer[];
 }
+export interface AudioDecoderConfig {
+	codec: string;
+	description?: BufferSource;
+	numberOfChannels: number;
+	sampleRate: number;
+}
+export interface AudioDecoderInit {
+	error: WebCodecsErrorCallback;
+	output: AudioDataOutputCallback;
+}
+export interface AudioDecoderSupport {
+	config?: AudioDecoderConfig;
+	supported?: boolean;
+}
+export interface AudioEncoderConfig {
+	bitrate?: number;
+	bitrateMode?: BitrateMode;
+	codec: string;
+	numberOfChannels: number;
+	opus?: OpusEncoderConfig;
+	sampleRate: number;
+}
+export interface AudioEncoderInit {
+	error: WebCodecsErrorCallback;
+	output: EncodedAudioChunkOutputCallback;
+}
+export interface AudioEncoderSupport {
+	config?: AudioEncoderConfig;
+	supported?: boolean;
+}
+export interface AudioNodeOptions {
+	channelCount?: number;
+	channelCountMode?: ChannelCountMode;
+	channelInterpretation?: ChannelInterpretation;
+}
 export interface AudioProcessingEventInit extends EventInit {
 	inputBuffer: AudioBuffer;
 	outputBuffer: AudioBuffer;
 	playbackTime: number;
+}
+export interface AudioTimestamp {
+	contextTime?: number;
+	performanceTime?: DOMHighResTimeStamp;
+}
+export interface AudioWorkletNodeOptions extends AudioNodeOptions {
+	numberOfInputs?: number;
+	numberOfOutputs?: number;
+	outputChannelCount?: number[];
+	parameterData?: Record<string, number>;
+	processorOptions?: any;
 }
 export interface AuthenticationExtensionsClientInputs {
 	appid?: string;
@@ -126,6 +190,16 @@ export interface AuthenticatorSelectionCriteria {
 	residentKey?: ResidentKeyRequirement;
 	userVerification?: UserVerificationRequirement;
 }
+export interface AvcEncoderConfig {
+	format?: AvcBitstreamFormat;
+}
+export interface BiquadFilterOptions extends AudioNodeOptions {
+	Q?: number;
+	detune?: number;
+	frequency?: number;
+	gain?: number;
+	type?: BiquadFilterType;
+}
 export interface BlobEventInit {
 	data: Blob;
 	timecode?: DOMHighResTimeStamp;
@@ -133,6 +207,9 @@ export interface BlobEventInit {
 export interface BlobPropertyBag {
 	endings?: EndingType;
 	type?: string;
+}
+export interface CSSMatrixComponentOptions {
+	is2D?: boolean;
 }
 export interface CSSNumericType {
 	angle?: number;
@@ -163,12 +240,22 @@ export interface CanvasRenderingContext2DSettings {
 export interface CaretPositionFromPointOptions {
 	shadowRoots?: ShadowRoot[];
 }
+export interface ChannelMergerOptions extends AudioNodeOptions {
+	numberOfInputs?: number;
+}
+export interface ChannelSplitterOptions extends AudioNodeOptions {
+	numberOfOutputs?: number;
+}
 export interface CheckVisibilityOptions {
 	checkOpacity?: boolean;
 	checkVisibilityCSS?: boolean;
 	contentVisibilityAuto?: boolean;
 	opacityProperty?: boolean;
 	visibilityProperty?: boolean;
+}
+export interface ClientQueryOptions {
+	includeUncontrolled?: boolean;
+	type?: ClientTypes;
 }
 export interface ClipboardEventInit extends EventInit {
 	clipboardData?: DataTransfer | null;
@@ -199,6 +286,9 @@ export interface ComputedKeyframe {
 	offset: number | null;
 	[property: string]: string | number | null | undefined;
 }
+export interface ConstantSourceOptions {
+	offset?: number;
+}
 export interface ConstrainBooleanParameters {
 	exact?: boolean;
 	ideal?: boolean;
@@ -217,6 +307,10 @@ export interface ConstrainULongRange extends ULongRange {
 }
 export interface ContentVisibilityAutoStateChangeEventInit extends EventInit {
 	skipped?: boolean;
+}
+export interface ConvolverOptions extends AudioNodeOptions {
+	buffer?: AudioBuffer | null;
+	disableNormalization?: boolean;
 }
 export interface CredentialCreationOptions {
 	publicKey?: PublicKeyCredentialCreationOptions;
@@ -270,11 +364,21 @@ export interface DOMPointInit {
 	y?: number;
 	z?: number;
 }
+export interface DOMQuadInit {
+	p1?: DOMPointInit;
+	p2?: DOMPointInit;
+	p3?: DOMPointInit;
+	p4?: DOMPointInit;
+}
 export interface DOMRectInit {
 	height?: number;
 	width?: number;
 	x?: number;
 	y?: number;
+}
+export interface DelayOptions extends AudioNodeOptions {
+	delayTime?: number;
+	maxDelayTime?: number;
 }
 export interface DeviceMotionEventAccelerationInit {
 	x?: number | null;
@@ -312,6 +416,16 @@ export interface DoubleRange {
 export interface DragEventInit extends MouseEventInit {
 	dataTransfer?: DataTransfer | null;
 }
+export interface DynamicsCompressorOptions extends AudioNodeOptions {
+	attack?: number;
+	knee?: number;
+	ratio?: number;
+	release?: number;
+	threshold?: number;
+}
+export interface EcKeyAlgorithm extends KeyAlgorithm {
+	namedCurve: NamedCurve;
+}
 export interface EcKeyGenParams extends Algorithm {
 	namedCurve: NamedCurve;
 }
@@ -340,6 +454,25 @@ export interface ElementCreationOptions {
 }
 export interface ElementDefinitionOptions {
 	extends?: string;
+}
+export interface EncodedAudioChunkInit {
+	data: AllowSharedBufferSource;
+	duration?: number;
+	timestamp: number;
+	transfer?: ArrayBuffer[];
+	type: EncodedAudioChunkType;
+}
+export interface EncodedAudioChunkMetadata {
+	decoderConfig?: AudioDecoderConfig;
+}
+export interface EncodedVideoChunkInit {
+	data: AllowSharedBufferSource;
+	duration?: number;
+	timestamp: number;
+	type: EncodedVideoChunkType;
+}
+export interface EncodedVideoChunkMetadata {
+	decoderConfig?: VideoDecoderConfig;
 }
 export interface ErrorEventInit extends EventInit {
 	colno?: number;
@@ -420,6 +553,9 @@ export interface FormDataEventInit extends EventInit {
 export interface FullscreenOptions {
 	navigationUI?: FullscreenNavigationUI;
 }
+export interface GainOptions extends AudioNodeOptions {
+	gain?: number;
+}
 export interface GamepadEffectParameters {
 	duration?: number;
 	leftTrigger?: number;
@@ -457,6 +593,10 @@ export interface HmacImportParams extends Algorithm {
 	hash: HashAlgorithmIdentifier;
 	length?: number;
 }
+export interface HmacKeyAlgorithm extends KeyAlgorithm {
+	hash: KeyAlgorithm;
+	length: number;
+}
 export interface HmacKeyGenParams extends Algorithm {
 	hash: HashAlgorithmIdentifier;
 	length?: number;
@@ -480,6 +620,10 @@ export interface IDBVersionChangeEventInit extends EventInit {
 	newVersion?: number | null;
 	oldVersion?: number;
 }
+export interface IIRFilterOptions extends AudioNodeOptions {
+	feedback: number[];
+	feedforward: number[];
+}
 export interface IdleRequestOptions {
 	timeout?: number;
 }
@@ -497,6 +641,23 @@ export interface ImageBitmapRenderingContextSettings {
 export interface ImageDataSettings {
 	colorSpace?: PredefinedColorSpace;
 }
+export interface ImageDecodeOptions {
+	completeFramesOnly?: boolean;
+	frameIndex?: number;
+}
+export interface ImageDecodeResult {
+	complete: boolean;
+	image: VideoFrame;
+}
+export interface ImageDecoderInit {
+	colorSpaceConversion?: ColorSpaceConversion;
+	data: ImageBufferSource;
+	desiredHeight?: number;
+	desiredWidth?: number;
+	preferAnimation?: boolean;
+	transfer?: ArrayBuffer[];
+	type: string;
+}
 export interface ImageEncodeOptions {
 	quality?: number;
 	type?: string;
@@ -507,6 +668,11 @@ export interface InputEventInit extends UIEventInit {
 	inputType?: string;
 	isComposing?: boolean;
 	targetRanges?: StaticRange[];
+}
+export interface IntersectionObserverInit {
+	root?: Element | Document | null;
+	rootMargin?: string;
+	threshold?: number | number[];
 }
 export interface JsonWebKey {
 	alg?: string;
@@ -600,6 +766,9 @@ export interface MediaConfiguration {
 export interface MediaDecodingConfiguration extends MediaConfiguration {
 	type: MediaDecodingType;
 }
+export interface MediaElementAudioSourceOptions {
+	mediaElement: HTMLMediaElement;
+}
 export interface MediaEncodingConfiguration extends MediaConfiguration {
 	type: MediaEncodingType;
 }
@@ -648,11 +817,20 @@ export interface MediaQueryListEventInit extends EventInit {
 	matches?: boolean;
 	media?: string;
 }
+export interface MediaRecorderOptions {
+	audioBitsPerSecond?: number;
+	bitsPerSecond?: number;
+	mimeType?: string;
+	videoBitsPerSecond?: number;
+}
 export interface MediaSessionActionDetails {
 	action: MediaSessionAction;
 	fastSeek?: boolean;
 	seekOffset?: number;
 	seekTime?: number;
+}
+export interface MediaStreamAudioSourceOptions {
+	mediaStream: MediaStream;
 }
 export interface MediaStreamConstraints {
 	audio?: boolean | MediaTrackConstraints;
@@ -755,6 +933,22 @@ export interface MouseEventInit extends EventModifierInit {
 export interface MultiCacheQueryOptions extends CacheQueryOptions {
 	cacheName?: string;
 }
+export interface MutationObserverInit {
+	/** Set to a list of attribute local names (without namespace) if not all attribute mutations need to be observed and attributes is true or omitted. */
+	attributeFilter?: string[];
+	/** Set to true if attributes is true or omitted and target's attribute value before the mutation needs to be recorded. */
+	attributeOldValue?: boolean;
+	/** Set to true if mutations to target's attributes are to be observed. Can be omitted if attributeOldValue or attributeFilter is specified. */
+	attributes?: boolean;
+	/** Set to true if mutations to target's data are to be observed. Can be omitted if characterDataOldValue is specified. */
+	characterData?: boolean;
+	/** Set to true if characterData is set to true or omitted and target's data before the mutation needs to be recorded. */
+	characterDataOldValue?: boolean;
+	/** Set to true if mutations to target's children are to be observed. */
+	childList?: boolean;
+	/** Set to true if mutations to not just target, but also target's descendants are to be observed. */
+	subtree?: boolean;
+}
 export interface NavigationPreloadState {
 	enabled?: boolean;
 	headerValue?: string;
@@ -773,6 +967,11 @@ export interface NotificationOptions {
 export interface OfflineAudioCompletionEventInit extends EventInit {
 	renderedBuffer: AudioBuffer;
 }
+export interface OfflineAudioContextOptions {
+	length: number;
+	numberOfChannels?: number;
+	sampleRate: number;
+}
 export interface OptionalEffectTiming {
 	delay?: number;
 	direction?: PlaybackDirection;
@@ -784,6 +983,20 @@ export interface OptionalEffectTiming {
 	iterations?: number;
 	playbackRate?: number;
 }
+export interface OpusEncoderConfig {
+	complexity?: number;
+	format?: OpusBitstreamFormat;
+	frameDuration?: number;
+	packetlossperc?: number;
+	usedtx?: boolean;
+	useinbandfec?: boolean;
+}
+export interface OscillatorOptions extends AudioNodeOptions {
+	detune?: number;
+	frequency?: number;
+	periodicWave?: PeriodicWave;
+	type?: OscillatorType;
+}
 export interface PageRevealEventInit extends EventInit {
 	viewTransition?: ViewTransition | null;
 }
@@ -793,6 +1006,22 @@ export interface PageSwapEventInit extends EventInit {
 }
 export interface PageTransitionEventInit extends EventInit {
 	persisted?: boolean;
+}
+export interface PannerOptions extends AudioNodeOptions {
+	coneInnerAngle?: number;
+	coneOuterAngle?: number;
+	coneOuterGain?: number;
+	distanceModel?: DistanceModelType;
+	maxDistance?: number;
+	orientationX?: number;
+	orientationY?: number;
+	orientationZ?: number;
+	panningModel?: PanningModelType;
+	positionX?: number;
+	positionY?: number;
+	positionZ?: number;
+	refDistance?: number;
+	rolloffFactor?: number;
 }
 export interface PayerErrors {
 	email?: string;
@@ -872,6 +1101,18 @@ export interface PerformanceMeasureOptions {
 	end?: string | DOMHighResTimeStamp;
 	start?: string | DOMHighResTimeStamp;
 }
+export interface PerformanceObserverInit {
+	buffered?: boolean;
+	entryTypes?: string[];
+	type?: string;
+}
+export interface PeriodicWaveConstraints {
+	disableNormalization?: boolean;
+}
+export interface PeriodicWaveOptions extends PeriodicWaveConstraints {
+	imag?: number[] | Float32Array;
+	real?: number[] | Float32Array;
+}
 export interface PermissionDescriptor {
 	name: PermissionName;
 }
@@ -917,6 +1158,12 @@ export interface ProgressEventInit extends EventInit {
 export interface PromiseRejectionEventInit extends EventInit {
 	promise: Promise<any>;
 	reason?: any;
+}
+export interface PropertyDefinition {
+	inherits: boolean;
+	initialValue?: string;
+	name: string;
+	syntax?: string;
 }
 export interface PropertyIndexedKeyframes {
 	composite?: CompositeOperationOrAuto | CompositeOperationOrAuto[];
@@ -1006,7 +1253,18 @@ export interface QueuingStrategy<T = any> {
 	highWaterMark?: number;
 	size?: QueuingStrategySize<T>;
 }
+export interface QueuingStrategyInit {
+	/**
+	 * Creates a new ByteLengthQueuingStrategy with the provided high water mark.
+	 *
+	 * Note that the provided high water mark will not be validated ahead of time. Instead, if it is negative, NaN, or not a number, the resulting ByteLengthQueuingStrategy will cause the corresponding stream constructor to throw.
+	 */
+	highWaterMark: number;
+}
 export interface RTCAnswerOptions extends RTCOfferAnswerOptions {
+}
+export interface RTCCertificateExpiration {
+	expires?: number;
 }
 export interface RTCConfiguration {
 	bundlePolicy?: RTCBundlePolicy;
@@ -1034,6 +1292,24 @@ export interface RTCDtlsFingerprint {
 	algorithm?: string;
 	value?: string;
 }
+export interface RTCEncodedAudioFrameMetadata {
+	contributingSources?: number[];
+	payloadType?: number;
+	sequenceNumber?: number;
+	synchronizationSource?: number;
+}
+export interface RTCEncodedVideoFrameMetadata {
+	contributingSources?: number[];
+	dependencies?: number[];
+	frameId?: number;
+	height?: number;
+	payloadType?: number;
+	spatialIndex?: number;
+	synchronizationSource?: number;
+	temporalIndex?: number;
+	timestamp?: number;
+	width?: number;
+}
 export interface RTCErrorEventInit extends EventInit {
 	error: RTCError;
 }
@@ -1051,10 +1327,88 @@ export interface RTCIceCandidateInit {
 	sdpMid?: string | null;
 	usernameFragment?: string | null;
 }
+export interface RTCIceCandidatePairStats extends RTCStats {
+	availableIncomingBitrate?: number;
+	availableOutgoingBitrate?: number;
+	bytesDiscardedOnSend?: number;
+	bytesReceived?: number;
+	bytesSent?: number;
+	consentRequestsSent?: number;
+	currentRoundTripTime?: number;
+	lastPacketReceivedTimestamp?: DOMHighResTimeStamp;
+	lastPacketSentTimestamp?: DOMHighResTimeStamp;
+	localCandidateId: string;
+	nominated?: boolean;
+	packetsDiscardedOnSend?: number;
+	packetsReceived?: number;
+	packetsSent?: number;
+	remoteCandidateId: string;
+	requestsReceived?: number;
+	requestsSent?: number;
+	responsesReceived?: number;
+	responsesSent?: number;
+	state: RTCStatsIceCandidatePairState;
+	totalRoundTripTime?: number;
+	transportId: string;
+}
 export interface RTCIceServer {
 	credential?: string;
 	urls: string | string[];
 	username?: string;
+}
+export interface RTCInboundRtpStreamStats extends RTCReceivedRtpStreamStats {
+	audioLevel?: number;
+	bytesReceived?: number;
+	concealedSamples?: number;
+	concealmentEvents?: number;
+	decoderImplementation?: string;
+	estimatedPlayoutTimestamp?: DOMHighResTimeStamp;
+	fecBytesReceived?: number;
+	fecPacketsDiscarded?: number;
+	fecPacketsReceived?: number;
+	fecSsrc?: number;
+	firCount?: number;
+	frameHeight?: number;
+	frameWidth?: number;
+	framesAssembledFromMultiplePackets?: number;
+	framesDecoded?: number;
+	framesDropped?: number;
+	framesPerSecond?: number;
+	framesReceived?: number;
+	framesRendered?: number;
+	freezeCount?: number;
+	headerBytesReceived?: number;
+	insertedSamplesForDeceleration?: number;
+	jitterBufferDelay?: number;
+	jitterBufferEmittedCount?: number;
+	jitterBufferMinimumDelay?: number;
+	jitterBufferTargetDelay?: number;
+	keyFramesDecoded?: number;
+	lastPacketReceivedTimestamp?: DOMHighResTimeStamp;
+	mid?: string;
+	nackCount?: number;
+	packetsDiscarded?: number;
+	pauseCount?: number;
+	playoutId?: string;
+	pliCount?: number;
+	qpSum?: number;
+	remoteId?: string;
+	removedSamplesForAcceleration?: number;
+	retransmittedBytesReceived?: number;
+	retransmittedPacketsReceived?: number;
+	rtxSsrc?: number;
+	silentConcealedSamples?: number;
+	totalAssemblyTime?: number;
+	totalAudioEnergy?: number;
+	totalDecodeTime?: number;
+	totalFreezesDuration?: number;
+	totalInterFrameDelay?: number;
+	totalPausesDuration?: number;
+	totalProcessingDelay?: number;
+	totalSamplesDuration?: number;
+	totalSamplesReceived?: number;
+	totalSquaredInterFrameDelay?: number;
+	trackIdentifier: string;
 }
 export interface RTCLocalSessionDescriptionInit {
 	sdp?: string;
@@ -1067,6 +1421,36 @@ export interface RTCOfferOptions extends RTCOfferAnswerOptions {
 	offerToReceiveAudio?: boolean;
 	offerToReceiveVideo?: boolean;
 }
+export interface RTCOutboundRtpStreamStats extends RTCSentRtpStreamStats {
+	active?: boolean;
+	firCount?: number;
+	frameHeight?: number;
+	frameWidth?: number;
+	framesEncoded?: number;
+	framesPerSecond?: number;
+	framesSent?: number;
+	headerBytesSent?: number;
+	hugeFramesSent?: number;
+	keyFramesEncoded?: number;
+	mediaSourceId?: string;
+	mid?: string;
+	nackCount?: number;
+	pliCount?: number;
+	qpSum?: number;
+	qualityLimitationDurations?: Record<string, number>;
+	qualityLimitationReason?: RTCQualityLimitationReason;
+	qualityLimitationResolutionChanges?: number;
+	remoteId?: string;
+	retransmittedBytesSent?: number;
+	retransmittedPacketsSent?: number;
+	rid?: string;
+	rtxSsrc?: number;
+	scalabilityMode?: string;
+	targetBitrate?: number;
+	totalEncodeTime?: number;
+	totalEncodedBytesTarget?: number;
+	totalPacketSendDelay?: number;
+}
 export interface RTCPeerConnectionIceErrorEventInit extends EventInit {
 	address?: string | null;
 	errorCode: number;
@@ -1077,6 +1461,11 @@ export interface RTCPeerConnectionIceErrorEventInit extends EventInit {
 export interface RTCPeerConnectionIceEventInit extends EventInit {
 	candidate?: RTCIceCandidate | null;
 	url?: string | null;
+}
+export interface RTCReceivedRtpStreamStats extends RTCRtpStreamStats {
+	jitter?: number;
+	packetsLost?: number;
+	packetsReceived?: number;
 }
 export interface RTCRtcpParameters {
 	cname?: string;
@@ -1132,12 +1521,22 @@ export interface RTCRtpSendParameters extends RTCRtpParameters {
 	encodings: RTCRtpEncodingParameters[];
 	transactionId: string;
 }
+export interface RTCRtpStreamStats extends RTCStats {
+	codecId?: string;
+	kind: string;
+	ssrc: number;
+	transportId?: string;
+}
 export interface RTCRtpSynchronizationSource extends RTCRtpContributingSource {
 }
 export interface RTCRtpTransceiverInit {
 	direction?: RTCRtpTransceiverDirection;
 	sendEncodings?: RTCRtpEncodingParameters[];
 	streams?: MediaStream[];
+}
+export interface RTCSentRtpStreamStats extends RTCRtpStreamStats {
+	bytesSent?: number;
+	packetsSent?: number;
 }
 export interface RTCSessionDescriptionInit {
 	sdp?: string;
@@ -1156,6 +1555,24 @@ export interface RTCTrackEventInit extends EventInit {
 	track: MediaStreamTrack;
 	transceiver: RTCRtpTransceiver;
 }
+export interface RTCTransportStats extends RTCStats {
+	bytesReceived?: number;
+	bytesSent?: number;
+	dtlsCipher?: string;
+	dtlsRole?: RTCDtlsRole;
+	dtlsState: RTCDtlsTransportState;
+	iceLocalUsernameFragment?: string;
+	iceRole?: RTCIceRole;
+	iceState?: RTCIceTransportState;
+	localCertificateId?: string;
+	packetsReceived?: number;
+	packetsSent?: number;
+	remoteCertificateId?: string;
+	selectedCandidatePairChanges?: number;
+	selectedCandidatePairId?: string;
+	srtpCipher?: string;
+	tlsVersion?: string;
+}
 export interface ReadableStreamGetReaderOptions {
 	/**
 	 * Creates a ReadableStreamBYOBReader and locks the stream to the new reader.
@@ -1163,6 +1580,16 @@ export interface ReadableStreamGetReaderOptions {
 	 * This call behaves the same way as the no-argument variant, except that it only works on readable byte streams, i.e. streams which were constructed specifically with the ability to handle "bring your own buffer" reading. The returned BYOB reader provides the ability to directly read individual chunks from the stream via its read() method, into developer-supplied buffers, allowing more precise control over allocation.
 	 */
 	mode?: ReadableStreamReaderMode;
+}
+export interface ReadableStreamIteratorOptions {
+	/**
+	 * Asynchronously iterates over the chunks in the stream's internal queue.
+	 *
+	 * Asynchronously iterating over the stream will lock it, preventing any other consumer from acquiring a reader. The lock will be released if the async iterator's return() method is called, e.g. by breaking out of the loop.
+	 *
+	 * By default, calling the async iterator's return() method will also cancel the stream. To prevent this, use the stream's values() method, passing true for the preventCancel option.
+	 */
+	preventCancel?: boolean;
 }
 export interface ReadableStreamReadDoneResult<T> {
 	done: true;
@@ -1185,6 +1612,10 @@ export interface RegistrationOptions {
 	scope?: string;
 	type?: WorkerType;
 	updateViaCache?: ServiceWorkerUpdateViaCache;
+}
+export interface ReportingObserverOptions {
+	buffered?: boolean;
+	types?: string[];
 }
 export interface RequestInit {
 	/** A BodyInit object or null to set request's body. */
@@ -1215,6 +1646,9 @@ export interface RequestInit {
 	/** Can only be null. Used to disassociate request from any Window. */
 	window?: null;
 }
+export interface ResizeObserverOptions {
+	box?: ResizeObserverBoxOptions;
+}
 export interface ResponseInit {
 	headers?: HeadersInit;
 	status?: number;
@@ -1223,8 +1657,15 @@ export interface ResponseInit {
 export interface RsaHashedImportParams extends Algorithm {
 	hash: HashAlgorithmIdentifier;
 }
+export interface RsaHashedKeyAlgorithm extends RsaKeyAlgorithm {
+	hash: KeyAlgorithm;
+}
 export interface RsaHashedKeyGenParams extends RsaKeyGenParams {
 	hash: HashAlgorithmIdentifier;
+}
+export interface RsaKeyAlgorithm extends KeyAlgorithm {
+	modulusLength: number;
+	publicExponent: BigInteger;
 }
 export interface RsaKeyGenParams extends Algorithm {
 	modulusLength: number;
@@ -1300,6 +1741,9 @@ export interface StaticRangeInit {
 	startContainer: Node;
 	startOffset: number;
 }
+export interface StereoPannerOptions extends AudioNodeOptions {
+	pan?: number;
+}
 export interface StorageEstimate {
 	quota?: number;
 	usage?: number;
@@ -1339,6 +1783,17 @@ export interface StructuredSerializeOptions {
 }
 export interface SubmitEventInit extends EventInit {
 	submitter?: HTMLElement | null;
+}
+export interface TextDecodeOptions {
+	stream?: boolean;
+}
+export interface TextDecoderOptions {
+	fatal?: boolean;
+	ignoreBOM?: boolean;
+}
+export interface TextEncoderEncodeIntoResult {
+	read: number;
+	written: number;
 }
 export interface ToggleEventInit extends EventInit {
 	newState?: string;
@@ -1448,6 +1903,56 @@ export interface VideoConfiguration {
 	transferFunction?: TransferFunction;
 	width: number;
 }
+export interface VideoDecoderConfig {
+	codec: string;
+	codedHeight?: number;
+	codedWidth?: number;
+	colorSpace?: VideoColorSpaceInit;
+	description?: AllowSharedBufferSource;
+	displayAspectHeight?: number;
+	displayAspectWidth?: number;
+	hardwareAcceleration?: HardwareAcceleration;
+	optimizeForLatency?: boolean;
+}
+export interface VideoDecoderInit {
+	error: WebCodecsErrorCallback;
+	output: VideoFrameOutputCallback;
+}
+export interface VideoDecoderSupport {
+	config?: VideoDecoderConfig;
+	supported?: boolean;
+}
+export interface VideoEncoderConfig {
+	alpha?: AlphaOption;
+	avc?: AvcEncoderConfig;
+	bitrate?: number;
+	bitrateMode?: VideoEncoderBitrateMode;
+	codec: string;
+	contentHint?: string;
+	displayHeight?: number;
+	displayWidth?: number;
+	framerate?: number;
+	hardwareAcceleration?: HardwareAcceleration;
+	height: number;
+	latencyMode?: LatencyMode;
+	scalabilityMode?: string;
+	width: number;
+}
+export interface VideoEncoderEncodeOptions {
+	avc?: VideoEncoderEncodeOptionsForAvc;
+	keyFrame?: boolean;
+}
+export interface VideoEncoderEncodeOptionsForAvc {
+	quantizer?: number | null;
+}
+export interface VideoEncoderInit {
+	error: WebCodecsErrorCallback;
+	output: EncodedVideoChunkOutputCallback;
+}
+export interface VideoEncoderSupport {
+	config?: VideoEncoderConfig;
+	supported?: boolean;
+}
 export interface VideoFrameBufferInit {
 	codedHeight: number;
 	codedWidth: number;
@@ -1486,6 +1991,10 @@ export interface VideoFrameInit {
 	timestamp?: number;
 	visibleRect?: DOMRectInit;
 }
+export interface WaveShaperOptions extends AudioNodeOptions {
+	curve?: number[] | Float32Array;
+	oversample?: OverSampleType;
+}
 export interface WebGLContextAttributes {
 	alpha?: boolean;
 	antialias?: boolean;
@@ -1500,6 +2009,27 @@ export interface WebGLContextAttributes {
 export interface WebGLContextEventInit extends EventInit {
 	statusMessage?: string;
 }
+export interface WebTransportCloseInfo {
+	closeCode?: number;
+	reason?: string;
+}
+export interface WebTransportErrorOptions {
+	source?: WebTransportErrorSource;
+	streamErrorCode?: number | null;
+}
+export interface WebTransportHash {
+	algorithm?: string;
+	value?: BufferSource;
+}
+export interface WebTransportOptions {
+	allowPooling?: boolean;
+	congestionControl?: WebTransportCongestionControl;
+	requireUnreliable?: boolean;
+	serverCertificateHashes?: WebTransportHash[];
+}
+export interface WebTransportSendStreamOptions {
+	sendOrder?: number;
+}
 export interface WheelEventInit extends MouseEventInit {
 	deltaMode?: number;
 	deltaX?: number;
@@ -1513,6 +2043,9 @@ export interface WorkerOptions {
 	credentials?: RequestCredentials;
 	name?: string;
 	type?: WorkerType;
+}
+export interface WorkletOptions {
+	credentials?: RequestCredentials;
 }
 export interface WriteParams {
 	data?: BufferSource | Blob | string | null;
@@ -1747,6 +2280,35 @@ export interface AbstractWorker {
 	removeEventListener<K extends keyof AbstractWorkerEventMap>(type: K, listener: (this: AbstractWorker, ev: AbstractWorkerEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
 	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
+/**
+ * A node able to provide real-time frequency and time-domain analysis information. It is an AudioNode that passes the audio stream unchanged from the input to the output, but allows you to take the generated data, process it, and create audio visualizations.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode)
+ */
+export interface AnalyserNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/fftSize) */
+	fftSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/frequencyBinCount) */
+	readonly frequencyBinCount: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/maxDecibels) */
+	maxDecibels: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/minDecibels) */
+	minDecibels: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/smoothingTimeConstant) */
+	smoothingTimeConstant: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/getByteFrequencyData) */
+	getByteFrequencyData(array: Uint8Array): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/getByteTimeDomainData) */
+	getByteTimeDomainData(array: Uint8Array): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/getFloatFrequencyData) */
+	getFloatFrequencyData(array: Float32Array): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AnalyserNode/getFloatTimeDomainData) */
+	getFloatTimeDomainData(array: Float32Array): void;
+}
+declare var AnalyserNode: {
+	prototype: AnalyserNode;
+	new(context: BaseAudioContext, options?: AnalyserOptions): AnalyserNode;
+};
 export interface Animatable {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/animate) */
 	animate(keyframes: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeAnimationOptions): Animation;
@@ -1924,6 +2486,68 @@ declare var AudioBuffer: {
 	prototype: AudioBuffer;
 	new(options: AudioBufferOptions): AudioBuffer;
 };
+/**
+ * An AudioScheduledSourceNode which represents an audio source consisting of in-memory audio data, stored in an AudioBuffer. It's especially useful for playing back audio which has particularly stringent timing accuracy requirements, such as for sounds that must match a specific rhythm and can be kept in memory rather than being played from disk or the network.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode)
+ */
+export interface AudioBufferSourceNode extends AudioScheduledSourceNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/buffer) */
+	buffer: AudioBuffer | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/detune) */
+	readonly detune: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/loop) */
+	loop: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/loopEnd) */
+	loopEnd: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/loopStart) */
+	loopStart: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/playbackRate) */
+	readonly playbackRate: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/start) */
+	start(when?: number, offset?: number, duration?: number): void;
+	addEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: AudioBufferSourceNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: AudioBufferSourceNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var AudioBufferSourceNode: {
+	prototype: AudioBufferSourceNode;
+	new(context: BaseAudioContext, options?: AudioBufferSourceOptions): AudioBufferSourceNode;
+};
+/**
+ * An audio-processing graph built from audio modules linked together, each represented by an AudioNode.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext)
+ */
+export interface AudioContext extends BaseAudioContext {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/baseLatency) */
+	readonly baseLatency: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/outputLatency) */
+	readonly outputLatency: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/close) */
+	close(): Promise<void>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/createMediaElementSource) */
+	createMediaElementSource(mediaElement: HTMLMediaElement): MediaElementAudioSourceNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/createMediaStreamDestination) */
+	createMediaStreamDestination(): MediaStreamAudioDestinationNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/createMediaStreamSource) */
+	createMediaStreamSource(mediaStream: MediaStream): MediaStreamAudioSourceNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/getOutputTimestamp) */
+	getOutputTimestamp(): AudioTimestamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/resume) */
+	resume(): Promise<void>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioContext/suspend) */
+	suspend(): Promise<void>;
+	addEventListener<K extends keyof BaseAudioContextEventMap>(type: K, listener: (this: AudioContext, ev: BaseAudioContextEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof BaseAudioContextEventMap>(type: K, listener: (this: AudioContext, ev: BaseAudioContextEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var AudioContext: {
+	prototype: AudioContext;
+	new(contextOptions?: AudioContextOptions): AudioContext;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioData) */
 export interface AudioData {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioData/duration) */
@@ -1950,6 +2574,208 @@ export interface AudioData {
 declare var AudioData: {
 	prototype: AudioData;
 	new(init: AudioDataInit): AudioData;
+};
+export interface AudioDecoderEventMap {
+	"dequeue": Event;
+}
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder)
+ */
+export interface AudioDecoder extends EventTarget {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/decodeQueueSize) */
+	readonly decodeQueueSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/dequeue_event) */
+	ondequeue: ((this: AudioDecoder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/state) */
+	readonly state: CodecState;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/close) */
+	close(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/configure) */
+	configure(config: AudioDecoderConfig): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/decode) */
+	decode(chunk: EncodedAudioChunk): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/flush) */
+	flush(): Promise<void>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/reset) */
+	reset(): void;
+	addEventListener<K extends keyof AudioDecoderEventMap>(type: K, listener: (this: AudioDecoder, ev: AudioDecoderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AudioDecoderEventMap>(type: K, listener: (this: AudioDecoder, ev: AudioDecoderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var AudioDecoder: {
+	prototype: AudioDecoder;
+	new(init: AudioDecoderInit): AudioDecoder;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDecoder/isConfigSupported_static) */
+	isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+};
+/**
+ * AudioDestinationNode has no output (as it is the output, no more AudioNode can be linked after it in the audio graph) and one input. The number of channels in the input must be between 0 and the maxChannelCount value or an exception is raised.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDestinationNode)
+ */
+export interface AudioDestinationNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioDestinationNode/maxChannelCount) */
+	readonly maxChannelCount: number;
+}
+declare var AudioDestinationNode: {
+	prototype: AudioDestinationNode;
+	new(): AudioDestinationNode;
+};
+export interface AudioEncoderEventMap {
+	"dequeue": Event;
+}
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder)
+ */
+export interface AudioEncoder extends EventTarget {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/encodeQueueSize) */
+	readonly encodeQueueSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/dequeue_event) */
+	ondequeue: ((this: AudioEncoder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/state) */
+	readonly state: CodecState;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/close) */
+	close(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/configure) */
+	configure(config: AudioEncoderConfig): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/encode) */
+	encode(data: AudioData): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/flush) */
+	flush(): Promise<void>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/reset) */
+	reset(): void;
+	addEventListener<K extends keyof AudioEncoderEventMap>(type: K, listener: (this: AudioEncoder, ev: AudioEncoderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AudioEncoderEventMap>(type: K, listener: (this: AudioEncoder, ev: AudioEncoderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var AudioEncoder: {
+	prototype: AudioEncoder;
+	new(init: AudioEncoderInit): AudioEncoder;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioEncoder/isConfigSupported_static) */
+	isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
+};
+/**
+ * The position and orientation of the unique person listening to the audio scene, and is used in audio spatialization. All PannerNodes spatialize in relation to the AudioListener stored in the BaseAudioContext.listener attribute.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener)
+ */
+export interface AudioListener {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/forwardX) */
+	readonly forwardX: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/forwardY) */
+	readonly forwardY: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/forwardZ) */
+	readonly forwardZ: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/positionX) */
+	readonly positionX: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/positionY) */
+	readonly positionY: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/positionZ) */
+	readonly positionZ: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/upX) */
+	readonly upX: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/upY) */
+	readonly upY: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/upZ) */
+	readonly upZ: AudioParam;
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/setOrientation)
+	 */
+	setOrientation(x: number, y: number, z: number, xUp: number, yUp: number, zUp: number): void;
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioListener/setPosition)
+	 */
+	setPosition(x: number, y: number, z: number): void;
+}
+declare var AudioListener: {
+	prototype: AudioListener;
+	new(): AudioListener;
+};
+/**
+ * A generic interface for representing an audio processing module. Examples include:
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode)
+ */
+export interface AudioNode extends EventTarget {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/channelCount) */
+	channelCount: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/channelCountMode) */
+	channelCountMode: ChannelCountMode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/channelInterpretation) */
+	channelInterpretation: ChannelInterpretation;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/context) */
+	readonly context: BaseAudioContext;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/numberOfInputs) */
+	readonly numberOfInputs: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/numberOfOutputs) */
+	readonly numberOfOutputs: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/connect) */
+	connect(destinationNode: AudioNode, output?: number, input?: number): AudioNode;
+	connect(destinationParam: AudioParam, output?: number): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioNode/disconnect) */
+	disconnect(): void;
+	disconnect(output: number): void;
+	disconnect(destinationNode: AudioNode): void;
+	disconnect(destinationNode: AudioNode, output: number): void;
+	disconnect(destinationNode: AudioNode, output: number, input: number): void;
+	disconnect(destinationParam: AudioParam): void;
+	disconnect(destinationParam: AudioParam, output: number): void;
+}
+declare var AudioNode: {
+	prototype: AudioNode;
+	new(): AudioNode;
+};
+/**
+ * The Web Audio API's AudioParam interface represents an audio-related parameter, usually a parameter of an AudioNode (such as GainNode.gain).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam)
+ */
+export interface AudioParam {
+	automationRate: AutomationRate;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/defaultValue) */
+	readonly defaultValue: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/maxValue) */
+	readonly maxValue: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/minValue) */
+	readonly minValue: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/value) */
+	value: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/cancelAndHoldAtTime) */
+	cancelAndHoldAtTime(cancelTime: number): AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/cancelScheduledValues) */
+	cancelScheduledValues(cancelTime: number): AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/exponentialRampToValueAtTime) */
+	exponentialRampToValueAtTime(value: number, endTime: number): AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/linearRampToValueAtTime) */
+	linearRampToValueAtTime(value: number, endTime: number): AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/setTargetAtTime) */
+	setTargetAtTime(target: number, startTime: number, timeConstant: number): AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/setValueAtTime) */
+	setValueAtTime(value: number, startTime: number): AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParam/setValueCurveAtTime) */
+	setValueCurveAtTime(values: number[] | Float32Array, startTime: number, duration: number): AudioParam;
+}
+declare var AudioParam: {
+	prototype: AudioParam;
+	new(): AudioParam;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioParamMap) */
+export interface AudioParamMap {
+	forEach(callbackfn: (value: AudioParam, key: string, parent: AudioParamMap) => void, thisArg?: any): void;
+}
+declare var AudioParamMap: {
+	prototype: AudioParamMap;
+	new(): AudioParamMap;
 };
 /**
  * The Web Audio API events that occur when a ScriptProcessorNode input buffer is ready to be processed.
@@ -1982,6 +2808,99 @@ declare var AudioProcessingEvent: {
 	prototype: AudioProcessingEvent;
 	new(type: string, eventInitDict: AudioProcessingEventInit): AudioProcessingEvent;
 };
+export interface AudioScheduledSourceNodeEventMap {
+	"ended": Event;
+}
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioScheduledSourceNode) */
+export interface AudioScheduledSourceNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioScheduledSourceNode/ended_event) */
+	onended: ((this: AudioScheduledSourceNode, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioScheduledSourceNode/start) */
+	start(when?: number): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioScheduledSourceNode/stop) */
+	stop(when?: number): void;
+	addEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: AudioScheduledSourceNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: AudioScheduledSourceNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var AudioScheduledSourceNode: {
+	prototype: AudioScheduledSourceNode;
+	new(): AudioScheduledSourceNode;
+};
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioWorklet)
+ */
+export interface AudioWorklet extends Worklet {
+}
+declare var AudioWorklet: {
+	prototype: AudioWorklet;
+	new(): AudioWorklet;
+};
+export interface AudioWorkletNodeEventMap {
+	"processorerror": ErrorEvent;
+}
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioWorkletNode)
+ */
+export interface AudioWorkletNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioWorkletNode/processorerror_event) */
+	onprocessorerror: ((this: AudioWorkletNode, ev: ErrorEvent) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioWorkletNode/parameters) */
+	readonly parameters: AudioParamMap;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AudioWorkletNode/port) */
+	readonly port: MessagePort;
+	addEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: AudioWorkletNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: AudioWorkletNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var AudioWorkletNode: {
+	prototype: AudioWorkletNode;
+	new(context: BaseAudioContext, name: string, options?: AudioWorkletNodeOptions): AudioWorkletNode;
+};
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAssertionResponse)
+ */
+export interface AuthenticatorAssertionResponse extends AuthenticatorResponse {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAssertionResponse/authenticatorData) */
+	readonly authenticatorData: ArrayBuffer;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAssertionResponse/signature) */
+	readonly signature: ArrayBuffer;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAssertionResponse/userHandle) */
+	readonly userHandle: ArrayBuffer | null;
+}
+declare var AuthenticatorAssertionResponse: {
+	prototype: AuthenticatorAssertionResponse;
+	new(): AuthenticatorAssertionResponse;
+};
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAttestationResponse)
+ */
+export interface AuthenticatorAttestationResponse extends AuthenticatorResponse {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAttestationResponse/attestationObject) */
+	readonly attestationObject: ArrayBuffer;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAttestationResponse/getAuthenticatorData) */
+	getAuthenticatorData(): ArrayBuffer;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAttestationResponse/getPublicKey) */
+	getPublicKey(): ArrayBuffer | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAttestationResponse/getPublicKeyAlgorithm) */
+	getPublicKeyAlgorithm(): COSEAlgorithmIdentifier;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/AuthenticatorAttestationResponse/getTransports) */
+	getTransports(): string[];
+}
+declare var AuthenticatorAttestationResponse: {
+	prototype: AuthenticatorAttestationResponse;
+	new(): AuthenticatorAttestationResponse;
+};
 /**
  * Available only in secure contexts.
  *
@@ -2004,6 +2923,80 @@ declare var BarProp: {
 	prototype: BarProp;
 	new(): BarProp;
 };
+export interface BaseAudioContextEventMap {
+	"statechange": Event;
+}
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext) */
+export interface BaseAudioContext extends EventTarget {
+	/**
+	 * Available only in secure contexts.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/audioWorklet)
+	 */
+	readonly audioWorklet: AudioWorklet;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/currentTime) */
+	readonly currentTime: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/destination) */
+	readonly destination: AudioDestinationNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/listener) */
+	readonly listener: AudioListener;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/statechange_event) */
+	onstatechange: ((this: BaseAudioContext, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/sampleRate) */
+	readonly sampleRate: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/state) */
+	readonly state: AudioContextState;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createAnalyser) */
+	createAnalyser(): AnalyserNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createBiquadFilter) */
+	createBiquadFilter(): BiquadFilterNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createBuffer) */
+	createBuffer(numberOfChannels: number, length: number, sampleRate: number): AudioBuffer;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createBufferSource) */
+	createBufferSource(): AudioBufferSourceNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createChannelMerger) */
+	createChannelMerger(numberOfInputs?: number): ChannelMergerNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createChannelSplitter) */
+	createChannelSplitter(numberOfOutputs?: number): ChannelSplitterNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createConstantSource) */
+	createConstantSource(): ConstantSourceNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createConvolver) */
+	createConvolver(): ConvolverNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createDelay) */
+	createDelay(maxDelayTime?: number): DelayNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createDynamicsCompressor) */
+	createDynamicsCompressor(): DynamicsCompressorNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createGain) */
+	createGain(): GainNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createIIRFilter) */
+	createIIRFilter(feedforward: number[], feedback: number[]): IIRFilterNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createOscillator) */
+	createOscillator(): OscillatorNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createPanner) */
+	createPanner(): PannerNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createPeriodicWave) */
+	createPeriodicWave(real: number[] | Float32Array, imag: number[] | Float32Array, constraints?: PeriodicWaveConstraints): PeriodicWave;
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createScriptProcessor)
+	 */
+	createScriptProcessor(bufferSize?: number, numberOfInputChannels?: number, numberOfOutputChannels?: number): ScriptProcessorNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createStereoPanner) */
+	createStereoPanner(): StereoPannerNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/createWaveShaper) */
+	createWaveShaper(): WaveShaperNode;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BaseAudioContext/decodeAudioData) */
+	decodeAudioData(audioData: ArrayBuffer, successCallback?: DecodeSuccessCallback | null, errorCallback?: DecodeErrorCallback | null): Promise<AudioBuffer>;
+	addEventListener<K extends keyof BaseAudioContextEventMap>(type: K, listener: (this: BaseAudioContext, ev: BaseAudioContextEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof BaseAudioContextEventMap>(type: K, listener: (this: BaseAudioContext, ev: BaseAudioContextEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var BaseAudioContext: {
+	prototype: BaseAudioContext;
+	new(): BaseAudioContext;
+};
 /**
  * The beforeunload event is fired when the window, the document and its resources are about to be unloaded.
  *
@@ -2020,6 +3013,29 @@ export interface BeforeUnloadEvent extends Event {
 declare var BeforeUnloadEvent: {
 	prototype: BeforeUnloadEvent;
 	new(): BeforeUnloadEvent;
+};
+/**
+ * A simple low-order filter, and is created using the AudioContext.createBiquadFilter() method. It is an AudioNode that can represent different kinds of filters, tone control devices, and graphic equalizers.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/BiquadFilterNode)
+ */
+export interface BiquadFilterNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BiquadFilterNode/Q) */
+	readonly Q: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BiquadFilterNode/detune) */
+	readonly detune: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BiquadFilterNode/frequency) */
+	readonly frequency: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BiquadFilterNode/gain) */
+	readonly gain: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BiquadFilterNode/type) */
+	type: BiquadFilterType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BiquadFilterNode/getFrequencyResponse) */
+	getFrequencyResponse(frequencyHz: Float32Array, magResponse: Float32Array, phaseResponse: Float32Array): void;
+}
+declare var BiquadFilterNode: {
+	prototype: BiquadFilterNode;
+	new(context: BaseAudioContext, options?: BiquadFilterOptions): BiquadFilterNode;
 };
 /**
  * A file-like object of immutable, raw data. Blobs represent data that isn't necessarily in a JavaScript-native format. The File interface is based on Blob, inheriting blob functionality and expanding it to support files on the user's system.
@@ -2075,6 +3091,58 @@ export interface Body {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Request/text) */
 	text(): Promise<string>;
 }
+export interface BroadcastChannelEventMap {
+	"message": MessageEvent;
+	"messageerror": MessageEvent;
+}
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BroadcastChannel) */
+export interface BroadcastChannel extends EventTarget {
+	/**
+	 * Returns the channel name (as passed to the constructor).
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/BroadcastChannel/name)
+	 */
+	readonly name: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BroadcastChannel/message_event) */
+	onmessage: ((this: BroadcastChannel, ev: MessageEvent) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/BroadcastChannel/messageerror_event) */
+	onmessageerror: ((this: BroadcastChannel, ev: MessageEvent) => any) | null;
+	/**
+	 * Closes the BroadcastChannel object, opening it up to garbage collection.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/BroadcastChannel/close)
+	 */
+	close(): void;
+	/**
+	 * Sends the given message to other BroadcastChannel objects set up for this channel. Messages can be structured objects, e.g. nested objects and arrays.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/BroadcastChannel/postMessage)
+	 */
+	postMessage(message: any): void;
+	addEventListener<K extends keyof BroadcastChannelEventMap>(type: K, listener: (this: BroadcastChannel, ev: BroadcastChannelEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof BroadcastChannelEventMap>(type: K, listener: (this: BroadcastChannel, ev: BroadcastChannelEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var BroadcastChannel: {
+	prototype: BroadcastChannel;
+	new(name: string): BroadcastChannel;
+};
+/**
+ * This Streams API interface provides a built-in byte length queuing strategy that can be used when constructing streams.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ByteLengthQueuingStrategy)
+ */
+export interface ByteLengthQueuingStrategy extends QueuingStrategy<ArrayBufferView> {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ByteLengthQueuingStrategy/highWaterMark) */
+	readonly highWaterMark: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ByteLengthQueuingStrategy/size) */
+	readonly size: QueuingStrategySize<ArrayBufferView>;
+}
+declare var ByteLengthQueuingStrategy: {
+	prototype: ByteLengthQueuingStrategy;
+	new(init: QueuingStrategyInit): ByteLengthQueuingStrategy;
+};
 /**
  * A CDATA section that can be used within XML to include extended portions of unescaped text. The symbols < and & don’t need escaping as they normally do when inside a CDATA section.
  *
@@ -2085,6 +3153,269 @@ export interface CDATASection extends Text {
 declare var CDATASection: {
 	prototype: CDATASection;
 	new(): CDATASection;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSAnimation) */
+export interface CSSAnimation extends Animation {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSAnimation/animationName) */
+	readonly animationName: string;
+	addEventListener<K extends keyof AnimationEventMap>(type: K, listener: (this: CSSAnimation, ev: AnimationEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AnimationEventMap>(type: K, listener: (this: CSSAnimation, ev: AnimationEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var CSSAnimation: {
+	prototype: CSSAnimation;
+	new(): CSSAnimation;
+};
+/**
+ * A single condition CSS at-rule, which consists of a condition and a statement block. It is a child of CSSGroupingRule.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSConditionRule)
+ */
+export interface CSSConditionRule extends CSSGroupingRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSConditionRule/conditionText) */
+	readonly conditionText: string;
+}
+declare var CSSConditionRule: {
+	prototype: CSSConditionRule;
+	new(): CSSConditionRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSContainerRule) */
+export interface CSSContainerRule extends CSSConditionRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSContainerRule/containerName) */
+	readonly containerName: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSContainerRule/containerQuery) */
+	readonly containerQuery: string;
+}
+declare var CSSContainerRule: {
+	prototype: CSSContainerRule;
+	new(): CSSContainerRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule) */
+export interface CSSCounterStyleRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/additiveSymbols) */
+	additiveSymbols: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/fallback) */
+	fallback: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/name) */
+	name: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/negative) */
+	negative: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/pad) */
+	pad: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/prefix) */
+	prefix: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/range) */
+	range: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/speakAs) */
+	speakAs: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/suffix) */
+	suffix: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/symbols) */
+	symbols: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSCounterStyleRule/system) */
+	system: string;
+}
+declare var CSSCounterStyleRule: {
+	prototype: CSSCounterStyleRule;
+	new(): CSSCounterStyleRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontFaceRule) */
+export interface CSSFontFaceRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontFaceRule/style) */
+	get style(): CSSStyleDeclaration;
+	set style(cssText: string);
+}
+declare var CSSFontFaceRule: {
+	prototype: CSSFontFaceRule;
+	new(): CSSFontFaceRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontFeatureValuesRule) */
+export interface CSSFontFeatureValuesRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontFeatureValuesRule/fontFamily) */
+	fontFamily: string;
+}
+declare var CSSFontFeatureValuesRule: {
+	prototype: CSSFontFeatureValuesRule;
+	new(): CSSFontFeatureValuesRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontPaletteValuesRule) */
+export interface CSSFontPaletteValuesRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontPaletteValuesRule/basePalette) */
+	readonly basePalette: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontPaletteValuesRule/fontFamily) */
+	readonly fontFamily: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontPaletteValuesRule/name) */
+	readonly name: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSFontPaletteValuesRule/overrideColors) */
+	readonly overrideColors: string;
+}
+declare var CSSFontPaletteValuesRule: {
+	prototype: CSSFontPaletteValuesRule;
+	new(): CSSFontPaletteValuesRule;
+};
+/**
+ * Any CSS at-rule that contains other rules nested within it.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSGroupingRule)
+ */
+export interface CSSGroupingRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSGroupingRule/cssRules) */
+	readonly cssRules: CSSRuleList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSGroupingRule/deleteRule) */
+	deleteRule(index: number): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSGroupingRule/insertRule) */
+	insertRule(rule: string, index?: number): number;
+}
+declare var CSSGroupingRule: {
+	prototype: CSSGroupingRule;
+	new(): CSSGroupingRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSImageValue) */
+export interface CSSImageValue extends CSSStyleValue {
+}
+declare var CSSImageValue: {
+	prototype: CSSImageValue;
+	new(): CSSImageValue;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSImportRule) */
+export interface CSSImportRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSImportRule/href) */
+	readonly href: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSImportRule/layerName) */
+	readonly layerName: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSImportRule/media) */
+	get media(): MediaList;
+	set media(mediaText: string);
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSImportRule/styleSheet) */
+	readonly styleSheet: CSSStyleSheet | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSImportRule/supportsText) */
+	readonly supportsText: string | null;
+}
+declare var CSSImportRule: {
+	prototype: CSSImportRule;
+	new(): CSSImportRule;
+};
+/**
+ * An object representing a set of style for a given keyframe. It corresponds to the contains of a single keyframe of a @keyframes at-rule. It implements the CSSRule interface with a type value of 8 (CSSRule.KEYFRAME_RULE).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframeRule)
+ */
+export interface CSSKeyframeRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframeRule/keyText) */
+	keyText: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframeRule/style) */
+	get style(): CSSStyleDeclaration;
+	set style(cssText: string);
+}
+declare var CSSKeyframeRule: {
+	prototype: CSSKeyframeRule;
+	new(): CSSKeyframeRule;
+};
+/**
+ * An object representing a complete set of keyframes for a CSS animation. It corresponds to the contains of a whole @keyframes at-rule. It implements the CSSRule interface with a type value of 7 (CSSRule.KEYFRAMES_RULE).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframesRule)
+ */
+export interface CSSKeyframesRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframesRule/cssRules) */
+	readonly cssRules: CSSRuleList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframesRule/length) */
+	readonly length: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframesRule/name) */
+	name: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframesRule/appendRule) */
+	appendRule(rule: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframesRule/deleteRule) */
+	deleteRule(select: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeyframesRule/findRule) */
+	findRule(select: string): CSSKeyframeRule | null;
+	[index: number]: CSSKeyframeRule;
+}
+declare var CSSKeyframesRule: {
+	prototype: CSSKeyframesRule;
+	new(): CSSKeyframesRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeywordValue) */
+export interface CSSKeywordValue extends CSSStyleValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSKeywordValue/value) */
+	value: string;
+}
+declare var CSSKeywordValue: {
+	prototype: CSSKeywordValue;
+	new(value: string): CSSKeywordValue;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSLayerBlockRule) */
+export interface CSSLayerBlockRule extends CSSGroupingRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSLayerBlockRule/name) */
+	readonly name: string;
+}
+declare var CSSLayerBlockRule: {
+	prototype: CSSLayerBlockRule;
+	new(): CSSLayerBlockRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSLayerStatementRule) */
+export interface CSSLayerStatementRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSLayerStatementRule/nameList) */
+	readonly nameList: ReadonlyArray<string>;
+}
+declare var CSSLayerStatementRule: {
+	prototype: CSSLayerStatementRule;
+	new(): CSSLayerStatementRule;
+};
+export interface CSSMathClamp extends CSSMathValue {
+	readonly lower: CSSNumericValue;
+	readonly upper: CSSNumericValue;
+	readonly value: CSSNumericValue;
+}
+declare var CSSMathClamp: {
+	prototype: CSSMathClamp;
+	new(lower: CSSNumberish, value: CSSNumberish, upper: CSSNumberish): CSSMathClamp;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathInvert) */
+export interface CSSMathInvert extends CSSMathValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathInvert/value) */
+	readonly value: CSSNumericValue;
+}
+declare var CSSMathInvert: {
+	prototype: CSSMathInvert;
+	new(arg: CSSNumberish): CSSMathInvert;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathMax) */
+export interface CSSMathMax extends CSSMathValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathMax/values) */
+	readonly values: CSSNumericArray;
+}
+declare var CSSMathMax: {
+	prototype: CSSMathMax;
+	new(...args: CSSNumberish[]): CSSMathMax;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathMin) */
+export interface CSSMathMin extends CSSMathValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathMin/values) */
+	readonly values: CSSNumericArray;
+}
+declare var CSSMathMin: {
+	prototype: CSSMathMin;
+	new(...args: CSSNumberish[]): CSSMathMin;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathNegate) */
+export interface CSSMathNegate extends CSSMathValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathNegate/value) */
+	readonly value: CSSNumericValue;
+}
+declare var CSSMathNegate: {
+	prototype: CSSMathNegate;
+	new(arg: CSSNumberish): CSSMathNegate;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathProduct) */
+export interface CSSMathProduct extends CSSMathValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathProduct/values) */
+	readonly values: CSSNumericArray;
+}
+declare var CSSMathProduct: {
+	prototype: CSSMathProduct;
+	new(...args: CSSNumberish[]): CSSMathProduct;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMathSum) */
 export interface CSSMathSum extends CSSMathValue {
@@ -2103,6 +3434,54 @@ export interface CSSMathValue extends CSSNumericValue {
 declare var CSSMathValue: {
 	prototype: CSSMathValue;
 	new(): CSSMathValue;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMatrixComponent) */
+export interface CSSMatrixComponent extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMatrixComponent/matrix) */
+	matrix: DOMMatrix;
+}
+declare var CSSMatrixComponent: {
+	prototype: CSSMatrixComponent;
+	new(matrix: DOMMatrixReadOnly, options?: CSSMatrixComponentOptions): CSSMatrixComponent;
+};
+/**
+ * A single CSS @media rule. It implements the CSSConditionRule interface, and therefore the CSSGroupingRule and the CSSRule interface with a type value of 4 (CSSRule.MEDIA_RULE).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMediaRule)
+ */
+export interface CSSMediaRule extends CSSConditionRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSMediaRule/media) */
+	get media(): MediaList;
+	set media(mediaText: string);
+}
+declare var CSSMediaRule: {
+	prototype: CSSMediaRule;
+	new(): CSSMediaRule;
+};
+/**
+ * An object representing a single CSS @namespace at-rule. It implements the CSSRule interface, with a type value of 10 (CSSRule.NAMESPACE_RULE).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSNamespaceRule)
+ */
+export interface CSSNamespaceRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSNamespaceRule/namespaceURI) */
+	readonly namespaceURI: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSNamespaceRule/prefix) */
+	readonly prefix: string;
+}
+declare var CSSNamespaceRule: {
+	prototype: CSSNamespaceRule;
+	new(): CSSNamespaceRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSNestedDeclarations) */
+export interface CSSNestedDeclarations extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSNestedDeclarations/style) */
+	get style(): CSSStyleDeclaration;
+	set style(cssText: string);
+}
+declare var CSSNestedDeclarations: {
+	prototype: CSSNestedDeclarations;
+	new(): CSSNestedDeclarations;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSNumericArray) */
 export interface CSSNumericArray {
@@ -2143,6 +3522,62 @@ declare var CSSNumericValue: {
 	new(): CSSNumericValue;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSNumericValue/parse_static) */
 	parse(cssText: string): CSSNumericValue;
+};
+/**
+ * CSSPageRule is an interface representing a single CSS @page rule. It implements the CSSRule interface with a type value of 6 (CSSRule.PAGE_RULE).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPageRule)
+ */
+export interface CSSPageRule extends CSSGroupingRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPageRule/selectorText) */
+	selectorText: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPageRule/style) */
+	get style(): CSSStyleDeclaration;
+	set style(cssText: string);
+}
+declare var CSSPageRule: {
+	prototype: CSSPageRule;
+	new(): CSSPageRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPerspective) */
+export interface CSSPerspective extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPerspective/length) */
+	length: CSSPerspectiveValue;
+}
+declare var CSSPerspective: {
+	prototype: CSSPerspective;
+	new(length: CSSPerspectiveValue): CSSPerspective;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPropertyRule) */
+export interface CSSPropertyRule extends CSSRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPropertyRule/inherits) */
+	readonly inherits: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPropertyRule/initialValue) */
+	readonly initialValue: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPropertyRule/name) */
+	readonly name: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSPropertyRule/syntax) */
+	readonly syntax: string;
+}
+declare var CSSPropertyRule: {
+	prototype: CSSPropertyRule;
+	new(): CSSPropertyRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSRotate) */
+export interface CSSRotate extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSRotate/angle) */
+	angle: CSSNumericValue;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSRotate/x) */
+	x: CSSNumberish;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSRotate/y) */
+	y: CSSNumberish;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSRotate/z) */
+	z: CSSNumberish;
+}
+declare var CSSRotate: {
+	prototype: CSSRotate;
+	new(angle: CSSNumericValue): CSSRotate;
+	new(x: CSSNumberish, y: CSSNumberish, z: CSSNumberish, angle: CSSNumericValue): CSSRotate;
 };
 /**
  * A single CSS rule. There are several types of rules, listed in the Type constants section below.
@@ -2206,6 +3641,66 @@ export interface CSSRuleList {
 declare var CSSRuleList: {
 	prototype: CSSRuleList;
 	new(): CSSRuleList;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSScale) */
+export interface CSSScale extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSScale/x) */
+	x: CSSNumberish;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSScale/y) */
+	y: CSSNumberish;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSScale/z) */
+	z: CSSNumberish;
+}
+declare var CSSScale: {
+	prototype: CSSScale;
+	new(x: CSSNumberish, y: CSSNumberish, z?: CSSNumberish): CSSScale;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSScopeRule) */
+export interface CSSScopeRule extends CSSGroupingRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSScopeRule/end) */
+	readonly end: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSScopeRule/start) */
+	readonly start: string | null;
+}
+declare var CSSScopeRule: {
+	prototype: CSSScopeRule;
+	new(): CSSScopeRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSkew) */
+export interface CSSSkew extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSkew/ax) */
+	ax: CSSNumericValue;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSkew/ay) */
+	ay: CSSNumericValue;
+}
+declare var CSSSkew: {
+	prototype: CSSSkew;
+	new(ax: CSSNumericValue, ay: CSSNumericValue): CSSSkew;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSkewX) */
+export interface CSSSkewX extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSkewX/ax) */
+	ax: CSSNumericValue;
+}
+declare var CSSSkewX: {
+	prototype: CSSSkewX;
+	new(ax: CSSNumericValue): CSSSkewX;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSkewY) */
+export interface CSSSkewY extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSkewY/ay) */
+	ay: CSSNumericValue;
+}
+declare var CSSSkewY: {
+	prototype: CSSSkewY;
+	new(ay: CSSNumericValue): CSSSkewY;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSStartingStyleRule) */
+export interface CSSStartingStyleRule extends CSSGroupingRule {
+}
+declare var CSSStartingStyleRule: {
+	prototype: CSSStartingStyleRule;
+	new(): CSSStartingStyleRule;
 };
 /**
  * An object that is a CSS declaration block, and exposes style information and various style-related methods and properties.
@@ -2854,8 +4349,6 @@ export interface CSSStyleDeclaration {
 	pointerEvents: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/position) */
 	position: string;
-	/** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/position-area) */
-	positionArea: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/print-color-adjust) */
 	printColorAdjust: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/quotes) */
@@ -2976,6 +4469,9 @@ export interface CSSStyleDeclaration {
 	textAlignLast: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/text-anchor) */
 	textAnchor: string;
+	textBox: string;
+	textBoxEdge: string;
+	textBoxTrim: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/text-combine-upright) */
 	textCombineUpright: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/text-decoration) */
@@ -3506,6 +5002,24 @@ declare var CSSStyleDeclaration: {
 	new(): CSSStyleDeclaration;
 };
 /**
+ * CSSStyleRule represents a single CSS style rule. It implements the CSSRule interface with a type value of 1 (CSSRule.STYLE_RULE).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSStyleRule)
+ */
+export interface CSSStyleRule extends CSSGroupingRule {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSStyleRule/selectorText) */
+	selectorText: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSStyleRule/style) */
+	get style(): CSSStyleDeclaration;
+	set style(cssText: string);
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSStyleRule/styleMap) */
+	readonly styleMap: StylePropertyMap;
+}
+declare var CSSStyleRule: {
+	prototype: CSSStyleRule;
+	new(): CSSStyleRule;
+};
+/**
  * A single CSS style sheet. It inherits properties and methods from its parent, StyleSheet.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSStyleSheet)
@@ -3558,6 +5072,70 @@ declare var CSSStyleValue: {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSStyleValue/parseAll_static) */
 	parseAll(property: string, cssText: string): CSSStyleValue[];
 };
+/**
+ * An object representing a single CSS @supports at-rule. It implements the CSSConditionRule interface, and therefore the CSSRule and CSSGroupingRule interfaces with a type value of 12 (CSSRule.SUPPORTS_RULE).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSSupportsRule)
+ */
+export interface CSSSupportsRule extends CSSConditionRule {
+}
+declare var CSSSupportsRule: {
+	prototype: CSSSupportsRule;
+	new(): CSSSupportsRule;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransformComponent) */
+export interface CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransformComponent/is2D) */
+	is2D: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransformComponent/toMatrix) */
+	toMatrix(): DOMMatrix;
+	toString(): string;
+}
+declare var CSSTransformComponent: {
+	prototype: CSSTransformComponent;
+	new(): CSSTransformComponent;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransformValue) */
+export interface CSSTransformValue extends CSSStyleValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransformValue/is2D) */
+	readonly is2D: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransformValue/length) */
+	readonly length: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransformValue/toMatrix) */
+	toMatrix(): DOMMatrix;
+	forEach(callbackfn: (value: CSSTransformComponent, key: number, parent: CSSTransformValue) => void, thisArg?: any): void;
+	[index: number]: CSSTransformComponent;
+}
+declare var CSSTransformValue: {
+	prototype: CSSTransformValue;
+	new(transforms: CSSTransformComponent[]): CSSTransformValue;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransition) */
+export interface CSSTransition extends Animation {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTransition/transitionProperty) */
+	readonly transitionProperty: string;
+	addEventListener<K extends keyof AnimationEventMap>(type: K, listener: (this: CSSTransition, ev: AnimationEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AnimationEventMap>(type: K, listener: (this: CSSTransition, ev: AnimationEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var CSSTransition: {
+	prototype: CSSTransition;
+	new(): CSSTransition;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTranslate) */
+export interface CSSTranslate extends CSSTransformComponent {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTranslate/x) */
+	x: CSSNumericValue;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTranslate/y) */
+	y: CSSNumericValue;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSTranslate/z) */
+	z: CSSNumericValue;
+}
+declare var CSSTranslate: {
+	prototype: CSSTranslate;
+	new(x: CSSNumericValue, y: CSSNumericValue, z?: CSSNumericValue): CSSTranslate;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSUnitValue) */
 export interface CSSUnitValue extends CSSNumericValue {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSUnitValue/unit) */
@@ -3568,6 +5146,36 @@ export interface CSSUnitValue extends CSSNumericValue {
 declare var CSSUnitValue: {
 	prototype: CSSUnitValue;
 	new(value: number, unit: string): CSSUnitValue;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSUnparsedValue) */
+export interface CSSUnparsedValue extends CSSStyleValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSUnparsedValue/length) */
+	readonly length: number;
+	forEach(callbackfn: (value: CSSUnparsedSegment, key: number, parent: CSSUnparsedValue) => void, thisArg?: any): void;
+	[index: number]: CSSUnparsedSegment;
+}
+declare var CSSUnparsedValue: {
+	prototype: CSSUnparsedValue;
+	new(members: CSSUnparsedSegment[]): CSSUnparsedValue;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSVariableReferenceValue) */
+export interface CSSVariableReferenceValue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSVariableReferenceValue/fallback) */
+	readonly fallback: CSSUnparsedValue | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CSSVariableReferenceValue/variable) */
+	variable: string;
+}
+declare var CSSVariableReferenceValue: {
+	prototype: CSSVariableReferenceValue;
+	new(variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
+};
+export interface CSSViewTransitionRule extends CSSRule {
+	readonly navigation: string;
+	readonly types: ReadonlyArray<string>;
+}
+declare var CSSViewTransitionRule: {
+	prototype: CSSViewTransitionRule;
+	new(): CSSViewTransitionRule;
 };
 /**
  * Provides a storage mechanism for Request / Response object pairs that are cached, for example as part of the ServiceWorker life cycle. Note that the Cache interface is exposed to windowed scopes as well as workers. You don't have to use it in conjunction with service workers, even though it is defined in the service worker spec.
@@ -3616,6 +5224,21 @@ export interface CacheStorage {
 declare var CacheStorage: {
 	prototype: CacheStorage;
 	new(): CacheStorage;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasCaptureMediaStreamTrack) */
+export interface CanvasCaptureMediaStreamTrack extends MediaStreamTrack {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasCaptureMediaStreamTrack/canvas) */
+	readonly canvas: HTMLCanvasElement;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasCaptureMediaStreamTrack/requestFrame) */
+	requestFrame(): void;
+	addEventListener<K extends keyof MediaStreamTrackEventMap>(type: K, listener: (this: CanvasCaptureMediaStreamTrack, ev: MediaStreamTrackEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof MediaStreamTrackEventMap>(type: K, listener: (this: CanvasCaptureMediaStreamTrack, ev: MediaStreamTrackEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var CanvasCaptureMediaStreamTrack: {
+	prototype: CanvasCaptureMediaStreamTrack;
+	new(): CanvasCaptureMediaStreamTrack;
 };
 export interface CanvasCompositing {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/globalAlpha) */
@@ -3862,6 +5485,28 @@ declare var CaretPosition: {
 	new(): CaretPosition;
 };
 /**
+ * The ChannelMergerNode interface, often used in conjunction with its opposite, ChannelSplitterNode, reunites different mono inputs into a single output. Each input is used to fill a channel of the output. This is useful for accessing each channels separately, e.g. for performing channel mixing where gain must be separately controlled on each channel.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ChannelMergerNode)
+ */
+export interface ChannelMergerNode extends AudioNode {
+}
+declare var ChannelMergerNode: {
+	prototype: ChannelMergerNode;
+	new(context: BaseAudioContext, options?: ChannelMergerOptions): ChannelMergerNode;
+};
+/**
+ * The ChannelSplitterNode interface, often used in conjunction with its opposite, ChannelMergerNode, separates the different channels of an audio source into a set of mono outputs. This is useful for accessing each channel separately, e.g. for performing channel mixing where gain must be separately controlled on each channel.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ChannelSplitterNode)
+ */
+export interface ChannelSplitterNode extends AudioNode {
+}
+declare var ChannelSplitterNode: {
+	prototype: ChannelSplitterNode;
+	new(context: BaseAudioContext, options?: ChannelSplitterOptions): ChannelSplitterNode;
+};
+/**
  * The CharacterData abstract interface represents a Node object that contains characters. This is an abstract interface, meaning there aren't any object of type CharacterData: it is implemented by other interfaces, like Text, Comment, or ProcessingInstruction which aren't abstract.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CharacterData)
@@ -4032,6 +5677,28 @@ declare var CompositionEvent: {
 	prototype: CompositionEvent;
 	new(type: string, eventInitDict?: CompositionEventInit): CompositionEvent;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CompressionStream) */
+export interface CompressionStream extends GenericTransformStream {
+	readonly readable: ReadableStream<Uint8Array>;
+	readonly writable: WritableStream<BufferSource>;
+}
+declare var CompressionStream: {
+	prototype: CompressionStream;
+	new(format: CompressionFormat): CompressionStream;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ConstantSourceNode) */
+export interface ConstantSourceNode extends AudioScheduledSourceNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ConstantSourceNode/offset) */
+	readonly offset: AudioParam;
+	addEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: ConstantSourceNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: ConstantSourceNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var ConstantSourceNode: {
+	prototype: ConstantSourceNode;
+	new(context: BaseAudioContext, options?: ConstantSourceOptions): ConstantSourceNode;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ContentVisibilityAutoStateChangeEvent) */
 export interface ContentVisibilityAutoStateChangeEvent extends Event {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ContentVisibilityAutoStateChangeEvent/skipped) */
@@ -4040,6 +5707,36 @@ export interface ContentVisibilityAutoStateChangeEvent extends Event {
 declare var ContentVisibilityAutoStateChangeEvent: {
 	prototype: ContentVisibilityAutoStateChangeEvent;
 	new(type: string, eventInitDict?: ContentVisibilityAutoStateChangeEventInit): ContentVisibilityAutoStateChangeEvent;
+};
+/**
+ * An AudioNode that performs a Linear Convolution on a given AudioBuffer, often used to achieve a reverb effect. A ConvolverNode always has exactly one input and one output.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ConvolverNode)
+ */
+export interface ConvolverNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ConvolverNode/buffer) */
+	buffer: AudioBuffer | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ConvolverNode/normalize) */
+	normalize: boolean;
+}
+declare var ConvolverNode: {
+	prototype: ConvolverNode;
+	new(context: BaseAudioContext, options?: ConvolverOptions): ConvolverNode;
+};
+/**
+ * This Streams API interface provides a built-in byte length queuing strategy that can be used when constructing streams.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CountQueuingStrategy)
+ */
+export interface CountQueuingStrategy extends QueuingStrategy {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CountQueuingStrategy/highWaterMark) */
+	readonly highWaterMark: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CountQueuingStrategy/size) */
+	readonly size: QueuingStrategySize;
+}
+declare var CountQueuingStrategy: {
+	prototype: CountQueuingStrategy;
+	new(init: QueuingStrategyInit): CountQueuingStrategy;
 };
 /**
  * Available only in secure contexts.
@@ -4304,17 +6001,23 @@ export interface DOMMatrix extends DOMMatrixReadOnly {
 	m43: number;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix#instance_properties) */
 	m44: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/invertSelf) */
 	invertSelf(): DOMMatrix;
 	multiplySelf(other?: DOMMatrixInit): DOMMatrix;
 	preMultiplySelf(other?: DOMMatrixInit): DOMMatrix;
 	rotateAxisAngleSelf(x?: number, y?: number, z?: number, angle?: number): DOMMatrix;
 	rotateFromVectorSelf(x?: number, y?: number): DOMMatrix;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/rotateSelf) */
 	rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix;
 	scale3dSelf(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix;
 	scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/setMatrixValue) */
 	setMatrixValue(transformList: string): DOMMatrix;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/skewXSelf) */
 	skewXSelf(sx?: number): DOMMatrix;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/skewYSelf) */
 	skewYSelf(sy?: number): DOMMatrix;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/translateSelf) */
 	translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix;
 }
 declare var DOMMatrix: {
@@ -4325,6 +6028,7 @@ declare var DOMMatrix: {
 	fromMatrix(other?: DOMMatrixInit): DOMMatrix;
 };
 type SVGMatrix = DOMMatrix;
+type WebKitCSSMatrix = DOMMatrix;
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrixReadOnly) */
 export interface DOMMatrixReadOnly {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrixReadOnly#instance_properties) */
@@ -4376,6 +6080,7 @@ export interface DOMMatrixReadOnly {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrixReadOnly/flipX) */
 	flipX(): DOMMatrix;
 	flipY(): DOMMatrix;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrixReadOnly/inverse) */
 	inverse(): DOMMatrix;
 	multiply(other?: DOMMatrixInit): DOMMatrix;
 	rotate(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix;
@@ -4390,6 +6095,7 @@ export interface DOMMatrixReadOnly {
 	skewY(sy?: number): DOMMatrix;
 	toFloat32Array(): Float32Array;
 	toFloat64Array(): Float64Array;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrixReadOnly/toJSON) */
 	toJSON(): any;
 	transformPoint(point?: DOMPointInit): DOMPoint;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrixReadOnly/translate) */
@@ -4402,6 +6108,29 @@ declare var DOMMatrixReadOnly: {
 	fromFloat32Array(array32: Float32Array): DOMMatrixReadOnly;
 	fromFloat64Array(array64: Float64Array): DOMMatrixReadOnly;
 	fromMatrix(other?: DOMMatrixInit): DOMMatrixReadOnly;
+};
+/**
+ * Provides the ability to parse XML or HTML source code from a string into a DOM Document.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMParser)
+ */
+export interface DOMParser {
+	/**
+	 * Parses string using either the HTML or XML parser, according to type, and returns the resulting Document. type can be "text/html" (which will invoke the HTML parser), or any of "text/xml", "application/xml", "application/xhtml+xml", or "image/svg+xml" (which will invoke the XML parser).
+	 *
+	 * For the XML parser, if string cannot be parsed, then the returned Document will contain elements describing the resulting error.
+	 *
+	 * Note that script elements are not evaluated during parsing, and the resulting document's encoding will always be UTF-8.
+	 *
+	 * Values other than the above for type will cause a TypeError exception to be thrown.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMParser/parseFromString)
+	 */
+	parseFromString(string: string, type: DOMParserSupportedType): Document;
+}
+declare var DOMParser: {
+	prototype: DOMParser;
+	new(): DOMParser;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMPoint) */
 export interface DOMPoint extends DOMPointReadOnly {
@@ -4440,6 +6169,27 @@ declare var DOMPointReadOnly: {
 	new(x?: number, y?: number, z?: number, w?: number): DOMPointReadOnly;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMPointReadOnly/fromPoint_static) */
 	fromPoint(other?: DOMPointInit): DOMPointReadOnly;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMQuad) */
+export interface DOMQuad {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMQuad/p1) */
+	readonly p1: DOMPoint;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMQuad/p2) */
+	readonly p2: DOMPoint;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMQuad/p3) */
+	readonly p3: DOMPoint;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMQuad/p4) */
+	readonly p4: DOMPoint;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMQuad/getBounds) */
+	getBounds(): DOMRect;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMQuad/toJSON) */
+	toJSON(): any;
+}
+declare var DOMQuad: {
+	prototype: DOMQuad;
+	new(p1?: DOMPointInit, p2?: DOMPointInit, p3?: DOMPointInit, p4?: DOMPointInit): DOMQuad;
+	fromQuad(other?: DOMQuadInit): DOMQuad;
+	fromRect(other?: DOMRectInit): DOMQuad;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMRect) */
 export interface DOMRect extends DOMRectReadOnly {
@@ -4778,6 +6528,28 @@ export interface DataTransferItemList {
 declare var DataTransferItemList: {
 	prototype: DataTransferItemList;
 	new(): DataTransferItemList;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DecompressionStream) */
+export interface DecompressionStream extends GenericTransformStream {
+	readonly readable: ReadableStream<Uint8Array>;
+	readonly writable: WritableStream<BufferSource>;
+}
+declare var DecompressionStream: {
+	prototype: DecompressionStream;
+	new(format: CompressionFormat): DecompressionStream;
+};
+/**
+ * A delay-line; an AudioNode audio-processing module that causes a delay between the arrival of an input data and its propagation to the output.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/DelayNode)
+ */
+export interface DelayNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DelayNode/delayTime) */
+	readonly delayTime: AudioParam;
+}
+declare var DelayNode: {
+	prototype: DelayNode;
+	new(context: BaseAudioContext, options?: DelayOptions): DelayNode;
 };
 /**
  * The DeviceMotionEvent provides web developers with information about the speed of changes for the device's position and orientation.
@@ -5429,7 +7201,7 @@ export interface Document extends Node, DocumentOrShadowRoot, FontFaceSource, Gl
 	 *
 	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Document/importNode)
 	 */
-	importNode<T extends Node>(node: T, deep?: boolean): T;
+	importNode<T extends Node>(node: T, subtree?: boolean): T;
 	/**
 	 * Opens a new window and loads a document specified by a given URL. Also, opens a new window that uses the url parameter and the name parameter to collect the output of the write method and the writeln method.
 	 * @param url Specifies a MIME type for the document.
@@ -5486,6 +7258,7 @@ export interface Document extends Node, DocumentOrShadowRoot, FontFaceSource, Gl
 	/**
 	 * Writes one or more HTML expressions to a document in the specified window.
 	 * @param content Specifies the text and HTML tags to write.
+	 * @deprecated
 	 *
 	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Document/write)
 	 */
@@ -5602,6 +7375,29 @@ declare var DragEvent: {
 	prototype: DragEvent;
 	new(type: string, eventInitDict?: DragEventInit): DragEvent;
 };
+/**
+ * Inherits properties from its parent, AudioNode.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/DynamicsCompressorNode)
+ */
+export interface DynamicsCompressorNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DynamicsCompressorNode/attack) */
+	readonly attack: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DynamicsCompressorNode/knee) */
+	readonly knee: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DynamicsCompressorNode/ratio) */
+	readonly ratio: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DynamicsCompressorNode/reduction) */
+	readonly reduction: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DynamicsCompressorNode/release) */
+	readonly release: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DynamicsCompressorNode/threshold) */
+	readonly threshold: AudioParam;
+}
+declare var DynamicsCompressorNode: {
+	prototype: DynamicsCompressorNode;
+	new(context: BaseAudioContext, options?: DynamicsCompressorOptions): DynamicsCompressorNode;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EXT_blend_minmax) */
 export interface EXT_blend_minmax {
 	readonly MIN_EXT: 0x8007;
@@ -5659,6 +7455,17 @@ export interface EXT_texture_compression_rgtc {
 export interface EXT_texture_filter_anisotropic {
 	readonly TEXTURE_MAX_ANISOTROPY_EXT: 0x84FE;
 	readonly MAX_TEXTURE_MAX_ANISOTROPY_EXT: 0x84FF;
+}
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EXT_texture_norm16) */
+export interface EXT_texture_norm16 {
+	readonly R16_EXT: 0x822A;
+	readonly RG16_EXT: 0x822C;
+	readonly RGB16_EXT: 0x8054;
+	readonly RGBA16_EXT: 0x805B;
+	readonly R16_SNORM_EXT: 0x8F98;
+	readonly RG16_SNORM_EXT: 0x8F99;
+	readonly RGB16_SNORM_EXT: 0x8F9A;
+	readonly RGBA16_SNORM_EXT: 0x8F9B;
 }
 export interface ElementEventMap {
 	"fullscreenchange": Event;
@@ -6022,6 +7829,40 @@ declare var ElementInternals: {
 	prototype: ElementInternals;
 	new(): ElementInternals;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedAudioChunk) */
+export interface EncodedAudioChunk {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedAudioChunk/byteLength) */
+	readonly byteLength: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedAudioChunk/duration) */
+	readonly duration: number | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedAudioChunk/timestamp) */
+	readonly timestamp: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedAudioChunk/type) */
+	readonly type: EncodedAudioChunkType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedAudioChunk/copyTo) */
+	copyTo(destination: AllowSharedBufferSource): void;
+}
+declare var EncodedAudioChunk: {
+	prototype: EncodedAudioChunk;
+	new(init: EncodedAudioChunkInit): EncodedAudioChunk;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedVideoChunk) */
+export interface EncodedVideoChunk {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedVideoChunk/byteLength) */
+	readonly byteLength: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedVideoChunk/duration) */
+	readonly duration: number | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedVideoChunk/timestamp) */
+	readonly timestamp: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedVideoChunk/type) */
+	readonly type: EncodedVideoChunkType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/EncodedVideoChunk/copyTo) */
+	copyTo(destination: AllowSharedBufferSource): void;
+}
+declare var EncodedVideoChunk: {
+	prototype: EncodedVideoChunk;
+	new(init: EncodedVideoChunkInit): EncodedVideoChunk;
+};
 /**
  * Events providing information related to errors in scripts or in files.
  *
@@ -6324,6 +8165,67 @@ declare var FileList: {
 	prototype: FileList;
 	new(): FileList;
 };
+export interface FileReaderEventMap {
+	"abort": ProgressEvent<FileReader>;
+	"error": ProgressEvent<FileReader>;
+	"load": ProgressEvent<FileReader>;
+	"loadend": ProgressEvent<FileReader>;
+	"loadstart": ProgressEvent<FileReader>;
+	"progress": ProgressEvent<FileReader>;
+}
+/**
+ * Lets web applications asynchronously read the contents of files (or raw data buffers) stored on the user's computer, using File or Blob objects to specify the file or data to read.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader)
+ */
+export interface FileReader extends EventTarget {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/error) */
+	readonly error: DOMException | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/abort_event) */
+	onabort: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/error_event) */
+	onerror: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/load_event) */
+	onload: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/loadend_event) */
+	onloadend: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/loadstart_event) */
+	onloadstart: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/progress_event) */
+	onprogress: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/readyState) */
+	readonly readyState: typeof FileReader.EMPTY | typeof FileReader.LOADING | typeof FileReader.DONE;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/result) */
+	readonly result: string | ArrayBuffer | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/abort) */
+	abort(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/readAsArrayBuffer) */
+	readAsArrayBuffer(blob: Blob): void;
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/readAsBinaryString)
+	 */
+	readAsBinaryString(blob: Blob): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/readAsDataURL) */
+	readAsDataURL(blob: Blob): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileReader/readAsText) */
+	readAsText(blob: Blob, encoding?: string): void;
+	readonly EMPTY: 0;
+	readonly LOADING: 1;
+	readonly DONE: 2;
+	addEventListener<K extends keyof FileReaderEventMap>(type: K, listener: (this: FileReader, ev: FileReaderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof FileReaderEventMap>(type: K, listener: (this: FileReader, ev: FileReaderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var FileReader: {
+	prototype: FileReader;
+	new(): FileReader;
+	readonly EMPTY: 0;
+	readonly LOADING: 1;
+	readonly DONE: 2;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystem) */
 export interface FileSystem {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystem/name) */
@@ -6395,6 +8297,15 @@ export interface FileSystemEntry {
 declare var FileSystemEntry: {
 	prototype: FileSystemEntry;
 	new(): FileSystemEntry;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemFileEntry) */
+export interface FileSystemFileEntry extends FileSystemEntry {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemFileEntry/file) */
+	file(successCallback: FileCallback, errorCallback?: ErrorCallback): void;
+}
+declare var FileSystemFileEntry: {
+	prototype: FileSystemFileEntry;
+	new(): FileSystemFileEntry;
 };
 /**
  * Available only in secure contexts.
@@ -6585,6 +8496,28 @@ declare var FragmentDirective: {
 	new(): FragmentDirective;
 };
 /**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/GPUError)
+ */
+export interface GPUError {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/GPUError/message) */
+	readonly message: string;
+}
+/**
+ * A change in volume. It is an AudioNode audio-processing module that causes a given gain to be applied to the input data before its propagation to the output. A GainNode always has exactly one input and one output, both with the same number of channels.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/GainNode)
+ */
+export interface GainNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/GainNode/gain) */
+	readonly gain: AudioParam;
+}
+declare var GainNode: {
+	prototype: GainNode;
+	new(context: BaseAudioContext, options?: GainOptions): GainNode;
+};
+/**
  * This Gamepad API interface defines an individual gamepad or other controller, allowing access to information such as button presses, axis positions, and id.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Gamepad)
@@ -6656,6 +8589,12 @@ declare var GamepadHapticActuator: {
 	prototype: GamepadHapticActuator;
 	new(): GamepadHapticActuator;
 };
+export interface GenericTransformStream {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CompressionStream/readable) */
+	readonly readable: ReadableStream;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CompressionStream/writable) */
+	readonly writable: WritableStream;
+}
 /**
  * An object able to programmatically obtain the position of the device. It gives Web content access to the location of the device. This allows a Web site or app to offer customized results based on the user's location.
  *
@@ -7921,6 +9860,7 @@ export interface HTMLElement extends Element, ElementCSSInlineStyle, ElementCont
 	title: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement/translate) */
 	translate: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement/writingSuggestions) */
 	writingSuggestions: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement/attachInternals) */
 	attachInternals(): ElementInternals;
@@ -10613,6 +12553,13 @@ declare var HTMLTableColElement: {
 	prototype: HTMLTableColElement;
 	new(): HTMLTableColElement;
 };
+/** @deprecated prefer HTMLTableCellElement */
+export interface HTMLTableDataCellElement extends HTMLTableCellElement {
+	addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLTableDataCellElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLTableDataCellElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
 /**
  * Provides special properties and methods (beyond the regular HTMLElement object interface it also has available to it by inheritance) for manipulating the layout and presentation of tables in an HTML document.
  *
@@ -10776,6 +12723,13 @@ declare var HTMLTableElement: {
 	prototype: HTMLTableElement;
 	new(): HTMLTableElement;
 };
+/** @deprecated prefer HTMLTableCellElement */
+export interface HTMLTableHeaderCellElement extends HTMLTableCellElement {
+	addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLTableHeaderCellElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLTableHeaderCellElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
 /**
  * Provides special properties and methods (beyond the HTMLElement interface it also has available to it by inheritance) for manipulating the layout and presentation of rows in an HTML table.
  *
@@ -11342,6 +13296,14 @@ export interface Highlight {
 declare var Highlight: {
 	prototype: Highlight;
 	new(...initialRanges: AbstractRange[]): Highlight;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HighlightRegistry) */
+export interface HighlightRegistry {
+	forEach(callbackfn: (value: Highlight, key: string, parent: HighlightRegistry) => void, thisArg?: any): void;
+}
+declare var HighlightRegistry: {
+	prototype: HighlightRegistry;
+	new(): HighlightRegistry;
 };
 /**
  * Allows manipulation of the browser session history, that is the pages visited in the tab or frame that the current page is loaded in.
@@ -12024,6 +13986,19 @@ declare var IDBVersionChangeEvent: {
 	prototype: IDBVersionChangeEvent;
 	new(type: string, eventInitDict?: IDBVersionChangeEventInit): IDBVersionChangeEvent;
 };
+/**
+ * The IIRFilterNode interface of the Web Audio API is a AudioNode processor which implements a general infinite impulse response (IIR)  filter; this type of filter can be used to implement tone control devices and graphic equalizers as well. It lets the parameters of the filter response be specified, so that it can be tuned as needed.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/IIRFilterNode)
+ */
+export interface IIRFilterNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IIRFilterNode/getFrequencyResponse) */
+	getFrequencyResponse(frequencyHz: Float32Array, magResponse: Float32Array, phaseResponse: Float32Array): void;
+}
+declare var IIRFilterNode: {
+	prototype: IIRFilterNode;
+	new(context: BaseAudioContext, options: IIRFilterOptions): IIRFilterNode;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IdleDeadline) */
 export interface IdleDeadline {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IdleDeadline/didTimeout) */
@@ -12111,6 +14086,81 @@ declare var ImageData: {
 	new(sw: number, sh: number, settings?: ImageDataSettings): ImageData;
 	new(data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
 };
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder)
+ */
+export interface ImageDecoder {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/complete) */
+	readonly complete: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/completed) */
+	readonly completed: Promise<undefined>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/tracks) */
+	readonly tracks: ImageTrackList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/type) */
+	readonly type: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/close) */
+	close(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/decode) */
+	decode(options?: ImageDecodeOptions): Promise<ImageDecodeResult>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/reset) */
+	reset(): void;
+}
+declare var ImageDecoder: {
+	prototype: ImageDecoder;
+	new(init: ImageDecoderInit): ImageDecoder;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageDecoder/isTypeSupported_static) */
+	isTypeSupported(type: string): Promise<boolean>;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrack) */
+export interface ImageTrack {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrack/animated) */
+	readonly animated: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrack/frameCount) */
+	readonly frameCount: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrack/repetitionCount) */
+	readonly repetitionCount: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrack/selected) */
+	selected: boolean;
+}
+declare var ImageTrack: {
+	prototype: ImageTrack;
+	new(): ImageTrack;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrackList) */
+export interface ImageTrackList {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrackList/length) */
+	readonly length: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrackList/ready) */
+	readonly ready: Promise<undefined>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrackList/selectedIndex) */
+	readonly selectedIndex: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ImageTrackList/selectedTrack) */
+	readonly selectedTrack: ImageTrack | null;
+	[index: number]: ImageTrack;
+}
+declare var ImageTrackList: {
+	prototype: ImageTrackList;
+	new(): ImageTrackList;
+};
+export interface ImportMeta {
+	url: string;
+	resolve(specifier: string): string;
+}
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/InputDeviceInfo)
+ */
+export interface InputDeviceInfo extends MediaDeviceInfo {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/InputDeviceInfo/getCapabilities) */
+	getCapabilities(): MediaTrackCapabilities;
+}
+declare var InputDeviceInfo: {
+	prototype: InputDeviceInfo;
+	new(): InputDeviceInfo;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/InputEvent) */
 export interface InputEvent extends UIEvent {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/InputEvent/data) */
@@ -12127,6 +14177,56 @@ export interface InputEvent extends UIEvent {
 declare var InputEvent: {
 	prototype: InputEvent;
 	new(type: string, eventInitDict?: InputEventInit): InputEvent;
+};
+/**
+ * provides a way to asynchronously observe changes in the intersection of a target element with an ancestor element or with a top-level document's viewport.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver)
+ */
+export interface IntersectionObserver {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/root) */
+	readonly root: Element | Document | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/rootMargin) */
+	readonly rootMargin: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/thresholds) */
+	readonly thresholds: ReadonlyArray<number>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/disconnect) */
+	disconnect(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/observe) */
+	observe(target: Element): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/takeRecords) */
+	takeRecords(): IntersectionObserverEntry[];
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserver/unobserve) */
+	unobserve(target: Element): void;
+}
+declare var IntersectionObserver: {
+	prototype: IntersectionObserver;
+	new(callback: IntersectionObserverCallback, options?: IntersectionObserverInit): IntersectionObserver;
+};
+/**
+ * This Intersection Observer API interface describes the intersection between the target element and its root container at a specific moment of transition.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry)
+ */
+export interface IntersectionObserverEntry {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry/boundingClientRect) */
+	readonly boundingClientRect: DOMRectReadOnly;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry/intersectionRatio) */
+	readonly intersectionRatio: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry/intersectionRect) */
+	readonly intersectionRect: DOMRectReadOnly;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry/isIntersecting) */
+	readonly isIntersecting: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry/rootBounds) */
+	readonly rootBounds: DOMRectReadOnly | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry/target) */
+	readonly target: Element;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/IntersectionObserverEntry/time) */
+	readonly time: DOMHighResTimeStamp;
+}
+declare var IntersectionObserverEntry: {
+	prototype: IntersectionObserverEntry;
+	new(): IntersectionObserverEntry;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/KHR_parallel_shader_compile) */
 export interface KHR_parallel_shader_compile {
@@ -12208,6 +14308,27 @@ declare var KeyframeEffect: {
 	prototype: KeyframeEffect;
 	new(target: Element | null, keyframes: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeEffectOptions): KeyframeEffect;
 	new(source: KeyframeEffect): KeyframeEffect;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint) */
+export interface LargestContentfulPaint extends PerformanceEntry {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint/element) */
+	readonly element: Element | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint/id) */
+	readonly id: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint/loadTime) */
+	readonly loadTime: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint/renderTime) */
+	readonly renderTime: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint/size) */
+	readonly size: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint/url) */
+	readonly url: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/LargestContentfulPaint/toJSON) */
+	toJSON(): any;
+}
+declare var LargestContentfulPaint: {
+	prototype: LargestContentfulPaint;
+	new(): LargestContentfulPaint;
 };
 export interface LinkStyle {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLLinkElement/sheet) */
@@ -12576,6 +14697,19 @@ declare var MediaDevices: {
 	prototype: MediaDevices;
 	new(): MediaDevices;
 };
+/**
+ * A MediaElementSourceNode has no inputs and exactly one output, and is created using the AudioContext.createMediaElementSource method. The amount of channels in the output equals the number of channels of the audio referenced by the HTMLMediaElement used in the creation of the node, or is 1 if the HTMLMediaElement has no audio.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaElementAudioSourceNode)
+ */
+export interface MediaElementAudioSourceNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaElementAudioSourceNode/mediaElement) */
+	readonly mediaElement: HTMLMediaElement;
+}
+declare var MediaElementAudioSourceNode: {
+	prototype: MediaElementAudioSourceNode;
+	new(context: AudioContext, options: MediaElementAudioSourceOptions): MediaElementAudioSourceNode;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaEncryptedEvent) */
 export interface MediaEncryptedEvent extends Event {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaEncryptedEvent/initData) */
@@ -12804,6 +14938,59 @@ declare var MediaQueryListEvent: {
 	prototype: MediaQueryListEvent;
 	new(type: string, eventInitDict?: MediaQueryListEventInit): MediaQueryListEvent;
 };
+export interface MediaRecorderEventMap {
+	"dataavailable": BlobEvent;
+	"error": ErrorEvent;
+	"pause": Event;
+	"resume": Event;
+	"start": Event;
+	"stop": Event;
+}
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder) */
+export interface MediaRecorder extends EventTarget {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/audioBitsPerSecond) */
+	readonly audioBitsPerSecond: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/mimeType) */
+	readonly mimeType: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/dataavailable_event) */
+	ondataavailable: ((this: MediaRecorder, ev: BlobEvent) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/error_event) */
+	onerror: ((this: MediaRecorder, ev: ErrorEvent) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/pause_event) */
+	onpause: ((this: MediaRecorder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/resume_event) */
+	onresume: ((this: MediaRecorder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/start_event) */
+	onstart: ((this: MediaRecorder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/stop_event) */
+	onstop: ((this: MediaRecorder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/state) */
+	readonly state: RecordingState;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/stream) */
+	readonly stream: MediaStream;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/videoBitsPerSecond) */
+	readonly videoBitsPerSecond: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/pause) */
+	pause(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/requestData) */
+	requestData(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/resume) */
+	resume(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/start) */
+	start(timeslice?: number): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/stop) */
+	stop(): void;
+	addEventListener<K extends keyof MediaRecorderEventMap>(type: K, listener: (this: MediaRecorder, ev: MediaRecorderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof MediaRecorderEventMap>(type: K, listener: (this: MediaRecorder, ev: MediaRecorderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var MediaRecorder: {
+	prototype: MediaRecorder;
+	new(stream: MediaStream, options?: MediaRecorderOptions): MediaRecorder;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaRecorder/isTypeSupported_static) */
+	isTypeSupported(type: string): boolean;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaSession) */
 export interface MediaSession {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaSession/metadata) */
@@ -12914,6 +15101,28 @@ declare var MediaStream: {
 	new(stream: MediaStream): MediaStream;
 	new(tracks: MediaStreamTrack[]): MediaStream;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaStreamAudioDestinationNode) */
+export interface MediaStreamAudioDestinationNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaStreamAudioDestinationNode/stream) */
+	readonly stream: MediaStream;
+}
+declare var MediaStreamAudioDestinationNode: {
+	prototype: MediaStreamAudioDestinationNode;
+	new(context: AudioContext, options?: AudioNodeOptions): MediaStreamAudioDestinationNode;
+};
+/**
+ * A type of AudioNode which operates as an audio source whose media is received from a MediaStream obtained using the WebRTC or Media Capture and Streams APIs.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaStreamAudioSourceNode)
+ */
+export interface MediaStreamAudioSourceNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/MediaStreamAudioSourceNode/mediaStream) */
+	readonly mediaStream: MediaStream;
+}
+declare var MediaStreamAudioSourceNode: {
+	prototype: MediaStreamAudioSourceNode;
+	new(context: AudioContext, options: MediaStreamAudioSourceOptions): MediaStreamAudioSourceNode;
+};
 export interface MediaStreamTrackEventMap {
 	"ended": Event;
 	"mute": Event;
@@ -12978,6 +15187,29 @@ export interface MediaStreamTrackEvent extends Event {
 declare var MediaStreamTrackEvent: {
 	prototype: MediaStreamTrackEvent;
 	new(type: string, eventInitDict: MediaStreamTrackEventInit): MediaStreamTrackEvent;
+};
+/**
+ * This Channel Messaging API interface allows us to create a new message channel and send data through it via its two MessagePort properties.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MessageChannel)
+ */
+export interface MessageChannel {
+	/**
+	 * Returns the first MessagePort object.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MessageChannel/port1)
+	 */
+	readonly port1: MessagePort;
+	/**
+	 * Returns the second MessagePort object.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MessageChannel/port2)
+	 */
+	readonly port2: MessagePort;
+}
+declare var MessageChannel: {
+	prototype: MessageChannel;
+	new(): MessageChannel;
 };
 /**
  * A message received by a target object.
@@ -13189,6 +15421,102 @@ export interface MouseEvent extends UIEvent {
 declare var MouseEvent: {
 	prototype: MouseEvent;
 	new(type: string, eventInitDict?: MouseEventInit): MouseEvent;
+};
+/**
+ * Provides the ability to watch for changes being made to the DOM tree. It is designed as a replacement for the older Mutation Events feature which was part of the DOM3 Events specification.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationObserver)
+ */
+export interface MutationObserver {
+	/**
+	 * Stops observer from observing any mutations. Until the observe() method is used again, observer's callback will not be invoked.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationObserver/disconnect)
+	 */
+	disconnect(): void;
+	/**
+	 * Instructs the user agent to observe a given target (a node) and report any mutations based on the criteria given by options (an object).
+	 *
+	 * The options argument allows for setting mutation observation options via object members.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationObserver/observe)
+	 */
+	observe(target: Node, options?: MutationObserverInit): void;
+	/**
+	 * Empties the record queue and returns what was in there.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationObserver/takeRecords)
+	 */
+	takeRecords(): MutationRecord[];
+}
+declare var MutationObserver: {
+	prototype: MutationObserver;
+	new(callback: MutationCallback): MutationObserver;
+};
+/**
+ * A MutationRecord represents an individual DOM mutation. It is the object that is passed to MutationObserver's callback.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord)
+ */
+export interface MutationRecord {
+	/**
+	 * Return the nodes added and removed respectively.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/addedNodes)
+	 */
+	readonly addedNodes: NodeList;
+	/**
+	 * Returns the local name of the changed attribute, and null otherwise.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/attributeName)
+	 */
+	readonly attributeName: string | null;
+	/**
+	 * Returns the namespace of the changed attribute, and null otherwise.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/attributeNamespace)
+	 */
+	readonly attributeNamespace: string | null;
+	/**
+	 * Return the previous and next sibling respectively of the added or removed nodes, and null otherwise.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/nextSibling)
+	 */
+	readonly nextSibling: Node | null;
+	/**
+	 * The return value depends on type. For "attributes", it is the value of the changed attribute before the change. For "characterData", it is the data of the changed node before the change. For "childList", it is null.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/oldValue)
+	 */
+	readonly oldValue: string | null;
+	/**
+	 * Return the previous and next sibling respectively of the added or removed nodes, and null otherwise.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/previousSibling)
+	 */
+	readonly previousSibling: Node | null;
+	/**
+	 * Return the nodes added and removed respectively.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/removedNodes)
+	 */
+	readonly removedNodes: NodeList;
+	/**
+	 * Returns the node the mutation affected, depending on the type. For "attributes", it is the element whose attribute changed. For "characterData", it is the CharacterData node. For "childList", it is the node whose children changed.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/target)
+	 */
+	readonly target: Node;
+	/**
+	 * Returns "attributes" if it was an attribute mutation. "characterData" if it was a mutation to a CharacterData node. And "childList" if it was a mutation to the tree of nodes.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MutationRecord/type)
+	 */
+	readonly type: MutationRecordType;
+}
+declare var MutationRecord: {
+	prototype: MutationRecord;
+	new(): MutationRecord;
 };
 /**
  * A collection of Attr objects. Objects inside a NamedNodeMap are not in any particular order, unlike NodeList, although they may be accessed by an index as in an array.
@@ -13568,7 +15896,7 @@ export interface Node extends EventTarget {
 	 *
 	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Node/cloneNode)
 	 */
-	cloneNode(deep?: boolean): Node;
+	cloneNode(subtree?: boolean): Node;
 	/**
 	 * Returns a bitmask indicating the position of other relative to node.
 	 *
@@ -13834,6 +16162,23 @@ declare var Notification: {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Notification/requestPermission_static) */
 	requestPermission(deprecatedCallback?: NotificationPermissionCallback): Promise<NotificationPermission>;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed) */
+export interface OES_draw_buffers_indexed {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed/blendEquationSeparateiOES) */
+	blendEquationSeparateiOES(buf: GLuint, modeRGB: GLenum, modeAlpha: GLenum): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed/blendEquationiOES) */
+	blendEquationiOES(buf: GLuint, mode: GLenum): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed/blendFuncSeparateiOES) */
+	blendFuncSeparateiOES(buf: GLuint, srcRGB: GLenum, dstRGB: GLenum, srcAlpha: GLenum, dstAlpha: GLenum): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed/blendFunciOES) */
+	blendFunciOES(buf: GLuint, src: GLenum, dst: GLenum): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed/colorMaskiOES) */
+	colorMaskiOES(buf: GLuint, r: GLboolean, g: GLboolean, b: GLboolean, a: GLboolean): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed/disableiOES) */
+	disableiOES(target: GLenum, index: GLuint): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OES_draw_buffers_indexed/enableiOES) */
+	enableiOES(target: GLenum, index: GLuint): void;
+}
 /**
  * The OES_element_index_uint extension is part of the WebGL API and adds support for gl.UNSIGNED_INT types to WebGLRenderingContext.drawElements().
  *
@@ -13915,6 +16260,35 @@ declare var OfflineAudioCompletionEvent: {
 	prototype: OfflineAudioCompletionEvent;
 	new(type: string, eventInitDict: OfflineAudioCompletionEventInit): OfflineAudioCompletionEvent;
 };
+export interface OfflineAudioContextEventMap extends BaseAudioContextEventMap {
+	"complete": OfflineAudioCompletionEvent;
+}
+/**
+ * An AudioContext interface representing an audio-processing graph built from linked together AudioNodes. In contrast with a standard AudioContext, an OfflineAudioContext doesn't render the audio to the device hardware; instead, it generates it, as fast as it can, and outputs the result to an AudioBuffer.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/OfflineAudioContext)
+ */
+export interface OfflineAudioContext extends BaseAudioContext {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OfflineAudioContext/length) */
+	readonly length: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OfflineAudioContext/complete_event) */
+	oncomplete: ((this: OfflineAudioContext, ev: OfflineAudioCompletionEvent) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OfflineAudioContext/resume) */
+	resume(): Promise<void>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OfflineAudioContext/startRendering) */
+	startRendering(): Promise<AudioBuffer>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OfflineAudioContext/suspend) */
+	suspend(suspendTime: number): Promise<void>;
+	addEventListener<K extends keyof OfflineAudioContextEventMap>(type: K, listener: (this: OfflineAudioContext, ev: OfflineAudioContextEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof OfflineAudioContextEventMap>(type: K, listener: (this: OfflineAudioContext, ev: OfflineAudioContextEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var OfflineAudioContext: {
+	prototype: OfflineAudioContext;
+	new(contextOptions: OfflineAudioContextOptions): OfflineAudioContext;
+	new(numberOfChannels: number, length: number, sampleRate: number): OfflineAudioContext;
+};
 export interface OffscreenCanvasEventMap {
 	"contextlost": Event;
 	"contextrestored": Event;
@@ -13987,6 +16361,38 @@ declare var OffscreenCanvasRenderingContext2D: {
 	prototype: OffscreenCanvasRenderingContext2D;
 	new(): OffscreenCanvasRenderingContext2D;
 };
+/**
+ * The OscillatorNode interface represents a periodic waveform, such as a sine wave. It is an AudioScheduledSourceNode audio-processing module that causes a specified frequency of a given wave to be created—in effect, a constant tone.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/OscillatorNode)
+ */
+export interface OscillatorNode extends AudioScheduledSourceNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OscillatorNode/detune) */
+	readonly detune: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OscillatorNode/frequency) */
+	readonly frequency: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OscillatorNode/type) */
+	type: OscillatorType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OscillatorNode/setPeriodicWave) */
+	setPeriodicWave(periodicWave: PeriodicWave): void;
+	addEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: OscillatorNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof AudioScheduledSourceNodeEventMap>(type: K, listener: (this: OscillatorNode, ev: AudioScheduledSourceNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var OscillatorNode: {
+	prototype: OscillatorNode;
+	new(context: BaseAudioContext, options?: OscillatorOptions): OscillatorNode;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OverconstrainedError) */
+export interface OverconstrainedError extends DOMException {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/OverconstrainedError/constraint) */
+	readonly constraint: string;
+}
+declare var OverconstrainedError: {
+	prototype: OverconstrainedError;
+	new(constraint: string, message?: string): OverconstrainedError;
+};
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PageRevealEvent) */
 export interface PageRevealEvent extends Event {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PageRevealEvent/viewTransition) */
@@ -14032,6 +16438,57 @@ export interface PageTransitionEvent extends Event {
 declare var PageTransitionEvent: {
 	prototype: PageTransitionEvent;
 	new(type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
+};
+/**
+ * A PannerNode always has exactly one input and one output: the input can be mono or stereo but the output is always stereo (2 channels); you can't have panning effects without at least two audio channels!
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode)
+ */
+export interface PannerNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/coneInnerAngle) */
+	coneInnerAngle: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/coneOuterAngle) */
+	coneOuterAngle: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/coneOuterGain) */
+	coneOuterGain: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/distanceModel) */
+	distanceModel: DistanceModelType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/maxDistance) */
+	maxDistance: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/orientationX) */
+	readonly orientationX: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/orientationY) */
+	readonly orientationY: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/orientationZ) */
+	readonly orientationZ: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/panningModel) */
+	panningModel: PanningModelType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/positionX) */
+	readonly positionX: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/positionY) */
+	readonly positionY: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/positionZ) */
+	readonly positionZ: AudioParam;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/refDistance) */
+	refDistance: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/rolloffFactor) */
+	rolloffFactor: number;
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/setOrientation)
+	 */
+	setOrientation(x: number, y: number, z: number): void;
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/PannerNode/setPosition)
+	 */
+	setPosition(x: number, y: number, z: number): void;
+}
+declare var PannerNode: {
+	prototype: PannerNode;
+	new(context: BaseAudioContext, options?: PannerOptions): PannerNode;
 };
 export interface ParentNode extends Node {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Document/childElementCount) */
@@ -14359,6 +16816,23 @@ declare var PerformanceEntry: {
 	prototype: PerformanceEntry;
 	new(): PerformanceEntry;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming) */
+export interface PerformanceEventTiming extends PerformanceEntry {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming/cancelable) */
+	readonly cancelable: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming/processingEnd) */
+	readonly processingEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming/processingStart) */
+	readonly processingStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming/target) */
+	readonly target: Node | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceEventTiming/toJSON) */
+	toJSON(): any;
+}
+declare var PerformanceEventTiming: {
+	prototype: PerformanceEventTiming;
+	new(): PerformanceEventTiming;
+};
 /**
  * PerformanceMark is an abstract interface for PerformanceEntry objects with an entryType of "mark". Entries of this type are created by calling performance.mark() to add a named DOMHighResTimeStamp (the mark) to the browser's performance timeline.
  *
@@ -14423,6 +16897,140 @@ declare var PerformanceNavigation: {
 	readonly TYPE_RELOAD: 1;
 	readonly TYPE_BACK_FORWARD: 2;
 	readonly TYPE_RESERVED: 255;
+};
+/**
+ * Provides methods and properties to store and retrieve metrics regarding the browser's document navigation events. For example, this interface can be used to determine how much time it takes to load or unload a document.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming)
+ */
+export interface PerformanceNavigationTiming extends PerformanceResourceTiming {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/domComplete) */
+	readonly domComplete: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/domContentLoadedEventEnd) */
+	readonly domContentLoadedEventEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/domContentLoadedEventStart) */
+	readonly domContentLoadedEventStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/domInteractive) */
+	readonly domInteractive: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/loadEventEnd) */
+	readonly loadEventEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/loadEventStart) */
+	readonly loadEventStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/redirectCount) */
+	readonly redirectCount: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/type) */
+	readonly type: NavigationTimingType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/unloadEventEnd) */
+	readonly unloadEventEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/unloadEventStart) */
+	readonly unloadEventStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceNavigationTiming/toJSON) */
+	toJSON(): any;
+}
+declare var PerformanceNavigationTiming: {
+	prototype: PerformanceNavigationTiming;
+	new(): PerformanceNavigationTiming;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserver) */
+export interface PerformanceObserver {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserver/disconnect) */
+	disconnect(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserver/observe) */
+	observe(options?: PerformanceObserverInit): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserver/takeRecords) */
+	takeRecords(): PerformanceEntryList;
+}
+declare var PerformanceObserver: {
+	prototype: PerformanceObserver;
+	new(callback: PerformanceObserverCallback): PerformanceObserver;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserver/supportedEntryTypes_static) */
+	readonly supportedEntryTypes: ReadonlyArray<string>;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserverEntryList) */
+export interface PerformanceObserverEntryList {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserverEntryList/getEntries) */
+	getEntries(): PerformanceEntryList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserverEntryList/getEntriesByName) */
+	getEntriesByName(name: string, type?: string): PerformanceEntryList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceObserverEntryList/getEntriesByType) */
+	getEntriesByType(type: string): PerformanceEntryList;
+}
+declare var PerformanceObserverEntryList: {
+	prototype: PerformanceObserverEntryList;
+	new(): PerformanceObserverEntryList;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformancePaintTiming) */
+export interface PerformancePaintTiming extends PerformanceEntry {
+}
+declare var PerformancePaintTiming: {
+	prototype: PerformancePaintTiming;
+	new(): PerformancePaintTiming;
+};
+/**
+ * Enables retrieval and analysis of detailed network timing data regarding the loading of an application's resources. An application can use the timing metrics to determine, for example, the length of time it takes to fetch a specific resource, such as an XMLHttpRequest, <SVG>, image, or script.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming)
+ */
+export interface PerformanceResourceTiming extends PerformanceEntry {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/connectEnd) */
+	readonly connectEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/connectStart) */
+	readonly connectStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/decodedBodySize) */
+	readonly decodedBodySize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/domainLookupEnd) */
+	readonly domainLookupEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/domainLookupStart) */
+	readonly domainLookupStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/encodedBodySize) */
+	readonly encodedBodySize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/fetchStart) */
+	readonly fetchStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/initiatorType) */
+	readonly initiatorType: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/nextHopProtocol) */
+	readonly nextHopProtocol: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/redirectEnd) */
+	readonly redirectEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/redirectStart) */
+	readonly redirectStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/requestStart) */
+	readonly requestStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/responseEnd) */
+	readonly responseEnd: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/responseStart) */
+	readonly responseStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/responseStatus) */
+	readonly responseStatus: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/secureConnectionStart) */
+	readonly secureConnectionStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/serverTiming) */
+	readonly serverTiming: ReadonlyArray<PerformanceServerTiming>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/transferSize) */
+	readonly transferSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/workerStart) */
+	readonly workerStart: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming/toJSON) */
+	toJSON(): any;
+}
+declare var PerformanceResourceTiming: {
+	prototype: PerformanceResourceTiming;
+	new(): PerformanceResourceTiming;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceServerTiming) */
+export interface PerformanceServerTiming {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceServerTiming/description) */
+	readonly description: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceServerTiming/duration) */
+	readonly duration: DOMHighResTimeStamp;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceServerTiming/name) */
+	readonly name: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/PerformanceServerTiming/toJSON) */
+	toJSON(): any;
+}
+declare var PerformanceServerTiming: {
+	prototype: PerformanceServerTiming;
+	new(): PerformanceServerTiming;
 };
 /**
  * A legacy interface kept for backwards compatibility and contains properties that offer performance timing information for various events which occur during the loading and use of the current page. You get a PerformanceTiming object describing your page using the window.performance.timing property.
@@ -14568,6 +17176,17 @@ export interface PerformanceTiming {
 declare var PerformanceTiming: {
 	prototype: PerformanceTiming;
 	new(): PerformanceTiming;
+};
+/**
+ * PeriodicWave has no inputs or outputs; it is used to define custom oscillators when calling OscillatorNode.setPeriodicWave(). The PeriodicWave itself is created/returned by AudioContext.createPeriodicWave().
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/PeriodicWave)
+ */
+export interface PeriodicWave {
+}
+declare var PeriodicWave: {
+	prototype: PeriodicWave;
+	new(context: BaseAudioContext, options?: PeriodicWaveOptions): PeriodicWave;
 };
 export interface PermissionStatusEventMap {
 	"change": Event;
@@ -15025,6 +17644,34 @@ export interface RTCDtlsTransport extends EventTarget {
 declare var RTCDtlsTransport: {
 	prototype: RTCDtlsTransport;
 	new(): RTCDtlsTransport;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedAudioFrame) */
+export interface RTCEncodedAudioFrame {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedAudioFrame/data) */
+	data: ArrayBuffer;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedAudioFrame/timestamp) */
+	readonly timestamp: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedAudioFrame/getMetadata) */
+	getMetadata(): RTCEncodedAudioFrameMetadata;
+}
+declare var RTCEncodedAudioFrame: {
+	prototype: RTCEncodedAudioFrame;
+	new(): RTCEncodedAudioFrame;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedVideoFrame) */
+export interface RTCEncodedVideoFrame {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedVideoFrame/data) */
+	data: ArrayBuffer;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedVideoFrame/timestamp) */
+	readonly timestamp: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedVideoFrame/type) */
+	readonly type: RTCEncodedVideoFrameType;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCEncodedVideoFrame/getMetadata) */
+	getMetadata(): RTCEncodedVideoFrameMetadata;
+}
+declare var RTCEncodedVideoFrame: {
+	prototype: RTCEncodedVideoFrame;
+	new(): RTCEncodedVideoFrame;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/RTCError) */
 export interface RTCError extends DOMException {
@@ -15663,6 +18310,19 @@ declare var ReportBody: {
 	prototype: ReportBody;
 	new(): ReportBody;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReportingObserver) */
+export interface ReportingObserver {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReportingObserver/disconnect) */
+	disconnect(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReportingObserver/observe) */
+	observe(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReportingObserver/takeRecords) */
+	takeRecords(): ReportList;
+}
+declare var ReportingObserver: {
+	prototype: ReportingObserver;
+	new(callback: ReportingObserverCallback, options?: ReportingObserverOptions): ReportingObserver;
+};
 /**
  * This Fetch API interface represents a resource request.
  *
@@ -15753,6 +18413,47 @@ export interface Request extends Body {
 declare var Request: {
 	prototype: Request;
 	new(input: RequestInfo | URL, init?: RequestInit): Request;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserver) */
+export interface ResizeObserver {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserver/disconnect) */
+	disconnect(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserver/observe) */
+	observe(target: Element, options?: ResizeObserverOptions): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserver/unobserve) */
+	unobserve(target: Element): void;
+}
+declare var ResizeObserver: {
+	prototype: ResizeObserver;
+	new(callback: ResizeObserverCallback): ResizeObserver;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverEntry) */
+export interface ResizeObserverEntry {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverEntry/borderBoxSize) */
+	readonly borderBoxSize: ReadonlyArray<ResizeObserverSize>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverEntry/contentBoxSize) */
+	readonly contentBoxSize: ReadonlyArray<ResizeObserverSize>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverEntry/contentRect) */
+	readonly contentRect: DOMRectReadOnly;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverEntry/devicePixelContentBoxSize) */
+	readonly devicePixelContentBoxSize: ReadonlyArray<ResizeObserverSize>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverEntry/target) */
+	readonly target: Element;
+}
+declare var ResizeObserverEntry: {
+	prototype: ResizeObserverEntry;
+	new(): ResizeObserverEntry;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverSize) */
+export interface ResizeObserverSize {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverSize/blockSize) */
+	readonly blockSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ResizeObserverSize/inlineSize) */
+	readonly inlineSize: number;
+}
+declare var ResizeObserverSize: {
+	prototype: ResizeObserverSize;
+	new(): ResizeObserverSize;
 };
 /**
  * This Fetch API interface represents the response to a request.
@@ -15873,7 +18574,9 @@ declare var SVGAnimateTransformElement: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedAngle)
  */
 export interface SVGAnimatedAngle {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedAngle/animVal) */
 	readonly animVal: SVGAngle;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedAngle/baseVal) */
 	readonly baseVal: SVGAngle;
 }
 declare var SVGAnimatedAngle: {
@@ -15886,7 +18589,9 @@ declare var SVGAnimatedAngle: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedBoolean)
  */
 export interface SVGAnimatedBoolean {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedBoolean/animVal) */
 	readonly animVal: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedBoolean/baseVal) */
 	baseVal: boolean;
 }
 declare var SVGAnimatedBoolean: {
@@ -15942,7 +18647,9 @@ declare var SVGAnimatedLength: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedLengthList)
  */
 export interface SVGAnimatedLengthList {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedLengthList/animVal) */
 	readonly animVal: SVGLengthList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedLengthList/baseVal) */
 	readonly baseVal: SVGLengthList;
 }
 declare var SVGAnimatedLengthList: {
@@ -15955,7 +18662,9 @@ declare var SVGAnimatedLengthList: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedNumber)
  */
 export interface SVGAnimatedNumber {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedNumber/animVal) */
 	readonly animVal: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedNumber/baseVal) */
 	baseVal: number;
 }
 declare var SVGAnimatedNumber: {
@@ -15968,7 +18677,9 @@ declare var SVGAnimatedNumber: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedNumberList)
  */
 export interface SVGAnimatedNumberList {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedNumberList/animVal) */
 	readonly animVal: SVGNumberList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedNumberList/baseVal) */
 	readonly baseVal: SVGNumberList;
 }
 declare var SVGAnimatedNumberList: {
@@ -15998,7 +18709,9 @@ declare var SVGAnimatedPreserveAspectRatio: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedRect)
  */
 export interface SVGAnimatedRect {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedRect/animVal) */
 	readonly animVal: DOMRectReadOnly;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedRect/baseVal) */
 	readonly baseVal: DOMRect;
 }
 declare var SVGAnimatedRect: {
@@ -16026,7 +18739,9 @@ declare var SVGAnimatedString: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedTransformList)
  */
 export interface SVGAnimatedTransformList {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedTransformList/animVal) */
 	readonly animVal: SVGTransformList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimatedTransformList/baseVal) */
 	readonly baseVal: SVGTransformList;
 }
 declare var SVGAnimatedTransformList: {
@@ -16037,9 +18752,13 @@ declare var SVGAnimatedTransformList: {
 export interface SVGAnimationElement extends SVGElement, SVGTests {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimationElement/targetElement) */
 	readonly targetElement: SVGElement | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimationElement/beginElement) */
 	beginElement(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimationElement/beginElementAt) */
 	beginElementAt(offset: number): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimationElement/endElement) */
 	endElement(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimationElement/endElementAt) */
 	endElementAt(offset: number): void;
 	getCurrentTime(): number;
 	getSimpleDuration(): number;
@@ -17500,7 +20219,9 @@ declare var SVGTSpanElement: {
 	new(): SVGTSpanElement;
 };
 export interface SVGTests {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimationElement/requiredExtensions) */
 	readonly requiredExtensions: SVGStringList;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGAnimationElement/systemLanguage) */
 	readonly systemLanguage: SVGStringList;
 }
 /**
@@ -17678,6 +20399,23 @@ export interface SVGURIReference {
 	readonly href: SVGAnimatedString;
 }
 /**
+ * A commonly used set of constants used for reflecting gradientUnits, patternContentUnits and other similar attributes.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGUnitTypes)
+ */
+export interface SVGUnitTypes {
+	readonly SVG_UNIT_TYPE_UNKNOWN: 0;
+	readonly SVG_UNIT_TYPE_USERSPACEONUSE: 1;
+	readonly SVG_UNIT_TYPE_OBJECTBOUNDINGBOX: 2;
+}
+declare var SVGUnitTypes: {
+	prototype: SVGUnitTypes;
+	new(): SVGUnitTypes;
+	readonly SVG_UNIT_TYPE_UNKNOWN: 0;
+	readonly SVG_UNIT_TYPE_USERSPACEONUSE: 1;
+	readonly SVG_UNIT_TYPE_OBJECTBOUNDINGBOX: 2;
+};
+/**
  * Corresponds to the <use> element.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/SVGUseElement)
@@ -17757,6 +20495,38 @@ export interface ScreenOrientation extends EventTarget {
 declare var ScreenOrientation: {
 	prototype: ScreenOrientation;
 	new(): ScreenOrientation;
+};
+export interface ScriptProcessorNodeEventMap {
+	"audioprocess": AudioProcessingEvent;
+}
+/**
+ * Allows the generation, processing, or analyzing of audio using JavaScript.
+ * @deprecated As of the August 29 2014 Web Audio API spec publication, this feature has been marked as deprecated, and was replaced by AudioWorklet (see AudioWorkletNode).
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ScriptProcessorNode)
+ */
+export interface ScriptProcessorNode extends AudioNode {
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ScriptProcessorNode/bufferSize)
+	 */
+	readonly bufferSize: number;
+	/**
+	 * @deprecated
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ScriptProcessorNode/audioprocess_event)
+	 */
+	onaudioprocess: ((this: ScriptProcessorNode, ev: AudioProcessingEvent) => any) | null;
+	addEventListener<K extends keyof ScriptProcessorNodeEventMap>(type: K, listener: (this: ScriptProcessorNode, ev: ScriptProcessorNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof ScriptProcessorNodeEventMap>(type: K, listener: (this: ScriptProcessorNode, ev: ScriptProcessorNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+/** @deprecated */
+declare var ScriptProcessorNode: {
+	prototype: ScriptProcessorNode;
+	new(): ScriptProcessorNode;
 };
 /**
  * Inherits from Event, and represents the event object of an event sent on a document or worker when its content security policy is violated.
@@ -18087,6 +20857,43 @@ declare var SourceBufferList: {
 	prototype: SourceBufferList;
 	new(): SourceBufferList;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionAlternative) */
+export interface SpeechRecognitionAlternative {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionAlternative/confidence) */
+	readonly confidence: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionAlternative/transcript) */
+	readonly transcript: string;
+}
+declare var SpeechRecognitionAlternative: {
+	prototype: SpeechRecognitionAlternative;
+	new(): SpeechRecognitionAlternative;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionResult) */
+export interface SpeechRecognitionResult {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionResult/isFinal) */
+	readonly isFinal: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionResult/length) */
+	readonly length: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionResult/item) */
+	item(index: number): SpeechRecognitionAlternative;
+	[index: number]: SpeechRecognitionAlternative;
+}
+declare var SpeechRecognitionResult: {
+	prototype: SpeechRecognitionResult;
+	new(): SpeechRecognitionResult;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionResultList) */
+export interface SpeechRecognitionResultList {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionResultList/length) */
+	readonly length: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/SpeechRecognitionResultList/item) */
+	item(index: number): SpeechRecognitionResult;
+	[index: number]: SpeechRecognitionResult;
+}
+declare var SpeechRecognitionResultList: {
+	prototype: SpeechRecognitionResultList;
+	new(): SpeechRecognitionResultList;
+};
 export interface SpeechSynthesisEventMap {
 	"voiceschanged": Event;
 }
@@ -18232,6 +21039,19 @@ declare var StaticRange: {
 	new(init: StaticRangeInit): StaticRange;
 };
 /**
+ * The pan property takes a unitless value between -1 (full left pan) and 1 (full right pan). This interface was introduced as a much simpler way to apply a simple panning effect than having to use a full PannerNode.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/StereoPannerNode)
+ */
+export interface StereoPannerNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/StereoPannerNode/pan) */
+	readonly pan: AudioParam;
+}
+declare var StereoPannerNode: {
+	prototype: StereoPannerNode;
+	new(context: BaseAudioContext, options?: StereoPannerOptions): StereoPannerNode;
+};
+/**
  * This Web Storage API interface provides access to a particular domain's session or local storage. It allows, for example, the addition, modification, or deletion of stored data items.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Storage)
@@ -18353,6 +21173,11 @@ declare var StorageManager: {
 	prototype: StorageManager;
 	new(): StorageManager;
 };
+/** @deprecated */
+export interface StyleMedia {
+	type: string;
+	matchMedium(mediaquery: string): boolean;
+}
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/StylePropertyMap) */
 export interface StylePropertyMap extends StylePropertyMapReadOnly {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/StylePropertyMap/append) */
@@ -18503,6 +21328,102 @@ export interface Text extends CharacterData, Slottable {
 declare var Text: {
 	prototype: Text;
 	new(data?: string): Text;
+};
+/**
+ * A decoder for a specific method, that is a specific character encoding, like utf-8, iso-8859-2, koi8, cp1261, gbk, etc. A decoder takes a stream of bytes as input and emits a stream of code points. For a more scalable, non-native library, see StringView – a C-like representation of strings based on typed arrays.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextDecoder)
+ */
+export interface TextDecoder extends TextDecoderCommon {
+	/**
+	 * Returns the result of running encoding's decoder. The method can be invoked zero or more times with options's stream set to true, and then once without options's stream (or set to false), to process a fragmented input. If the invocation without options's stream (or set to false) has no input, it's clearest to omit both arguments.
+	 *
+	 * ```
+	 * var string = "", decoder = new TextDecoder(encoding), buffer;
+	 * while(buffer = next_chunk()) {
+	 *   string += decoder.decode(buffer, {stream:true});
+	 * }
+	 * string += decoder.decode(); // end-of-queue
+	 * ```
+	 *
+	 * If the error mode is "fatal" and encoding's decoder returns error, throws a TypeError.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextDecoder/decode)
+	 */
+	decode(input?: AllowSharedBufferSource, options?: TextDecodeOptions): string;
+}
+declare var TextDecoder: {
+	prototype: TextDecoder;
+	new(label?: string, options?: TextDecoderOptions): TextDecoder;
+};
+export interface TextDecoderCommon {
+	/**
+	 * Returns encoding's name, lowercased.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextDecoder/encoding)
+	 */
+	readonly encoding: string;
+	/**
+	 * Returns true if error mode is "fatal", otherwise false.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextDecoder/fatal)
+	 */
+	readonly fatal: boolean;
+	/**
+	 * Returns the value of ignore BOM.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextDecoder/ignoreBOM)
+	 */
+	readonly ignoreBOM: boolean;
+}
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextDecoderStream) */
+export interface TextDecoderStream extends GenericTransformStream, TextDecoderCommon {
+	readonly readable: ReadableStream<string>;
+	readonly writable: WritableStream<BufferSource>;
+}
+declare var TextDecoderStream: {
+	prototype: TextDecoderStream;
+	new(label?: string, options?: TextDecoderOptions): TextDecoderStream;
+};
+/**
+ * TextEncoder takes a stream of code points as input and emits a stream of bytes. For a more scalable, non-native library, see StringView – a C-like representation of strings based on typed arrays.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextEncoder)
+ */
+export interface TextEncoder extends TextEncoderCommon {
+	/**
+	 * Returns the result of running UTF-8's encoder.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextEncoder/encode)
+	 */
+	encode(input?: string): Uint8Array;
+	/**
+	 * Runs the UTF-8 encoder on source, stores the result of that operation into destination, and returns the progress made as an object wherein read is the number of converted code units of source and written is the number of bytes modified in destination.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextEncoder/encodeInto)
+	 */
+	encodeInto(source: string, destination: Uint8Array): TextEncoderEncodeIntoResult;
+}
+declare var TextEncoder: {
+	prototype: TextEncoder;
+	new(): TextEncoder;
+};
+export interface TextEncoderCommon {
+	/**
+	 * Returns "utf-8".
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextEncoder/encoding)
+	 */
+	readonly encoding: string;
+}
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/TextEncoderStream) */
+export interface TextEncoderStream extends GenericTransformStream, TextEncoderCommon {
+	readonly readable: ReadableStream<Uint8Array>;
+	readonly writable: WritableStream<string>;
+}
+declare var TextEncoderStream: {
+	prototype: TextEncoderStream;
+	new(): TextEncoderStream;
 };
 /**
  * @deprecated
@@ -19093,6 +22014,7 @@ declare var URL: {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/URL/revokeObjectURL_static) */
 	revokeObjectURL(url: string): void;
 };
+type webkitURL = URL;
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/URLSearchParams) */
 export interface URLSearchParams {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/URLSearchParams/size) */
@@ -19154,6 +22076,54 @@ declare var UserActivation: {
 	prototype: UserActivation;
 	new(): UserActivation;
 };
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue) */
+export interface VTTCue extends TextTrackCue {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/align) */
+	align: AlignSetting;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/line) */
+	line: LineAndPositionSetting;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/lineAlign) */
+	lineAlign: LineAlignSetting;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/position) */
+	position: LineAndPositionSetting;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/positionAlign) */
+	positionAlign: PositionAlignSetting;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/region) */
+	region: VTTRegion | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/size) */
+	size: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/snapToLines) */
+	snapToLines: boolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/text) */
+	text: string;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/vertical) */
+	vertical: DirectionSetting;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTCue/getCueAsHTML) */
+	getCueAsHTML(): DocumentFragment;
+	addEventListener<K extends keyof TextTrackCueEventMap>(type: K, listener: (this: VTTCue, ev: TextTrackCueEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof TextTrackCueEventMap>(type: K, listener: (this: VTTCue, ev: TextTrackCueEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var VTTCue: {
+	prototype: VTTCue;
+	new(startTime: number, endTime: number, text: string): VTTCue;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VTTRegion) */
+export interface VTTRegion {
+	id: string;
+	lines: number;
+	regionAnchorX: number;
+	regionAnchorY: number;
+	scroll: ScrollSetting;
+	viewportAnchorX: number;
+	viewportAnchorY: number;
+	width: number;
+}
+declare var VTTRegion: {
+	prototype: VTTRegion;
+	new(): VTTRegion;
+};
 /**
  * The validity states that an element can be in, with respect to constraint validation. Together, they help explain why an element's value fails to validate, if it's not valid.
  *
@@ -19203,6 +22173,78 @@ export interface VideoColorSpace {
 declare var VideoColorSpace: {
 	prototype: VideoColorSpace;
 	new(init?: VideoColorSpaceInit): VideoColorSpace;
+};
+export interface VideoDecoderEventMap {
+	"dequeue": Event;
+}
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder)
+ */
+export interface VideoDecoder extends EventTarget {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/decodeQueueSize) */
+	readonly decodeQueueSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/dequeue_event) */
+	ondequeue: ((this: VideoDecoder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/state) */
+	readonly state: CodecState;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/close) */
+	close(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/configure) */
+	configure(config: VideoDecoderConfig): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/decode) */
+	decode(chunk: EncodedVideoChunk): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/flush) */
+	flush(): Promise<void>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/reset) */
+	reset(): void;
+	addEventListener<K extends keyof VideoDecoderEventMap>(type: K, listener: (this: VideoDecoder, ev: VideoDecoderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof VideoDecoderEventMap>(type: K, listener: (this: VideoDecoder, ev: VideoDecoderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var VideoDecoder: {
+	prototype: VideoDecoder;
+	new(init: VideoDecoderInit): VideoDecoder;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoDecoder/isConfigSupported_static) */
+	isConfigSupported(config: VideoDecoderConfig): Promise<VideoDecoderSupport>;
+};
+export interface VideoEncoderEventMap {
+	"dequeue": Event;
+}
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder)
+ */
+export interface VideoEncoder extends EventTarget {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/encodeQueueSize) */
+	readonly encodeQueueSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/dequeue_event) */
+	ondequeue: ((this: VideoEncoder, ev: Event) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/state) */
+	readonly state: CodecState;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/close) */
+	close(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/configure) */
+	configure(config: VideoEncoderConfig): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/encode) */
+	encode(frame: VideoFrame, options?: VideoEncoderEncodeOptions): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/flush) */
+	flush(): Promise<void>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/reset) */
+	reset(): void;
+	addEventListener<K extends keyof VideoEncoderEventMap>(type: K, listener: (this: VideoEncoder, ev: VideoEncoderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof VideoEncoderEventMap>(type: K, listener: (this: VideoEncoder, ev: VideoEncoderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+declare var VideoEncoder: {
+	prototype: VideoEncoder;
+	new(init: VideoEncoderInit): VideoEncoder;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoEncoder/isConfigSupported_static) */
+	isConfigSupported(config: VideoEncoderConfig): Promise<VideoEncoderSupport>;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/VideoFrame) */
 export interface VideoFrame {
@@ -19517,6 +22559,21 @@ export interface WakeLockSentinel extends EventTarget {
 declare var WakeLockSentinel: {
 	prototype: WakeLockSentinel;
 	new(): WakeLockSentinel;
+};
+/**
+ * A WaveShaperNode always has exactly one input and one output.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WaveShaperNode)
+ */
+export interface WaveShaperNode extends AudioNode {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WaveShaperNode/curve) */
+	curve: Float32Array | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WaveShaperNode/oversample) */
+	oversample: OverSampleType;
+}
+declare var WaveShaperNode: {
+	prototype: WaveShaperNode;
+	new(context: BaseAudioContext, options?: WaveShaperOptions): WaveShaperNode;
 };
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebGL2RenderingContext) */
 export interface WebGL2RenderingContext extends WebGL2RenderingContextBase, WebGL2RenderingContextOverloads, WebGLRenderingContextBase {
@@ -21182,6 +24239,7 @@ export interface WebGLRenderingContextBase {
 	isShader(shader: WebGLShader | null): GLboolean;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebGLRenderingContext/isTexture) */
 	isTexture(texture: WebGLTexture | null): GLboolean;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebGLRenderingContext/lineWidth) */
 	lineWidth(width: GLfloat): void;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebGLRenderingContext/linkProgram) */
 	linkProgram(program: WebGLProgram): void;
@@ -21763,6 +24821,88 @@ declare var WebSocket: {
 	readonly CLOSED: 3;
 };
 /**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport)
+ */
+export interface WebTransport {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/closed) */
+	readonly closed: Promise<WebTransportCloseInfo>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/datagrams) */
+	readonly datagrams: WebTransportDatagramDuplexStream;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/incomingBidirectionalStreams) */
+	readonly incomingBidirectionalStreams: ReadableStream;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/incomingUnidirectionalStreams) */
+	readonly incomingUnidirectionalStreams: ReadableStream;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/ready) */
+	readonly ready: Promise<undefined>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/close) */
+	close(closeInfo?: WebTransportCloseInfo): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/createBidirectionalStream) */
+	createBidirectionalStream(options?: WebTransportSendStreamOptions): Promise<WebTransportBidirectionalStream>;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransport/createUnidirectionalStream) */
+	createUnidirectionalStream(options?: WebTransportSendStreamOptions): Promise<WritableStream>;
+}
+declare var WebTransport: {
+	prototype: WebTransport;
+	new(url: string | URL, options?: WebTransportOptions): WebTransport;
+};
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportBidirectionalStream)
+ */
+export interface WebTransportBidirectionalStream {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportBidirectionalStream/readable) */
+	readonly readable: ReadableStream;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportBidirectionalStream/writable) */
+	readonly writable: WritableStream;
+}
+declare var WebTransportBidirectionalStream: {
+	prototype: WebTransportBidirectionalStream;
+	new(): WebTransportBidirectionalStream;
+};
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream)
+ */
+export interface WebTransportDatagramDuplexStream {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream/incomingHighWaterMark) */
+	incomingHighWaterMark: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream/incomingMaxAge) */
+	incomingMaxAge: number | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream/maxDatagramSize) */
+	readonly maxDatagramSize: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream/outgoingHighWaterMark) */
+	outgoingHighWaterMark: number;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream/outgoingMaxAge) */
+	outgoingMaxAge: number | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream/readable) */
+	readonly readable: ReadableStream;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportDatagramDuplexStream/writable) */
+	readonly writable: WritableStream;
+}
+declare var WebTransportDatagramDuplexStream: {
+	prototype: WebTransportDatagramDuplexStream;
+	new(): WebTransportDatagramDuplexStream;
+};
+/**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportError)
+ */
+export interface WebTransportError extends DOMException {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportError/source) */
+	readonly source: WebTransportErrorSource;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebTransportError/streamErrorCode) */
+	readonly streamErrorCode: number | null;
+}
+declare var WebTransportError: {
+	prototype: WebTransportError;
+	new(message?: string, options?: WebTransportErrorOptions): WebTransportError;
+};
+/**
  * Events that occur due to the user moving a mouse wheel or similar input device.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WheelEvent)
@@ -22223,6 +25363,27 @@ declare var Worker: {
 	new(scriptURL: string | URL, options?: WorkerOptions): Worker;
 };
 /**
+ * Available only in secure contexts.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Worklet)
+ */
+export interface Worklet {
+	/**
+	 * Loads and executes the module script given by moduleURL into all of worklet's global scopes. It can also create additional global scopes as part of this process, depending on the worklet type. The returned promise will fulfill once the script has been successfully loaded and run in all global scopes.
+	 *
+	 * The credentials option can be set to a credentials mode to modify the script-fetching process. It defaults to "same-origin".
+	 *
+	 * Any failures in fetching the script or its dependencies will cause the returned promise to be rejected with an "AbortError" DOMException. Any errors in parsing the script or its dependencies will cause the returned promise to be rejected with the exception generated during parsing.
+	 *
+	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Worklet/addModule)
+	 */
+	addModule(moduleURL: string | URL, options?: WorkletOptions): Promise<void>;
+}
+declare var Worklet: {
+	prototype: Worklet;
+	new(): Worklet;
+};
+/**
  * This Streams API interface provides a standard abstraction for writing streaming data to a destination, known as a sink. This object comes with built-in backpressure and queuing.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WritableStream)
@@ -22484,6 +25645,19 @@ declare var XMLHttpRequestUpload: {
 	new(): XMLHttpRequestUpload;
 };
 /**
+ * Provides the serializeToString() method to construct an XML string representing a DOM tree.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/XMLSerializer)
+ */
+export interface XMLSerializer {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XMLSerializer/serializeToString) */
+	serializeToString(root: Node): string;
+}
+declare var XMLSerializer: {
+	prototype: XMLSerializer;
+	new(): XMLSerializer;
+};
+/**
  * The XPathEvaluator interface allows to compile and evaluate XPath expressions.
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/XPathEvaluator)
@@ -22568,14 +25742,101 @@ declare var XPathResult: {
 	readonly ANY_UNORDERED_NODE_TYPE: 8;
 	readonly FIRST_ORDERED_NODE_TYPE: 9;
 };
+/**
+ * An XSLTProcessor applies an XSLT stylesheet transformation to an XML document to produce a new XML document as output. It has methods to load the XSLT stylesheet, to manipulate <xsl:param> parameter values, and to apply the transformation to documents.
+ *
+ * [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor)
+ */
+export interface XSLTProcessor {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/clearParameters) */
+	clearParameters(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/getParameter) */
+	getParameter(namespaceURI: string | null, localName: string): any;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/importStylesheet) */
+	importStylesheet(style: Node): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/removeParameter) */
+	removeParameter(namespaceURI: string | null, localName: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/reset) */
+	reset(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/setParameter) */
+	setParameter(namespaceURI: string | null, localName: string, value: any): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/transformToDocument) */
+	transformToDocument(source: Node): Document;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/XSLTProcessor/transformToFragment) */
+	transformToFragment(source: Node, output: Document): DocumentFragment;
+}
+declare var XSLTProcessor: {
+	prototype: XSLTProcessor;
+	new(): XSLTProcessor;
+};
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console) */
+export interface Console {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/assert_static) */
+	assert(condition?: boolean, ...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/clear_static) */
+	clear(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/count_static) */
+	count(label?: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/countReset_static) */
+	countReset(label?: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/debug_static) */
+	debug(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/dir_static) */
+	dir(item?: any, options?: any): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/dirxml_static) */
+	dirxml(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/error_static) */
+	error(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/group_static) */
+	group(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/groupCollapsed_static) */
+	groupCollapsed(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/groupEnd_static) */
+	groupEnd(): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/info_static) */
+	info(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/log_static) */
+	log(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/table_static) */
+	table(tabularData?: any, properties?: string[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/time_static) */
+	time(label?: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/timeEnd_static) */
+	timeEnd(label?: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/timeLog_static) */
+	timeLog(label?: string, ...data: any[]): void;
+	timeStamp(label?: string): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/trace_static) */
+	trace(...data: any[]): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/warn_static) */
+	warn(...data: any[]): void;
+}
+export interface AudioDataOutputCallback {
+	(output: AudioData): void;
+}
 export interface BlobCallback {
 	(blob: Blob | null): void;
 }
 export interface CustomElementConstructor {
 	new (...params: any[]): HTMLElement;
 }
+export interface DecodeErrorCallback {
+	(error: DOMException): void;
+}
+export interface DecodeSuccessCallback {
+	(decodedData: AudioBuffer): void;
+}
+export interface EncodedAudioChunkOutputCallback {
+	(output: EncodedAudioChunk, metadata?: EncodedAudioChunkMetadata): void;
+}
+export interface EncodedVideoChunkOutputCallback {
+	(chunk: EncodedVideoChunk, metadata?: EncodedVideoChunkMetadata): void;
+}
 export interface ErrorCallback {
 	(err: DOMException): void;
+}
+export interface FileCallback {
+	(file: File): void;
 }
 export interface FileSystemEntriesCallback {
 	(entries: FileSystemEntry[]): void;
@@ -22592,17 +25853,29 @@ export interface FunctionStringCallback {
 export interface IdleRequestCallback {
 	(deadline: IdleDeadline): void;
 }
+export interface IntersectionObserverCallback {
+	(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void;
+}
 export interface LockGrantedCallback {
 	(lock: Lock | null): any;
 }
 export interface MediaSessionActionHandler {
 	(details: MediaSessionActionDetails): void;
 }
+export interface MutationCallback {
+	(mutations: MutationRecord[], observer: MutationObserver): void;
+}
 export interface NotificationPermissionCallback {
 	(permission: NotificationPermission): void;
 }
+export interface OnBeforeUnloadEventHandlerNonNull {
+	(event: Event): string | null;
+}
 export interface OnErrorEventHandlerNonNull {
 	(event: Event | string, source?: string, lineno?: number, colno?: number, error?: Error): any;
+}
+export interface PerformanceObserverCallback {
+	(entries: PerformanceObserverEntryList, observer: PerformanceObserver): void;
 }
 export interface PositionCallback {
 	(position: GeolocationPosition): void;
@@ -22621,6 +25894,12 @@ export interface RTCSessionDescriptionCallback {
 }
 export interface RemotePlaybackAvailabilityCallback {
 	(available: boolean): void;
+}
+export interface ReportingObserverCallback {
+	(reports: Report[], observer: ReportingObserver): void;
+}
+export interface ResizeObserverCallback {
+	(entries: ResizeObserverEntry[], observer: ResizeObserver): void;
 }
 export interface TransformerFlushCallback<O> {
 	(controller: TransformStreamDefaultController<O>): void | PromiseLike<void>;
@@ -22652,6 +25931,9 @@ export interface UnderlyingSourcePullCallback<R> {
 export interface UnderlyingSourceStartCallback<R> {
 	(controller: ReadableStreamController<R>): any;
 }
+export interface VideoFrameOutputCallback {
+	(output: VideoFrame): void;
+}
 export interface VideoFrameRequestCallback {
 	(now: DOMHighResTimeStamp, metadata: VideoFrameCallbackMetadata): void;
 }
@@ -22660,6 +25942,9 @@ export interface ViewTransitionUpdateCallback {
 }
 export interface VoidFunction {
 	(): void;
+}
+export interface WebCodecsErrorCallback {
+	(error: DOMException): void;
 }
 export interface HTMLElementTagNameMap {
 	"a": HTMLAnchorElement;
@@ -23720,8 +27005,12 @@ type BlobPart = BufferSource | Blob | string;
 type BodyInit = ReadableStream | XMLHttpRequestBodyInit;
 type BufferSource = ArrayBufferView | ArrayBuffer;
 type COSEAlgorithmIdentifier = number;
+type CSSKeywordish = string | CSSKeywordValue;
 type CSSNumberish = number | CSSNumericValue;
+type CSSPerspectiveValue = CSSNumericValue | CSSKeywordish;
+type CSSUnparsedSegment = string | CSSVariableReferenceValue;
 type CanvasImageSource = HTMLOrSVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | VideoFrame;
+type ClipboardItemData = Promise<string | Blob>;
 type ClipboardItems = ClipboardItem[];
 type ConstrainBoolean = boolean | ConstrainBooleanParameters;
 type ConstrainDOMString = string | string[] | ConstrainDOMStringParameters;
@@ -23751,11 +27040,15 @@ type HashAlgorithmIdentifier = AlgorithmIdentifier;
 type HeadersInit = [string, string][] | Record<string, string> | Headers;
 type IDBValidKey = number | string | Date | BufferSource | IDBValidKey[];
 type ImageBitmapSource = CanvasImageSource | Blob | ImageData;
+type ImageBufferSource = AllowSharedBufferSource | ReadableStream;
 type Int32List = Int32Array | GLint[];
+type LineAndPositionSetting = number | AutoKeyword;
 type MediaProvider = MediaStream | MediaSource | Blob;
 type MessageEventSource = WindowProxy | MessagePort | ServiceWorker;
+type MutationRecordType = "attributes" | "characterData" | "childList";
 type NamedCurve = string;
 type OffscreenRenderingContext = OffscreenCanvasRenderingContext2D | ImageBitmapRenderingContext | WebGLRenderingContext | WebGL2RenderingContext;
+type OnBeforeUnloadEventHandler = OnBeforeUnloadEventHandlerNonNull | null;
 type OnErrorEventHandler = OnErrorEventHandlerNonNull | null;
 type OptionalPostfixToken<T extends string> = ` ${T}` | "";
 type OptionalPrefixToken<T extends string> = `${T} ` | "";
@@ -23766,6 +27059,7 @@ type ReadableStreamController<T> = ReadableStreamDefaultController<T> | Readable
 type ReadableStreamReadResult<T> = ReadableStreamReadValueResult<T> | ReadableStreamReadDoneResult<T>;
 type ReadableStreamReader<T> = ReadableStreamDefaultReader<T> | ReadableStreamBYOBReader;
 type RenderingContext = CanvasRenderingContext2D | ImageBitmapRenderingContext | WebGLRenderingContext | WebGL2RenderingContext;
+type ReportList = Report[];
 type RequestInfo = Request | string;
 type TexImageSource = ImageBitmap | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | OffscreenCanvas | VideoFrame;
 type TimerHandler = string | Function;
@@ -23774,11 +27068,14 @@ type Uint32List = Uint32Array | GLuint[];
 type VibratePattern = number | number[];
 type WindowProxy = Window;
 type XMLHttpRequestBodyInit = Blob | BufferSource | FormData | URLSearchParams | string;
+type AlignSetting = "center" | "end" | "left" | "right" | "start";
 type AlphaOption = "discard" | "keep";
 type AnimationPlayState = "finished" | "idle" | "paused" | "running";
 type AnimationReplaceState = "active" | "persisted" | "removed";
 type AppendMode = "segments" | "sequence";
 type AttestationConveyancePreference = "direct" | "enterprise" | "indirect" | "none";
+type AudioContextLatencyCategory = "balanced" | "interactive" | "playback";
+type AudioContextState = "closed" | "running" | "suspended";
 type AudioSampleFormat = "f32" | "f32-planar" | "s16" | "s16-planar" | "s32" | "s32-planar" | "u8" | "u8-planar";
 type AuthenticatorAttachment = "cross-platform" | "platform";
 type AuthenticatorTransport = "ble" | "hybrid" | "internal" | "nfc" | "usb";
@@ -23788,7 +27085,12 @@ type AutoFillContactField = "email" | "tel" | "tel-area-code" | "tel-country-cod
 type AutoFillContactKind = "home" | "mobile" | "work";
 type AutoFillCredentialField = "webauthn";
 type AutoFillNormalField = "additional-name" | "address-level1" | "address-level2" | "address-level3" | "address-level4" | "address-line1" | "address-line2" | "address-line3" | "bday-day" | "bday-month" | "bday-year" | "cc-csc" | "cc-exp" | "cc-exp-month" | "cc-exp-year" | "cc-family-name" | "cc-given-name" | "cc-name" | "cc-number" | "cc-type" | "country" | "country-name" | "current-password" | "family-name" | "given-name" | "honorific-prefix" | "honorific-suffix" | "name" | "new-password" | "one-time-code" | "organization" | "postal-code" | "street-address" | "transaction-amount" | "transaction-currency" | "username";
+type AutoKeyword = "auto";
+type AutomationRate = "a-rate" | "k-rate";
+type AvcBitstreamFormat = "annexb" | "avc";
 type BinaryType = "arraybuffer" | "blob";
+type BiquadFilterType = "allpass" | "bandpass" | "highpass" | "highshelf" | "lowpass" | "lowshelf" | "notch" | "peaking";
+type BitrateMode = "constant" | "variable";
 type CSSMathOperator = "clamp" | "invert" | "max" | "min" | "negate" | "product" | "sum";
 type CSSNumericBaseType = "angle" | "flex" | "frequency" | "length" | "percent" | "resolution" | "time";
 type CanPlayTypeResult = "" | "maybe" | "probably";
@@ -23802,13 +27104,24 @@ type CanvasLineJoin = "bevel" | "miter" | "round";
 type CanvasTextAlign = "center" | "end" | "left" | "right" | "start";
 type CanvasTextBaseline = "alphabetic" | "bottom" | "hanging" | "ideographic" | "middle" | "top";
 type CanvasTextRendering = "auto" | "geometricPrecision" | "optimizeLegibility" | "optimizeSpeed";
+type ChannelCountMode = "clamped-max" | "explicit" | "max";
+type ChannelInterpretation = "discrete" | "speakers";
+type ClientTypes = "all" | "sharedworker" | "window" | "worker";
+type CodecState = "closed" | "configured" | "unconfigured";
 type ColorGamut = "p3" | "rec2020" | "srgb";
 type ColorSpaceConversion = "default" | "none";
 type CompositeOperation = "accumulate" | "add" | "replace";
 type CompositeOperationOrAuto = "accumulate" | "add" | "auto" | "replace";
+type CompressionFormat = "deflate" | "deflate-raw" | "gzip";
 type CredentialMediationRequirement = "conditional" | "optional" | "required" | "silent";
+type DOMParserSupportedType = "application/xhtml+xml" | "application/xml" | "image/svg+xml" | "text/html" | "text/xml";
+type DirectionSetting = "" | "lr" | "rl";
+type DisplayCaptureSurfaceType = "browser" | "monitor" | "window";
+type DistanceModelType = "exponential" | "inverse" | "linear";
 type DocumentReadyState = "complete" | "interactive" | "loading";
 type DocumentVisibilityState = "hidden" | "visible";
+type EncodedAudioChunkType = "delta" | "key";
+type EncodedVideoChunkType = "delta" | "key";
 type EndOfStreamError = "decode" | "network";
 type EndingType = "native" | "transparent";
 type FileSystemHandleKind = "directory" | "file";
@@ -23821,6 +27134,7 @@ type GamepadHapticEffectType = "dual-rumble" | "trigger-rumble";
 type GamepadHapticsResult = "complete" | "preempted";
 type GamepadMappingType = "" | "standard" | "xr-standard";
 type GlobalCompositeOperation = "color" | "color-burn" | "color-dodge" | "copy" | "darken" | "destination-atop" | "destination-in" | "destination-out" | "destination-over" | "difference" | "exclusion" | "hard-light" | "hue" | "lighten" | "lighter" | "luminosity" | "multiply" | "overlay" | "saturation" | "screen" | "soft-light" | "source-atop" | "source-in" | "source-out" | "source-over" | "xor";
+type HardwareAcceleration = "no-preference" | "prefer-hardware" | "prefer-software";
 type HdrMetadataType = "smpteSt2086" | "smpteSt2094-10" | "smpteSt2094-40";
 type HighlightType = "grammar-error" | "highlight" | "spelling-error";
 type IDBCursorDirection = "next" | "nextunique" | "prev" | "prevunique";
@@ -23834,6 +27148,8 @@ type IterationCompositeOperation = "accumulate" | "replace";
 type KeyFormat = "jwk" | "pkcs8" | "raw" | "spki";
 type KeyType = "private" | "public" | "secret";
 type KeyUsage = "decrypt" | "deriveBits" | "deriveKey" | "encrypt" | "sign" | "unwrapKey" | "verify" | "wrapKey";
+type LatencyMode = "quality" | "realtime";
+type LineAlignSetting = "center" | "end" | "start";
 type LockMode = "exclusive" | "shared";
 type MIDIPortConnectionState = "closed" | "open" | "pending";
 type MIDIPortDeviceState = "connected" | "disconnected";
@@ -23849,16 +27165,22 @@ type MediaKeysRequirement = "not-allowed" | "optional" | "required";
 type MediaSessionAction = "nexttrack" | "pause" | "play" | "previoustrack" | "seekbackward" | "seekforward" | "seekto" | "skipad" | "stop";
 type MediaSessionPlaybackState = "none" | "paused" | "playing";
 type MediaStreamTrackState = "ended" | "live";
+type NavigationTimingType = "back_forward" | "navigate" | "prerender" | "reload";
 type NavigationType = "push" | "reload" | "replace" | "traverse";
 type NotificationDirection = "auto" | "ltr" | "rtl";
 type NotificationPermission = "default" | "denied" | "granted";
 type OffscreenRenderingContextId = "2d" | "bitmaprenderer" | "webgl" | "webgl2" | "webgpu";
+type OpusBitstreamFormat = "ogg" | "opus";
 type OrientationType = "landscape-primary" | "landscape-secondary" | "portrait-primary" | "portrait-secondary";
+type OscillatorType = "custom" | "sawtooth" | "sine" | "square" | "triangle";
+type OverSampleType = "2x" | "4x" | "none";
+type PanningModelType = "HRTF" | "equalpower";
 type PaymentComplete = "fail" | "success" | "unknown";
 type PaymentShippingType = "delivery" | "pickup" | "shipping";
 type PermissionName = "geolocation" | "midi" | "notifications" | "persistent-storage" | "push" | "screen-wake-lock" | "storage-access";
 type PermissionState = "denied" | "granted" | "prompt";
 type PlaybackDirection = "alternate" | "alternate-reverse" | "normal" | "reverse";
+type PositionAlignSetting = "auto" | "center" | "line-left" | "line-right";
 type PredefinedColorSpace = "display-p3" | "srgb";
 type PremultiplyAlpha = "default" | "none" | "premultiply";
 type PresentationStyle = "attachment" | "inline" | "unspecified";
@@ -23867,7 +27189,9 @@ type PushEncryptionKeyName = "auth" | "p256dh";
 type RTCBundlePolicy = "balanced" | "max-bundle" | "max-compat";
 type RTCDataChannelState = "closed" | "closing" | "connecting" | "open";
 type RTCDegradationPreference = "balanced" | "maintain-framerate" | "maintain-resolution";
+type RTCDtlsRole = "client" | "server" | "unknown";
 type RTCDtlsTransportState = "closed" | "connected" | "connecting" | "failed" | "new";
+type RTCEncodedVideoFrameType = "delta" | "empty" | "key";
 type RTCErrorDetailType = "data-channel-failure" | "dtls-failure" | "fingerprint-failure" | "hardware-encoder-error" | "hardware-encoder-not-available" | "sctp-failure" | "sdp-syntax-error";
 type RTCIceCandidateType = "host" | "prflx" | "relay" | "srflx";
 type RTCIceComponent = "rtcp" | "rtp";
@@ -23875,20 +27199,24 @@ type RTCIceConnectionState = "checking" | "closed" | "completed" | "connected" |
 type RTCIceGathererState = "complete" | "gathering" | "new";
 type RTCIceGatheringState = "complete" | "gathering" | "new";
 type RTCIceProtocol = "tcp" | "udp";
+type RTCIceRole = "controlled" | "controlling" | "unknown";
 type RTCIceTcpCandidateType = "active" | "passive" | "so";
 type RTCIceTransportPolicy = "all" | "relay";
 type RTCIceTransportState = "checking" | "closed" | "completed" | "connected" | "disconnected" | "failed" | "new";
 type RTCPeerConnectionState = "closed" | "connected" | "connecting" | "disconnected" | "failed" | "new";
 type RTCPriorityType = "high" | "low" | "medium" | "very-low";
+type RTCQualityLimitationReason = "bandwidth" | "cpu" | "none" | "other";
 type RTCRtcpMuxPolicy = "require";
 type RTCRtpTransceiverDirection = "inactive" | "recvonly" | "sendonly" | "sendrecv" | "stopped";
 type RTCSctpTransportState = "closed" | "connected" | "connecting";
 type RTCSdpType = "answer" | "offer" | "pranswer" | "rollback";
 type RTCSignalingState = "closed" | "have-local-offer" | "have-local-pranswer" | "have-remote-offer" | "have-remote-pranswer" | "stable";
+type RTCStatsIceCandidatePairState = "failed" | "frozen" | "in-progress" | "inprogress" | "succeeded" | "waiting";
 type RTCStatsType = "candidate-pair" | "certificate" | "codec" | "data-channel" | "inbound-rtp" | "local-candidate" | "media-playout" | "media-source" | "outbound-rtp" | "peer-connection" | "remote-candidate" | "remote-inbound-rtp" | "remote-outbound-rtp" | "transport";
 type ReadableStreamReaderMode = "byob";
 type ReadableStreamType = "bytes";
 type ReadyState = "closed" | "ended" | "open";
+type RecordingState = "inactive" | "paused" | "recording";
 type ReferrerPolicy = "" | "no-referrer" | "no-referrer-when-downgrade" | "origin" | "origin-when-cross-origin" | "same-origin" | "strict-origin" | "strict-origin-when-cross-origin" | "unsafe-url";
 type RemotePlaybackState = "connected" | "connecting" | "disconnected";
 type RequestCache = "default" | "force-cache" | "no-cache" | "no-store" | "only-if-cached" | "reload";
@@ -23898,11 +27226,13 @@ type RequestMode = "cors" | "navigate" | "no-cors" | "same-origin";
 type RequestPriority = "auto" | "high" | "low";
 type RequestRedirect = "error" | "follow" | "manual";
 type ResidentKeyRequirement = "discouraged" | "preferred" | "required";
+type ResizeObserverBoxOptions = "border-box" | "content-box" | "device-pixel-content-box";
 type ResizeQuality = "high" | "low" | "medium" | "pixelated";
 type ResponseType = "basic" | "cors" | "default" | "error" | "opaque" | "opaqueredirect";
 type ScrollBehavior = "auto" | "instant" | "smooth";
 type ScrollLogicalPosition = "center" | "end" | "nearest" | "start";
 type ScrollRestoration = "auto" | "manual";
+type ScrollSetting = "" | "up";
 type SecurityPolicyViolationEventDisposition = "enforce" | "report";
 type SelectionMode = "end" | "preserve" | "select" | "start";
 type ServiceWorkerState = "activated" | "activating" | "installed" | "installing" | "parsed" | "redundant";
@@ -23916,11 +27246,15 @@ type TouchType = "direct" | "stylus";
 type TransferFunction = "hlg" | "pq" | "srgb";
 type UserVerificationRequirement = "discouraged" | "preferred" | "required";
 type VideoColorPrimaries = "bt470bg" | "bt709" | "smpte170m";
+type VideoEncoderBitrateMode = "constant" | "quantizer" | "variable";
+type VideoFacingModeEnum = "environment" | "left" | "right" | "user";
 type VideoMatrixCoefficients = "bt470bg" | "bt709" | "rgb" | "smpte170m";
 type VideoPixelFormat = "BGRA" | "BGRX" | "I420" | "I420A" | "I422" | "I444" | "NV12" | "RGBA" | "RGBX";
 type VideoTransferCharacteristics = "bt709" | "iec61966-2-1" | "smpte170m";
 type WakeLockType = "screen";
 type WebGLPowerPreference = "default" | "high-performance" | "low-power";
+type WebTransportCongestionControl = "default" | "low-latency" | "throughput";
+type WebTransportErrorSource = "session" | "stream";
 type WorkerType = "classic" | "module";
 type WriteCommandType = "seek" | "truncate" | "write";
 type XMLHttpRequestResponseType = "" | "arraybuffer" | "blob" | "document" | "json" | "text";
