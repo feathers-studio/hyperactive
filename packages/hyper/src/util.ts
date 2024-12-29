@@ -1,6 +1,9 @@
 export type Distribute<T extends string, U> = { [K in T]: U }[T];
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 export type Keyof<O> = Extract<keyof O, string>;
+export type Flip<T extends Record<string, string | number>> = {
+	[K in keyof T as `${T[K]}`]: K;
+};
 
 const escapables = {
 	"<": "&lt;",
@@ -25,3 +28,7 @@ export type Falsy = SetContents<typeof Falsy>;
 export const isFalsy = (n: any): n is Falsy => Falsy.has(n);
 
 export const isNonNullable = <T>(n: T): n is NonNullable<T> => n != null;
+
+export const unreachable = (arg: never): never => {
+	throw new Error("Unreachable");
+};

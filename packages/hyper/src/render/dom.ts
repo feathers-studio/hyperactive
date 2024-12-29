@@ -5,6 +5,7 @@ import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
 import type { Document, HTMLElement, Element, SVGElement, Node, Text } from "../lib/dom.ts";
 import type { Tag } from "../lib/tags.ts";
 import type { Attributes } from "../lib/attributes.ts";
+import { ReadonlyListState } from "../list.ts";
 
 declare const document: Document;
 declare const SVGElement: {
@@ -107,6 +108,15 @@ function toDOM(parent: Element, node: HyperNodeish): Node | null {
 
 		if (init) parent.append(init);
 		return init;
+	}
+
+	if (ReadonlyListState.isListState(node)) {
+		// TODO: implement list state reactively
+		for (const child of node.toArray()) {
+			const childNode = toDOM(parent, child);
+			if (childNode !== null) parent.append(childNode);
+		}
+		return parent.lastElementChild;
 	}
 
 	const namespace = ns[node.tag as keyof typeof ns] ?? ns.html;

@@ -2,6 +2,7 @@ export * from "./lib/tags.ts";
 export * from "./lib/attributes.ts";
 export * from "./node.ts";
 export * from "./state.ts";
+export * from "./list.ts";
 export * from "./element.ts";
 export * from "./render/html.ts";
 export * from "./render/dom.ts";

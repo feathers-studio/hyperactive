@@ -53,7 +53,7 @@ export const aside = elements.aside;
 export const audio = elements.audio;
 
 /**
- * Used to draw the reader's attention to the element's contents, which are not otherwise granted special importance. This was formerly known as the Boldface element, and most browsers still draw the text in boldface. However, you should not use `<b>` for styling text or granting importance. If you wish to create boldface text, you should use the CSS [font-weight](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight) property. If you wish to indicate an element is of special importance, you should use the strong element.
+ * Used to draw the reader's attention to the element's contents, which are not otherwise granted special importance. This was formerly known as the Boldface element, and most browsers still draw the text in boldface. However, you should not use `<b>` for styling text or granting importance. If you wish to create boldface text, you should use the CSS [font-weight](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight) property. If you wish to indicate an element is of special importance, you should use the [`<strong>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong) element.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/b MDN | b}
  */
@@ -102,7 +102,7 @@ export const body = elements.body;
 export const br = elements.br;
 
 /**
- * An interactive element activated by a user with a mouse, keyboard, finger, voice command, or other assistive technology. Once activated, it performs an action, such as submitting a [form](https://developer.mozilla.org/en-US/docs/Learn/Forms) or opening a dialog.
+ * An interactive element activated by a user with a mouse, keyboard, finger, voice command, or other assistive technology. Once activated, it performs an action, such as submitting a [form](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms) or opening a dialog.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button MDN | button}
  */

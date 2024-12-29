@@ -11,7 +11,7 @@ Licensed under the MIT License
  *
  * This may be the right move for now, and is subject to be re-evaluated later.
  */
-import type { BeforeUnloadEvent, Document, Window } from "./dom.slim.ts";
+import type { BeforeUnloadEvent, Document, Window } from "../lib/dom.ts";
 declare const document: Document;
 
 /**

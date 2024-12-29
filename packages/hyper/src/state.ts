@@ -4,11 +4,7 @@ type ComposedStateValue<Obj extends Record<string, State>> = {
 	[key in keyof Obj]: Obj[key]["value"];
 };
 
-const StateSymbol = Symbol("@hyperactive/state");
-
 export class ReadonlyState<T = any> {
-	[StateSymbol] = true as true;
-
 	protected subscribers: Subscriber[] = [];
 	protected state: { value: T };
 
@@ -20,10 +16,10 @@ export class ReadonlyState<T = any> {
 		return this.state.value;
 	}
 
-	map<U>(mapper: (t: T) => U): ReadonlyState<U> {
-		const s = new State(mapper(this.value));
+	transform<U>(transformer: (t: T) => U): ReadonlyState<U> {
+		const s = new State(transformer(this.value));
 		// publish transformed changes when value changes
-		this.listen(value => s.update(mapper(value)));
+		this.listen(value => s.update(transformer(value)));
 		// return readonly so transformed state can't be published into
 		return s.readonly();
 	}

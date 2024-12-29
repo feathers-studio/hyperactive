@@ -2,7 +2,7 @@
 
 import { State } from "./state.ts";
 import type { HyperNode } from "./node.ts";
-import type { HTMLInputElement } from "./vendor/dom.slim.ts";
+import type { HTMLInputElement } from "./lib/dom.ts";
 
 export const bind = <N extends HyperNode<"input">, S extends State>(node: N, state: S): N => {
 	const oldRef = node.attrs.ref || (() => {});
