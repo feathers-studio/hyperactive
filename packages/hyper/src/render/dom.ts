@@ -1,12 +1,28 @@
 import { guessEnv } from "../guessEnv.ts";
-import { Falsy, isFalsy } from "../util.ts";
+import { Falsy, Flip, isFalsy } from "../util.ts";
 import { State, type ReadonlyState } from "../state.ts";
 import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
-import type { Document, HTMLElement, Node, Text } from "../lib/dom.ts";
+import type { Document, HTMLElement, Element, SVGElement, Node, Text } from "../lib/dom.ts";
 import type { Tag } from "../lib/tags.ts";
 import type { Attributes } from "../lib/attributes.ts";
 
 declare const document: Document;
+declare const SVGElement: {
+	prototype: SVGElement;
+	new (): SVGElement;
+};
+
+/** @source https://www.w3.org/TR/2011/WD-html5-20110525/namespaces.html */
+const ns = {
+	html: "http://www.w3.org/1999/xhtml",
+	mathml: "http://www.w3.org/1998/Math/MathML",
+	svg: "http://www.w3.org/2000/svg",
+	xlink: "http://www.w3.org/1999/xlink",
+	xml: "http://www.w3.org/XML/1998/namespace",
+	xmlns: "http://www.w3.org/2000/xmlns/",
+} as const;
+
+const reverseNs = Object.fromEntries(Object.entries(ns).map(([key, uri]) => [uri, key])) as Flip<typeof ns>;
 
 export type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? null
@@ -14,15 +30,16 @@ export type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? Text
 	: N extends ReadonlyState<string>
 	? Text
-	: HTMLElement;
+	: Element;
 
 function htmlStringToElement(html: string): Node | null {
 	const template = document.createElement("template");
 	template.innerHTML = html;
-	return template.content.firstChild;
+	// TODO: we should probably do more here
+	return template.content.firstElementChild;
 }
 
-function eventListeners(el: HTMLElement, listeners: Attributes<Tag>["on"]) {
+function eventListeners(el: Element, listeners: Attributes<Tag>["on"]) {
 	for (const key in listeners) {
 		const type = key as keyof typeof listeners;
 		const value = listeners[type];
@@ -31,7 +48,7 @@ function eventListeners(el: HTMLElement, listeners: Attributes<Tag>["on"]) {
 	}
 }
 
-function ariaAttr(el: HTMLElement, aria: Attributes<Tag>["aria"]) {
+function ariaAttr(el: Element, aria: Attributes<Tag>["aria"]) {
 	for (const member in aria) {
 		const value = aria[member as keyof typeof aria];
 		if (typeof value === "boolean") {
@@ -40,25 +57,39 @@ function ariaAttr(el: HTMLElement, aria: Attributes<Tag>["aria"]) {
 	}
 }
 
-function attrifyDOM(el: HTMLElement, attrs: Attributes<Tag>) {
+function attrifyDOM(el: Element, attrs: Attributes<Tag>, namespace: (typeof ns)[keyof typeof ns]) {
+	const set = (key: string, value: string) =>
+		namespace === ns.html ? el.setAttribute(key, value) : el.setAttributeNS(namespace, key, value);
+
 	for (const attr in attrs) {
 		const key = attr as keyof typeof attrs;
 		const value = attrs[key];
 		if (!value) return;
 		else if (typeof value === "boolean") {
-			if (value) el.setAttribute(key, "");
-		} else if (key === "ref" && typeof value === "function") value(el);
-		else if (Array.isArray(value)) el.setAttribute(key, value.filter(x => x).join(" "));
+			if (value) set(key, "");
+		} else if (key === "ref" && typeof value === "function") value(el as HTMLElement);
+		else if (Array.isArray(value)) set(key, value.filter(x => x).join(" "));
 		else if (key === "aria") ariaAttr(el, attrs[key]);
 		else if (key === "on") eventListeners(el, attrs[key]);
-		else if (value) el.setAttribute(key, String(value));
+		else if (value) set(key, String(value));
 	}
 }
 
-const toDOM = function toDOM(parent: HTMLElement, node: HyperNodeish): Node | null {
-	if (typeof node === "string") return document.createTextNode(node);
+function toDOM(parent: Element, node: HyperNodeish): Node | null {
+	if (typeof node === "string") {
+		const el = document.createTextNode(node);
+		if (el) parent.append(el);
+		return el;
+	}
+
 	if (isFalsy(node)) return null;
-	if (node instanceof HyperHTMLStringNode) return htmlStringToElement(node.htmlString);
+
+	if (node instanceof HyperHTMLStringNode) {
+		const el = htmlStringToElement(node.htmlString);
+		if (el) parent.append(el);
+		return el;
+	}
+
 	if (State.isState(node)) {
 		let init = toDOM(parent, node.value);
 
@@ -74,13 +105,13 @@ const toDOM = function toDOM(parent: HTMLElement, node: HyperNodeish): Node | nu
 			}
 		});
 
-		// return DOMNode for rendering
+		if (init) parent.append(init);
 		return init;
 	}
 
-	const el = document.createElement(node.tag);
-
-	attrifyDOM(el, node.attrs);
+	const namespace = ns[node.tag as keyof typeof ns] ?? ns.html;
+	const el = namespace ? document.createElementNS(namespace, node.tag) : document.createElement(node.tag);
+	attrifyDOM(el, node.attrs, namespace);
 
 	for (const child of node.children) {
 		const childNode = toDOM(el, child);
@@ -89,8 +120,10 @@ const toDOM = function toDOM(parent: HTMLElement, node: HyperNodeish): Node | nu
 		} else el.append(childNode);
 	}
 
+	parent.append(el);
+
 	return el;
-};
+}
 
 class DOMNotFound extends Error {
 	constructor(env?: string) {
@@ -123,6 +156,5 @@ export function renderDOM(rootNode: HTMLElement, hyperNode: HyperNodeish, { skip
 	}
 
 	clear(rootNode);
-	const el = toDOM(rootNode, hyperNode);
-	if (el) rootNode.append(el);
+	toDOM(rootNode, hyperNode);
 }
