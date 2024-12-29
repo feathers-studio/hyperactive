@@ -1,17 +1,11 @@
-import { guessEnv } from "../guessEnv.ts";
-import { Falsy, Flip, isFalsy } from "../util.ts";
-import { State, type ReadonlyState } from "../state.ts";
-import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
-import type { Document, HTMLElement, Element, SVGElement, Node, Text } from "../lib/dom.ts";
-import type { Tag } from "../lib/tags.ts";
 import type { Attributes } from "../lib/attributes.ts";
+import type { Document, Element, HTMLElement, Node, Text } from "../lib/dom.ts";
+import type { Tag } from "../lib/tags.ts";
+import { guessEnv } from "../guessEnv.ts";
 import { ReadonlyListState } from "../list.ts";
-
-declare const document: Document;
-declare const SVGElement: {
-	prototype: SVGElement;
-	new (): SVGElement;
-};
+import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
+import { ReadonlyState } from "../state.ts";
+import { Falsy, isFalsy } from "../util.ts";
 
 /** @source https://www.w3.org/TR/2011/WD-html5-20110525/namespaces.html */
 const ns = {
@@ -23,8 +17,6 @@ const ns = {
 	xmlns: "http://www.w3.org/2000/xmlns/",
 } as const;
 
-const reverseNs = Object.fromEntries(Object.entries(ns).map(([key, uri]) => [uri, key])) as Flip<typeof ns>;
-
 export type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? null
 	: N extends string
@@ -33,8 +25,8 @@ export type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? Text
 	: Element;
 
-function htmlStringToElement(html: string): Node | null {
-	const template = document.createElement("template");
+function htmlStringToElement(html: string, environment: { document: Document }): Node | null {
+	const template = environment.document.createElement("template");
 	template.innerHTML = html;
 	// TODO: we should probably do more here
 	return template.content.firstElementChild;
@@ -76,9 +68,9 @@ function attrifyDOM(el: Element, attrs: Attributes<Tag>, namespace: (typeof ns)[
 	}
 }
 
-function toDOM(parent: Element, node: HyperNodeish): Node | null {
+function toDOM(parent: Element, node: HyperNodeish, environment: { document: Document }): Node | null {
 	if (typeof node === "string") {
-		const el = document.createTextNode(node);
+		const el = environment.document.createTextNode(node);
 		if (el) parent.append(el);
 		return el;
 	}
@@ -86,16 +78,16 @@ function toDOM(parent: Element, node: HyperNodeish): Node | null {
 	if (isFalsy(node)) return null;
 
 	if (node instanceof HyperHTMLStringNode) {
-		const el = htmlStringToElement(node.htmlString);
+		const el = htmlStringToElement(node.htmlString, environment);
 		if (el) parent.append(el);
 		return el;
 	}
 
-	if (State.isState(node)) {
-		let init = toDOM(parent, node.value);
+	if (ReadonlyState.isState(node)) {
+		let init = toDOM(parent, node.value, environment);
 
 		node.listen(val => {
-			const update = toDOM(parent, val);
+			const update = toDOM(parent, val, environment);
 
 			if (update === null || init === null) {
 				// no-op
@@ -113,18 +105,20 @@ function toDOM(parent: Element, node: HyperNodeish): Node | null {
 	if (ReadonlyListState.isListState(node)) {
 		// TODO: implement list state reactively
 		for (const child of node.toArray()) {
-			const childNode = toDOM(parent, child);
+			const childNode = toDOM(parent, child, environment);
 			if (childNode !== null) parent.append(childNode);
 		}
 		return parent.lastElementChild;
 	}
 
 	const namespace = ns[node.tag as keyof typeof ns] ?? ns.html;
-	const el = namespace ? document.createElementNS(namespace, node.tag) : document.createElement(node.tag);
+	const el = namespace
+		? environment.document.createElementNS(namespace, node.tag)
+		: environment.document.createElement(node.tag);
 	attrifyDOM(el, node.attrs, namespace);
 
 	for (const child of node.children) {
-		const childNode = toDOM(el, child);
+		const childNode = toDOM(el, child, environment);
 		if (childNode === null) {
 			//
 		} else el.append(childNode);
@@ -136,12 +130,12 @@ function toDOM(parent: Element, node: HyperNodeish): Node | null {
 }
 
 class DOMNotFound extends Error {
-	constructor(env?: string) {
+	constructor() {
 		super(
 			[
-				`renderDOM is meant to be used in the browser.`,
-				`Found: '${env || "unknown"}'.`,
-				`To force, pass \`{ skipEnvCheck: true }\` to renderDOM.`,
+				`A \`document\` object was not found in your global environment.`,
+				`Found: '${guessEnv() || "unknown"}'.`,
+				`To use a non-global environment, pass \`{ environment: { document: ... } }\` to renderDOM.`,
 			].join(" "),
 		);
 	}
@@ -156,15 +150,17 @@ function clear(node: HTMLElement) {
 }
 
 type Opts = {
-	skipEnvCheck?: boolean;
+	environment?: {
+		document: Document;
+	};
 };
 
-export function renderDOM(rootNode: HTMLElement, hyperNode: HyperNodeish, { skipEnvCheck }: Opts = {}) {
-	if (!skipEnvCheck) {
-		const env = guessEnv();
-		if (env !== "browser") throw new DOMNotFound(env);
+export function renderDOM(rootNode: HTMLElement, hyperNode: HyperNodeish, { environment }: Opts = {}) {
+	if (!environment || !environment.document) {
+		if (!globalThis.document) throw new DOMNotFound();
+		environment = { document: globalThis.document };
 	}
 
 	clear(rootNode);
-	toDOM(rootNode, hyperNode);
+	toDOM(rootNode, hyperNode, environment);
 }

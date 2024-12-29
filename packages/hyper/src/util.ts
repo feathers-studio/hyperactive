@@ -1,9 +1,6 @@
 export type Distribute<T extends string, U> = { [K in T]: U }[T];
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 export type Keyof<O> = Extract<keyof O, string>;
-export type Flip<T extends Record<string, string | number>> = {
-	[K in keyof T as `${T[K]}`]: K;
-};
 
 const escapables = {
 	"<": "&lt;",
