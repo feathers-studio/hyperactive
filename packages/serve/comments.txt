@@ -1,0 +1,7 @@
+Request -> Response is very nice for testing
+
+Since Request#ip doesn't exist, so Bun had to invent server.requestIP(request)
+
+For middleware-like things, Node style ServerResponse objects are more useful than standard Response; for example, a middleware that checks if user is logged in and extends their session expiry would need to Set-Cookie unrelated to the actual request handler
+
+Request -> Response pattern has yet another big issue; you cannot do something after response is sent (like logging request time)
