@@ -33,6 +33,11 @@ function createSelectorProxy<T extends Tag>(
 	type hE = Hyper.Element<T>;
 
 	return new Proxy(hyperElement, {
+		// Do NOT cache the target _ like we do below in elements,
+		// because if users use this feature a lot, it'll leak memory
+		// Just let elements.a.hello be a new function every time
+		// and elements.a.hello !== elements.a.hello
+		// It's okay -- don't fret about it
 		get(_: hE, selector: string) {
 			const parsed = parseSelector([loaded, selector].filter(Boolean).join(" "));
 

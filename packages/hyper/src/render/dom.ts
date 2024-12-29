@@ -50,9 +50,8 @@ function ariaAttr(el: Element, aria: Attributes<Tag>["aria"]) {
 	}
 }
 
-function attrifyDOM(el: Element, attrs: Attributes<Tag>, namespace: (typeof ns)[keyof typeof ns]) {
-	const set = (key: string, value: string) =>
-		namespace === ns.html ? el.setAttribute(key, value) : el.setAttributeNS(namespace, key, value);
+function attrifyDOM(el: Element, attrs: Attributes<Tag>) {
+	const set = (key: string, value: string) => el.setAttribute(key, value);
 
 	for (const attr in attrs) {
 		const key = attr as keyof typeof attrs;
@@ -115,7 +114,7 @@ function toDOM(parent: Element, node: HyperNodeish, environment: { document: Doc
 	const el = namespace
 		? environment.document.createElementNS(namespace, node.tag)
 		: environment.document.createElement(node.tag);
-	attrifyDOM(el, node.attrs, namespace);
+	attrifyDOM(el, node.attrs);
 
 	for (const child of node.children) {
 		const childNode = toDOM(el, child, environment);
