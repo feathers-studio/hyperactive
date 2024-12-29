@@ -7,11 +7,13 @@
 	"scripts": {
 		"check": "tsc --noEmit",
 		"build": "tsc",
-		"test": "bun test --coverage"
+		"test": "bun test --coverage",
+		"prepack": "bun run build"
 	},
 	"exports": {
 		".": "./lib/index.js",
-		"./elements": "./lib/elements.js"
+		"./elements": "./lib/elements.js",
+		"./dom": "./lib/lib/dom.js"
 	},
 	"type": "module"
 }

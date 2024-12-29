@@ -5,6 +5,9 @@
 		"packages/*"
 	],
 	"type": "module",
+	"scripts": {
+		"build": "cd packages/hyper && bun run build"
+	},
 	"dependencies": {
 		"typescript": "^5.7.2"
 	}

@@ -1,0 +1,22 @@
+{
+	"name": "@feathers-studio/todo",
+	"module": "src/index.ts",
+	"type": "module",
+	"scripts": {
+		"dev": "bun run vite"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/react": "^19.0.2",
+		"@types/react-dom": "^19.0.2"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"vite": "^6.0.5",
+		"@hyperactive/hyper": "workspace:*"
+	}
+}
