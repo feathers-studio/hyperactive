@@ -1,53 +1,59 @@
 import "./styles.css";
 
-import { div, h2, p, section, button, form, input, label, span, svg, ol, li } from "@hyperactive/hyper/elements";
-import { trust, ListMember, ListState, State, renderDOM, h } from "@hyperactive/hyper";
+import { div, h2, p, button, form, input, label, svg, ol, li, header, ul } from "@hyperactive/hyper/elements";
+import { trust, ListMember, ListState, State, renderDOM, type HyperNodeish } from "@hyperactive/hyper";
 import type { Document } from "@hyperactive/hyper/dom";
 
 declare const document: Document;
 
+const S = (path: string) => {
+	return svg(
+		// @ts-expect-error SVG attributes are not typed correctly?
+		{ width: "32", height: "32", fill: "#000000", viewBox: "0 0 256 256" },
+		trust(path),
+	);
+};
+
 export const Hero = (completed: State<number>, total: State<number>) => {
-	return section(
-		{ class: "hero" },
-		div(h2("Tasks done"), p("Keep it up")),
+	return header(
+		div(h2("Tasks done"), p("頑張って~!")),
 		div(
+			{ class: "progress" },
 			p(
 				completed.transform(v => String(v)),
-				"/",
+				" / ",
 				total.transform(v => String(v)),
 			),
 		),
 	);
 };
 
-export function Form() {
+export function Form(todos: ListState<Item>) {
 	const handleSubmit = (event: any) => {
 		event.preventDefault();
-		// reset the form
+		todos.append({
+			title: event.target.todo.value,
+			id: window.crypto.randomUUID(),
+			completed: false,
+		});
 		event.target.reset();
 	};
 
 	return form(
-		{
-			class: "form",
-			on: { submit: handleSubmit },
-		},
+		{ on: { submit: handleSubmit } },
 		label(
 			input({
 				type: "text",
 				name: "todo",
 				id: "todo",
 				placeholder: "Write your next task",
+				autofocus: true,
 			}),
 		),
 		button(
-			span({ class: "visually-hidden" }, "Submit"),
-			svg(
-				// @ts-expect-error SVG attributes are not typed correctly?
-				{ width: "32", height: "32", fill: "#000000", viewBox: "0 0 256 256" },
-				trust(
-					`<path d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"></path>`,
-				),
+			{ title: "Add task" },
+			S(
+				`<path d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"></path>`,
 			),
 		),
 	);
@@ -59,15 +65,44 @@ export interface Item {
 	completed: boolean;
 }
 
+export function LocalEditableInput(item: ListMember<Item>) {
+	const editing = new State(false);
+	const localChange = new State(item.value.title);
+
+	return editing.transform(e =>
+		input({
+			type: "text",
+			value: localChange.value,
+			autofocus: true,
+			on: {
+				blur: () => editing.setWith(e => !e),
+			},
+		}),
+	);
+}
+
 export function Item(item: ListMember<Item>) {
-	return li(
-		button(
-			svg(trust('<circle cx="11.998" cy="11.998" fillRule="nonzero" r="9.998" />')),
-			p(item.transform(i => i.title)),
-		),
-		div(
-			button(span({ class: "visually-hidden" }, "Edit"), svg(trust('<path d="" />'))),
-			button(span({ class: "visually-hidden" }, "Delete"), svg(trust('<path d="" />'))),
+	return item.transform(i =>
+		li(
+			{ class: i.completed ? "completed" : "" },
+			button(
+				{
+					title: i.completed ? "Mark as not completed" : "Mark as completed",
+					on: { click: () => item.set({ ...i, completed: !i.completed }) },
+				},
+				svg(
+					// @ts-expect-error SVG attributes are not typed correctly?
+					{ width: "32", height: "32", fill: "#000000", viewBox: "0 0 256 256" },
+					trust('<circle cx="128" cy="128" r="108"></circle>'),
+				),
+			),
+			button({ class: "task-name" }, LocalEditableInput(item)),
+			button(
+				{ title: "Delete", on: { click: () => item.remove() } },
+				S(
+					'<path d="M216,48H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM192,208H64V64H192ZM80,24a8,8,0,0,1,8-8h80a8,8,0,0,1,0,16H88A8,8,0,0,1,80,24Z"></path>',
+				),
+			),
 		),
 	);
 }
@@ -85,7 +120,7 @@ export function Home() {
 			completed: true,
 		},
 		{
-			title: "last task",
+			title: "last task, but this is just really really really really really long, but it's still not done yet",
 			id: window.crypto.randomUUID(),
 			completed: false,
 		},
@@ -97,8 +132,8 @@ export function Home() {
 	return div.container(
 		//
 		Hero(completed, total),
-		Form(),
-		ol(todos.each(todo => Item(todo))),
+		Form(todos),
+		ul(todos.each(todo => Item(todo))),
 	);
 }
 

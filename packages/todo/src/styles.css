@@ -1,0 +1,195 @@
+:root {
+	--primary-colour: #32cd32;
+	--secondary-colour: #f0f0f0;
+	--background-colour: #f0f0f0;
+	--border-colour: #ccc;
+	--text-colour: #000000;
+	--gaps: 0.8rem;
+	font-size: 18px;
+}
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+*:focus-visible {
+	outline: 2px solid var(--primary-colour);
+}
+
+body {
+	background-color: var(--background-colour);
+}
+
+.container {
+	max-width: 40rem;
+	margin: 0 auto;
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: var(--gaps);
+}
+
+header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1.2rem 1.5rem;
+	border: 1px solid var(--border-colour);
+	border-radius: 0.5rem;
+}
+
+header .progress {
+	display: grid;
+	place-items: center;
+	gap: 1rem;
+	background-color: var(--primary-colour);
+	width: 5.5rem;
+	height: 5.5rem;
+	border-radius: 50%;
+	font-size: 1.5rem;
+	color: white;
+}
+
+form {
+	display: flex;
+	gap: var(--gaps);
+}
+
+form label {
+	height: 2.5rem;
+	width: 100%;
+}
+
+form input {
+	height: 100%;
+	width: 100%;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.5rem 0.8rem;
+	font-size: 0.9rem;
+	background-color: hsl(from var(--background-colour) h s calc(l - 5));
+}
+
+form button {
+	height: 2.5rem;
+	width: 2.5rem;
+	background: var(--primary-colour);
+	padding: 0.25rem;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	display: grid;
+	place-items: center;
+}
+
+form button:hover {
+	background: hue-r;
+}
+
+form svg {
+	height: 1.5rem;
+	width: 1.5rem;
+	border: none;
+	fill: white;
+}
+
+form button:hover svg,
+form button:focus svg {
+	rotate: 90deg;
+	transition: rotate 0.2s ease-in-out;
+}
+
+ul {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gaps);
+	list-style: none;
+	width: 100%;
+}
+
+ul li {
+	display: flex;
+	border: 1px solid var(--border-colour);
+	border-radius: 0.5rem;
+	width: 100%;
+	overflow: hidden;
+}
+
+ul li > *,
+ul li .task-name input {
+	padding: 0.6rem;
+}
+
+ul li .task-name {
+	padding: 0;
+}
+
+ul li .task-name {
+	display: flex;
+	gap: var(--gaps);
+	align-items: center;
+	width: 100%;
+	min-width: 0;
+}
+
+ul li .task-name:hover {
+	background: hsl(from var(--secondary-colour) h s calc(l - 5));
+}
+
+ul li .task-name input {
+	width: 100%;
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+}
+
+ul li .task-name input:focus-visible {
+	outline: none;
+}
+
+ul li button {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	display: grid;
+	place-items: center;
+}
+
+ul li button:not(.task-name) {
+	--size: calc(0.6rem * 2 + 1.25rem);
+	width: var(--size);
+	height: var(--size);
+	min-width: var(--size);
+	min-height: var(--size);
+}
+
+ul li svg,
+ul li svg * {
+	width: 1.25rem;
+	height: 1.25rem;
+	transition: fill 150ms ease-in-out, stroke 150ms ease-in-out;
+}
+
+ul li svg circle {
+	fill: transparent;
+	stroke: var(--border-colour);
+	stroke-width: 0.8rem;
+}
+
+ul li.completed svg circle {
+	fill: var(--primary-colour);
+}
+
+ul li button.task-name:hover svg circle {
+	stroke: var(--primary-colour);
+}
+
+ul li button:not(.task-name):hover svg {
+	fill: var(--primary-colour);
+}
