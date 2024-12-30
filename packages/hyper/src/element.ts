@@ -47,7 +47,7 @@ function createSelectorProxy<T extends Tag>(
 				const merged = {
 					...attrs,
 					id: parsed.id || attrs.id,
-					class: [parsed.class, attrs.class].flatMap(x => (x ? x : undefined)),
+					class: [parsed.class, attrs.class].flatMap(x => (x ? x : [])).filter(Boolean),
 				};
 
 				return new HyperNode(element, merged, children.filter(isNonNullable));
