@@ -19,13 +19,13 @@ export class ReadonlyState<T = any> {
 	transform<U>(transformer: (t: T) => U): ReadonlyState<U> {
 		const s = new State(transformer(this.value));
 		// publish transformed changes when value changes
-		this.listen(value => s.update(transformer(value)));
+		this.listen(value => s.set(transformer(value)));
 		// return readonly so transformed state can't be published into
 		return s.readonly();
 	}
 
 	into(state: State<T>) {
-		this.listen(value => state.update(value));
+		this.listen(value => state.set(value));
 	}
 
 	static isState(x: any): x is State | ReadonlyState {
@@ -44,7 +44,7 @@ export class ReadonlyState<T = any> {
 
 		for (const key in refs) {
 			initialValue[key] = refs[key].value;
-			refs[key].listen(updated => merged.updateWith(value => ({ ...value, [key]: updated })));
+			refs[key].listen(updated => merged.setWith(value => ({ ...value, [key]: updated })));
 		}
 
 		return merged.readonly();
@@ -54,7 +54,7 @@ export class ReadonlyState<T = any> {
 		const filtered = new State<T>(this.value);
 		this.listen(value => {
 			if (predicate(value)) {
-				filtered.update(value);
+				filtered.set(value);
 			}
 		});
 		return filtered.readonly();
@@ -66,7 +66,7 @@ export class ReadonlyState<T = any> {
 
 		this.listen(value => {
 			clearTimeout(timeout);
-			timeout = setTimeout(() => debounced.update(value), ms);
+			timeout = setTimeout(() => debounced.set(value), ms);
 		});
 
 		return debounced.readonly();
@@ -89,12 +89,12 @@ export class State<T = any> extends ReadonlyState<T> {
 		super(value);
 	}
 
-	update(next: T) {
+	set(next: T) {
 		this.state.value = next;
 		this.subscribers.forEach(subscriber => subscriber(this.value));
 	}
 
-	updateWith(updater: (value: T) => T) {
+	setWith(updater: (value: T) => T) {
 		this.state.value = updater(this.value);
 		this.subscribers.forEach(subscriber => subscriber(this.value));
 	}
