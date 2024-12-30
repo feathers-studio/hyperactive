@@ -10,6 +10,7 @@ export class ReadonlyState<T = any> {
 
 	constructor(value: T, private source?: ReadonlyState<T>) {
 		this.state = { value };
+		if (source) source.listen(value => (this.state.value = value));
 	}
 
 	get value(): T {
@@ -50,12 +51,10 @@ export class ReadonlyState<T = any> {
 		return merged.readonly();
 	}
 
-	filter(predicate: (value: T) => boolean): ReadonlyState<T> {
-		const filtered = new State<T>(this.value);
+	if(predicate: (value: T) => boolean): ReadonlyState<T | null> {
+		const filtered = new State<T | null>(predicate(this.value) ? this.value : null);
 		this.listen(value => {
-			if (predicate(value)) {
-				filtered.set(value);
-			}
+			if (predicate(value)) filtered.set(value);
 		});
 		return filtered.readonly();
 	}
@@ -90,13 +89,14 @@ export class State<T = any> extends ReadonlyState<T> {
 	}
 
 	set(next: T) {
+		if (this.state.value === next) return this.value;
 		this.state.value = next;
 		this.subscribers.forEach(subscriber => subscriber(this.value));
+		return this.value;
 	}
 
 	setWith(updater: (value: T) => T) {
-		this.state.value = updater(this.value);
-		this.subscribers.forEach(subscriber => subscriber(this.value));
+		return this.set(updater(this.value));
 	}
 
 	readonly(): ReadonlyState<T> {
