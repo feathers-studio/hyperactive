@@ -4,10 +4,31 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Hyperdo</title>
+
+		<link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+		<link rel="shortcut icon" href="/favicon/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-title" content="Hyperdo" />
+		<link rel="manifest" href="/favicon/site.webmanifest" />
+
+		<link rel="preconnect" href="https://rsms.me/" />
+		<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
 	</head>
 	<body>
 		<noscript>You need to enable JavaScript to run this app.</noscript>
+		<style>
+			/* CSS */
+			:root {
+				font-family: Inter, sans-serif;
+				font-feature-settings: "liga" 1, "calt" 1; /* fix for Chrome */
+			}
+			@supports (font-variation-settings: normal) {
+				:root {
+					font-family: InterVariable, sans-serif;
+				}
+			}
+		</style>
 		<div id="app"></div>
-		<script type="module" src="./src/index.ts"></script>
+		<script type="module" src="./src/App.ts"></script>
 	</body>
 </html>
