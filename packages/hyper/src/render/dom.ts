@@ -46,18 +46,26 @@ function ariaAttr(el: Element, aria: Attributes<Tag>["aria"]) {
 function attrifyDOM(el: Element, attrs: Attributes<Tag>) {
 	const set = (key: string, value: string) => el.setAttribute(key, value);
 
-	for (const attr in attrs) {
-		const key = attr as keyof typeof attrs;
-		const value = attrs[key];
-		if (!value) return;
-		else if (typeof value === "boolean") {
-			if (value) set(key, "");
-		} else if (key === "ref" && typeof value === "function") value(el as HTMLElement);
-		else if (Array.isArray(value)) set(key, value.filter(x => x).join(" "));
-		else if (key === "aria") ariaAttr(el, attrs[key]);
-		else if (key === "on") eventListeners(el, attrs[key]);
-		else if (value) set(key, String(value));
-	}
+	Object.entries(attrs)
+		.filter(([_, value]) => value != undefined)
+		.map(([k, v]) => {
+			const key = k as keyof typeof attrs;
+
+			if (key === "on") return eventListeners(el, attrs[key]);
+			if (key === "aria") return ariaAttr(el, attrs[key]);
+
+			const value = v as Attributes<Tag>[typeof key];
+
+			if (key === "ref") {
+				if (typeof value === "function") return value(el as HTMLElement);
+				else return;
+			}
+
+			if (value === true) return set(key, "");
+			if (value === "") return set(key, "");
+			if (Array.isArray(value)) return set(key, value.filter(x => x).join(" "));
+			if (value) return set(key, String(value));
+		});
 }
 
 function toDOM(parent: Element, node: HyperNodeish, environment: { document: Document }): Node | null {

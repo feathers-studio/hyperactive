@@ -30,7 +30,7 @@ function attrifyHTML(attrs: Attributes<Tag>): string {
 			if (attr === "aria") return aria(attrs[attr]);
 			if (attr === "ref") return false;
 
-			const value = v as Attributes<Tag>[keyof Attributes<Tag>];
+			const value = v as Attributes<Tag>[typeof attr];
 
 			if (value === true) return attr;
 			if (value === "") return attr;
