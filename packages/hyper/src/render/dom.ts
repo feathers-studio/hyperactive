@@ -25,13 +25,6 @@ export type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? Text
 	: Element;
 
-function htmlStringToElement(html: string, environment: { document: Document }): Node | null {
-	const template = environment.document.createElement("template");
-	template.innerHTML = html;
-	// TODO: we should probably do more here
-	return template.content.firstElementChild;
-}
-
 function eventListeners(el: Element, listeners: Attributes<Tag>["on"]) {
 	for (const key in listeners) {
 		const type = key as keyof typeof listeners;
@@ -77,9 +70,9 @@ function toDOM(parent: Element, node: HyperNodeish, environment: { document: Doc
 	if (isFalsy(node)) return null;
 
 	if (node instanceof HyperHTMLStringNode) {
-		const el = htmlStringToElement(node.htmlString, environment);
-		if (el) parent.append(el);
-		return el;
+		// TODO: investigate security implications of this
+		parent.innerHTML = node.htmlString;
+		return parent.lastElementChild;
 	}
 
 	if (ReadonlyState.isState(node)) {
