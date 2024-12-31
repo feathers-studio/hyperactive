@@ -1,5 +1,5 @@
 import { describe, it, expect, jest } from "bun:test";
-import { List } from "./list";
+import { List, ListEventKind } from "./list";
 
 describe("List", () => {
 	it("should be able to be created from a plain array", () => {
@@ -313,6 +313,152 @@ describe("List", () => {
 
 		list.moveTo(3, list.at(0)!);
 		expect(list.toArray()).toEqual([4, 2, 3, 1]);
+	});
+
+	it("should notify listeners", () => {
+		const list = new List([1, 2, 3]);
+		const listener = jest.fn();
+		list.listen(listener);
+		const ev = { type: ListEventKind.Move, member: list.at(0)!, index: 1, list } as const;
+		list.notify(ev);
+		expect(listener).toHaveBeenCalledWith(ev);
+	});
+
+	it("should slice full list", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const slice = list.slice();
+		expect(slice.toArray()).toEqual([1, 2, 3, 4, 5]);
+	});
+
+	it("should slice list from index", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const slice = list.slice(1);
+		expect(slice.toArray()).toEqual([2, 3, 4, 5]);
+	});
+
+	it("should slice partial list", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const slice = list.slice(1, 3);
+		expect(slice.toArray()).toEqual([2, 3]);
+	});
+
+	it("should slice from negative index", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const slice = list.slice(-2);
+		expect(slice.toArray()).toEqual([4, 5]);
+	});
+
+	it("should slice from negative index with end", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const slice = list.slice(-2, -1);
+		expect(slice.toArray()).toEqual([4]);
+	});
+
+	it("should slice from negative index with positive end", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const slice = list.slice(-2, 4);
+		expect(slice.toArray()).toEqual([4]);
+	});
+
+	it("should slice from positive index with negative end", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const slice = list.slice(1, -1);
+		expect(slice.toArray()).toEqual([2, 3, 4]);
+	});
+
+	it("should reverse", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const reversed = list.reverse();
+		expect(reversed.toArray()).toEqual([5, 4, 3, 2, 1]);
+	});
+
+	it("should keep track of changes to original list after reverse", () => {
+		const list = new List([1, 2, 3, 4, 5]);
+		const reversed = list.reverse();
+
+		// Test initial state
+		expect(list.toArray()).toEqual([1, 2, 3, 4, 5]);
+		expect(reversed.toArray()).toEqual([5, 4, 3, 2, 1]);
+
+		// Test append
+		list.append(6);
+		expect(list.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(reversed.toArray()).toEqual([6, 5, 4, 3, 2, 1]);
+
+		// Test removeAt (beginning, middle, end)
+		list.removeAt(0);
+		expect(list.toArray()).toEqual([2, 3, 4, 5, 6]);
+		expect(reversed.toArray()).toEqual([6, 5, 4, 3, 2]);
+
+		list.removeAt(2);
+		expect(list.toArray()).toEqual([2, 3, 5, 6]);
+		expect(reversed.toArray()).toEqual([6, 5, 3, 2]);
+
+		list.removeAt(list.size.value - 1);
+		expect(list.toArray()).toEqual([2, 3, 5]);
+		expect(reversed.toArray()).toEqual([5, 3, 2]);
+
+		// Test prepend
+		list.prepend(1);
+		expect(list.toArray()).toEqual([1, 2, 3, 5]);
+		expect(reversed.toArray()).toEqual([5, 3, 2, 1]);
+
+		// Test insertAt (beginning, middle, end)
+		list.insertAt(0, 0);
+		expect(list.toArray()).toEqual([0, 1, 2, 3, 5]);
+		expect(reversed.toArray()).toEqual([5, 3, 2, 1, 0]);
+
+		list.insertAt(2, 1.5);
+		expect(list.toArray()).toEqual([0, 1, 1.5, 2, 3, 5]);
+		expect(reversed.toArray()).toEqual([5, 3, 2, 1.5, 1, 0]);
+
+		list.insertAt(list.size.value, 6);
+		expect(list.toArray()).toEqual([0, 1, 1.5, 2, 3, 5, 6]);
+		expect(reversed.toArray()).toEqual([6, 5, 3, 2, 1.5, 1, 0]);
+
+		// Test replaceAt (beginning, middle, end)
+		list.replaceAt(0, 10);
+		expect(list.toArray()).toEqual([10, 1, 1.5, 2, 3, 5, 6]);
+		expect(reversed.toArray()).toEqual([6, 5, 3, 2, 1.5, 1, 10]);
+
+		list.replaceAt(3, 20);
+		expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5, 6]);
+		expect(reversed.toArray()).toEqual([6, 5, 3, 20, 1.5, 1, 10]);
+
+		list.replaceAt(list.size.value - 1, 30);
+		expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5, 30]);
+		expect(reversed.toArray()).toEqual([30, 5, 3, 20, 1.5, 1, 10]);
+
+		// Test pop and shift
+		list.pop();
+		expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5]);
+		expect(reversed.toArray()).toEqual([5, 3, 20, 1.5, 1, 10]);
+
+		list.shift();
+		expect(list.toArray()).toEqual([1, 1.5, 20, 3, 5]);
+		expect(reversed.toArray()).toEqual([5, 3, 20, 1.5, 1]);
+
+		// Test swapping
+		list.swapBetween(0, 2);
+		console.log({ index: 3, value: list.at(3)?.value });
+		console.log({ index: 0, value: list.at(0)?.value });
+		expect(list.toArray()).toEqual([20, 1.5, 1, 3, 5]);
+		expect(reversed.toArray()).toEqual([5, 3, 1, 1.5, 20]);
+
+		// Test moving
+		list.moveTo(0, list.at(3)!);
+		expect(list.toArray()).toEqual([3, 20, 1.5, 1, 5]);
+		expect(reversed.toArray()).toEqual([5, 1, 1.5, 20, 3]);
+
+		// Test with empty list
+		const emptyList = new List<number>([]);
+		const reversedEmpty = emptyList.reverse();
+		expect(emptyList.toArray()).toEqual([]);
+		expect(reversedEmpty.toArray()).toEqual([]);
+
+		emptyList.append(1);
+		expect(emptyList.toArray()).toEqual([1]);
+		expect(reversedEmpty.toArray()).toEqual([1]);
 	});
 
 	// it("should be transformable", () => {
