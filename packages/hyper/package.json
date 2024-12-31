@@ -8,7 +8,7 @@
 		"check": "tsc --noEmit",
 		"build": "tsc",
 		"test": "bun test --coverage",
-		"prepack": "bun run build"
+		"prepare": "bun run build"
 	},
 	"exports": {
 		".": "./lib/index.js",
