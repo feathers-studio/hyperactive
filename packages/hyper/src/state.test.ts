@@ -48,13 +48,13 @@ describe("State", () => {
 		expect(listener).not.toHaveBeenCalledWith(2);
 	});
 
-	it("should be able to be read only", () => {
+	it("should be able to be readonly", () => {
 		const state = new State(0);
 		const readonly = state.readonly();
 		expect(readonly.value).toBe(0);
 	});
 
-	it("should be able to update a read only", () => {
+	it("should be able to update a readonly", () => {
 		const state = new State(0);
 		const readonly = state.readonly();
 		state.set(1);
