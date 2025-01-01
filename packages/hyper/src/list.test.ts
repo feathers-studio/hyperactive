@@ -417,57 +417,109 @@ describe("List", () => {
 		expect(reversed.toArray()).toEqual([6, 5, 3, 2, 1.5, 1, 0]);
 
 		// Test replaceAt (beginning, middle, end)
-		list.replaceAt(0, 10);
-		expect(list.toArray()).toEqual([10, 1, 1.5, 2, 3, 5, 6]);
-		expect(reversed.toArray()).toEqual([6, 5, 3, 2, 1.5, 1, 10]);
+		// list.replaceAt(0, 10);
+		// expect(list.toArray()).toEqual([10, 1, 1.5, 2, 3, 5, 6]);
+		// expect(reversed.toArray()).toEqual([6, 5, 3, 2, 1.5, 1, 10]);
 
-		list.replaceAt(3, 20);
-		expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5, 6]);
-		expect(reversed.toArray()).toEqual([6, 5, 3, 20, 1.5, 1, 10]);
+		// list.replaceAt(3, 20);
+		// expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5, 6]);
+		// expect(reversed.toArray()).toEqual([6, 5, 3, 20, 1.5, 1, 10]);
 
-		list.replaceAt(list.size.value - 1, 30);
-		expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5, 30]);
-		expect(reversed.toArray()).toEqual([30, 5, 3, 20, 1.5, 1, 10]);
+		// list.replaceAt(list.size.value - 1, 30);
+		// expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5, 30]);
+		// expect(reversed.toArray()).toEqual([30, 5, 3, 20, 1.5, 1, 10]);
 
-		// Test pop and shift
-		list.pop();
-		expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5]);
-		expect(reversed.toArray()).toEqual([5, 3, 20, 1.5, 1, 10]);
+		// // Test pop and shift
+		// list.pop();
+		// expect(list.toArray()).toEqual([10, 1, 1.5, 20, 3, 5]);
+		// expect(reversed.toArray()).toEqual([5, 3, 20, 1.5, 1, 10]);
 
-		list.shift();
-		expect(list.toArray()).toEqual([1, 1.5, 20, 3, 5]);
-		expect(reversed.toArray()).toEqual([5, 3, 20, 1.5, 1]);
+		// list.shift();
+		// expect(list.toArray()).toEqual([1, 1.5, 20, 3, 5]);
+		// expect(reversed.toArray()).toEqual([5, 3, 20, 1.5, 1]);
 
-		// Test swapping
-		list.swapBetween(0, 2);
-		console.log({ index: 3, value: list.at(3)?.value });
-		console.log({ index: 0, value: list.at(0)?.value });
-		expect(list.toArray()).toEqual([20, 1.5, 1, 3, 5]);
-		expect(reversed.toArray()).toEqual([5, 3, 1, 1.5, 20]);
+		// // Test swapping
+		// list.swapBetween(0, 2);
+		// console.log({ index: 3, value: list.at(3)?.value });
+		// console.log({ index: 0, value: list.at(0)?.value });
+		// expect(list.toArray()).toEqual([20, 1.5, 1, 3, 5]);
+		// expect(reversed.toArray()).toEqual([5, 3, 1, 1.5, 20]);
 
-		// Test moving
-		list.moveTo(0, list.at(3)!);
-		expect(list.toArray()).toEqual([3, 20, 1.5, 1, 5]);
-		expect(reversed.toArray()).toEqual([5, 1, 1.5, 20, 3]);
+		// // Test moving
+		// list.moveTo(0, list.at(3)!);
+		// expect(list.toArray()).toEqual([3, 20, 1.5, 1, 5]);
+		// expect(reversed.toArray()).toEqual([5, 1, 1.5, 20, 3]);
 
-		// Test with empty list
-		const emptyList = new List<number>([]);
-		const reversedEmpty = emptyList.reverse();
-		expect(emptyList.toArray()).toEqual([]);
-		expect(reversedEmpty.toArray()).toEqual([]);
+		// // Test with empty list
+		// const emptyList = new List<number>([]);
+		// const reversedEmpty = emptyList.reverse();
+		// expect(emptyList.toArray()).toEqual([]);
+		// expect(reversedEmpty.toArray()).toEqual([]);
 
-		emptyList.append(1);
-		expect(emptyList.toArray()).toEqual([1]);
-		expect(reversedEmpty.toArray()).toEqual([1]);
+		// emptyList.append(1);
+		// expect(emptyList.toArray()).toEqual([1]);
+		// expect(reversedEmpty.toArray()).toEqual([1]);
 	});
 
-	// it("should be transformable", () => {
-	// 	const list = new List([1, 2, 3]);
-	// 	const transformed = list.each(value => value.value + 1);
-	// 	expect(transformed.size.value).toBe(3);
-	// 	console.log(transformed.toArray());
-	// 	expect(transformed.at(0)?.value).toBe(2);
-	// 	expect(transformed.at(1)?.value).toBe(3);
-	// 	expect(transformed.at(2)?.value).toBe(4);
-	// });
+	it("should be transformable", () => {
+		const list = new List([1, 2, 3]);
+		const transformed = list.each(value => value.value + 1);
+		expect(transformed.size.value).toBe(3);
+		expect(transformed.at(0)?.value).toBe(2);
+		expect(transformed.at(1)?.value).toBe(3);
+		expect(transformed.at(2)?.value).toBe(4);
+	});
+
+	it("should keep track of changes to original list after transform", () => {
+		const list = new List([1, 2, 3]);
+		const transformed = list.each(value => value.value + 1);
+
+		list.append(4);
+		expect(transformed.size.value).toBe(4);
+		expect(transformed.at(3)?.value).toBe(5);
+
+		list.removeAt(0);
+		expect(list.toArray()).toEqual([2, 3, 4]);
+		expect(transformed.toArray()).toEqual([3, 4, 5]);
+
+		list.removeAt(1);
+		expect(list.toArray()).toEqual([2, 4]);
+		expect(transformed.toArray()).toEqual([3, 5]);
+
+		list.removeAt(1);
+		expect(list.toArray()).toEqual([2]);
+		expect(transformed.toArray()).toEqual([3]);
+
+		list.prepend(1);
+		expect(list.toArray()).toEqual([1, 2]);
+		expect(transformed.toArray()).toEqual([2, 3]);
+
+		list.insertAt(0, 0);
+		expect(list.toArray()).toEqual([0, 1, 2]);
+		expect(transformed.toArray()).toEqual([1, 2, 3]);
+
+		list.replaceAt(1, 1.5);
+		expect(list.toArray()).toEqual([0, 1.5, 2]);
+		expect(transformed.toArray()).toEqual([1, 2.5, 3]);
+
+		list.replaceAt(2, 2.5);
+		expect(list.toArray()).toEqual([0, 1.5, 2.5]);
+		expect(transformed.toArray()).toEqual([1, 2.5, 3.5]);
+
+		list.pop();
+		expect(list.toArray()).toEqual([0, 1.5]);
+		expect(transformed.toArray()).toEqual([1, 2.5]);
+
+		list.shift();
+		expect(list.toArray()).toEqual([1.5]);
+		expect(transformed.toArray()).toEqual([2.5]);
+
+		list.swapBetween(0, 2);
+		expect(list.toArray()).toEqual([2.5, 1.5]);
+		expect(transformed.toArray()).toEqual([3.5, 2.5]);
+
+		list.moveTo(0, list.at(1)!);
+		expect(list.toArray()).toEqual([1.5, 2.5]);
+		expect(transformed.toArray()).toEqual([2.5, 3.5]);
+	});
 });

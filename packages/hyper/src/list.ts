@@ -86,6 +86,19 @@ type ListEvent =
 	| { type: ListEventKind.Update; list: List<any> };
 
 const internal = {
+	assertIndexLow(index: number) {
+		if (index < 0) throw new RangeError("Index must be non-negative");
+	},
+
+	assertIndexHigh(index: number, list: List<any>) {
+		if (index >= list.size.value) throw new RangeError("Index is out of bounds");
+	},
+
+	assertIndexInBounds(index: number, list: List<any>) {
+		this.assertIndexLow(index);
+		this.assertIndexHigh(index, list);
+	},
+
 	removeMember<T>(list: List<T>, member: Member<T>): number {
 		if (member.prev) member.prev.next = member.next;
 		if (member.next) member.next.prev = member.prev;
@@ -96,6 +109,196 @@ const internal = {
 		// update the indices of the remaining members
 		list.updateIndices();
 		return list.size.value;
+	},
+
+	replaceMember<T>(list: List<T>, old: Member<T>, value: T): Member<T> {
+		console.log("--------------------------------");
+		console.log("member index:", old.index.value, "; value:", value);
+		console.log("Before   :", list.toArray());
+		const newMember = new Member({
+			parent: list,
+			index: old.index.value,
+			value,
+			next: old.next,
+			prev: old.prev,
+		});
+
+		if (old.prev) old.prev.next = newMember;
+		if (old.next) old.next.prev = newMember;
+
+		if (list.first === old) list.first = newMember;
+		if (list.last === old) list.last = newMember;
+
+		console.log("After    :", list.toArray());
+
+		return newMember;
+	},
+
+	appendMember<T>(list: List<T>, member: Member<T>): Member<T> {
+		if (list.last) list.last.next = member;
+		// list is going to be the only member in the list
+		if (!list.first) list.first = member;
+		list.last = member;
+
+		list.size.set(list.size.value + 1);
+		return member;
+	},
+
+	append<T>(list: List<T>, value: T): Member<T> {
+		const member = new Member({
+			parent: list,
+			index: list.size.value,
+			value: value,
+			next: null,
+			prev: list.last,
+		});
+		return internal.appendMember(list, member);
+	},
+
+	prepend<T>(list: List<T>, value: T): Member<T> {
+		const member = new Member({
+			parent: list,
+			index: 0,
+			value: value,
+			next: list.first,
+			prev: null,
+		});
+
+		if (list.first) list.first.prev = member;
+		// this is going to be the only member in the list
+		if (!list.last) list.last = member;
+		list.first = member;
+
+		// since top of the list was changed, we need to update all indices
+		list.updateIndices();
+		return member;
+	},
+
+	pop<T>(list: List<T>): Member<T> | undefined {
+		const last = list.last;
+		if (last) {
+			if (last.prev) last.prev.next = null;
+			list.last = last.prev;
+			if (list.first === last) list.first = list.last;
+			list.size.set(list.size.value - 1);
+			return last;
+		}
+	},
+
+	shift<T>(list: List<T>): Member<T> | undefined {
+		const first = list.first;
+		if (first) {
+			if (first.next) first.next.prev = null;
+			list.first = first.next;
+			if (list.last === first) list.last = list.first;
+			list.updateIndices();
+			return first;
+		}
+	},
+
+	insertMemberBefore<T>(list: List<T>, member: Member<T>, newMember: Member<T>): Member<T> {
+		if (member.prev) member.prev.next = newMember;
+		newMember.prev = member.prev;
+		newMember.next = member;
+		member.prev = newMember;
+
+		if (list.first === member) list.first = newMember;
+
+		list.updateIndices();
+		return newMember;
+	},
+
+	insertMemberAt<T>(list: List<T>, index: number, newMember: Member<T>): Member<T> {
+		internal.assertIndexLow(index);
+		// TODO: handle the case where the index is out of bounds
+		// Consider whether sparse lists should be supported
+		if (index > list.size.value) throw new RangeError("Index is out of bounds");
+
+		// Special case: inserting at the end of the list
+		if (index === list.size.value) return internal.appendMember(list, newMember);
+
+		const member = list.at(index);
+		if (!member) throw new RangeError(`Could not find member at index ${index}. This is a bug.`);
+
+		return internal.insertMemberBefore(list, member, newMember);
+	},
+
+	insertAt<T>(list: List<T>, index: number, value: T): Member<T> {
+		const newMember = new Member({ parent: list, index, value, next: null, prev: null });
+		return internal.insertMemberAt(list, index, newMember);
+	},
+
+	removeAt<T>(list: List<T>, index: number): Member<T> {
+		internal.assertIndexInBounds(index, list);
+
+		const member = list.at(index);
+		if (!member) throw new RangeError(`Could not find member at index ${index}. This is a bug.`);
+
+		internal.removeMember(list, member);
+		return member;
+	},
+
+	replaceAt<T>(list: List<T>, index: number, value: T): [Member<T>, Member<T>] {
+		internal.assertIndexInBounds(index, list);
+
+		const member = list.at(index);
+		if (!member) throw new RangeError(`Could not find member at index ${index}. This is a bug.`);
+
+		const newMember = internal.replaceMember(list, member, value);
+		return [member, newMember];
+	},
+
+	swap<T>(list: List<T>, a: Member<T>, b: Member<T>): void {
+		if (a === b) return;
+
+		// Store original references
+		const aNext = a.next;
+		const aPrev = a.prev;
+		const bNext = b.next;
+		const bPrev = b.prev;
+
+		// Handle adjacent nodes
+		if (aNext === b) {
+			// A -> B are adjacent
+			a.next = bNext;
+			a.prev = b;
+			b.next = a;
+			b.prev = aPrev;
+			if (bNext) bNext.prev = a;
+			if (aPrev) aPrev.next = b;
+		} else if (bNext === a) {
+			// B -> A are adjacent
+			b.next = aNext;
+			b.prev = a;
+			a.next = b;
+			a.prev = bPrev;
+			if (aNext) aNext.prev = b;
+			if (bPrev) bPrev.next = a;
+		} else {
+			// Non-adjacent nodes
+			a.next = bNext;
+			a.prev = bPrev;
+			b.next = aNext;
+			b.prev = aPrev;
+
+			// Update surrounding nodes
+			if (aPrev) aPrev.next = b;
+			if (aNext) aNext.prev = b;
+			if (bPrev) bPrev.next = a;
+			if (bNext) bNext.prev = a;
+		}
+
+		// Update first/last pointers
+		if (list.first === a) list.first = b;
+		else if (list.first === b) list.first = a;
+		if (list.last === a) list.last = b;
+		else if (list.last === b) list.last = a;
+
+		// Swap indices
+		const aIndex = a.index.value;
+		const bIndex = b.index.value;
+		a.index.set(bIndex);
+		b.index.set(aIndex);
 	},
 };
 
@@ -171,84 +374,32 @@ export class List<T> {
 	}
 
 	replaceMember(member: Member<T>, value: T) {
-		const newMember = new Member({
-			parent: this,
-			index: member.index.value,
-			value,
-			next: member.next,
-			prev: member.prev,
-		});
-
-		if (member.prev) member.prev.next = newMember;
-		if (member.next) member.next.prev = newMember;
-
-		if (this.first === member) this.first = newMember;
-		if (this.last === member) this.last = newMember;
-
+		const newMember = internal.replaceMember(this, member, value);
 		this.notify({ type: ListEventKind.Replace, member: newMember, old: member, list: this });
 	}
 
 	append(value: T): Member<T> {
-		const member = new Member({
-			parent: this,
-			index: this.size.value,
-			value: value,
-			next: null,
-			prev: this.last,
-		});
-
-		if (this.last) this.last.next = member;
-		// this is going to be the only member in the list
-		if (!this.first) this.first = member;
-		this.last = member;
-
-		this.size.set(this.size.value + 1);
+		const member = internal.append(this, value);
 		this.notify({ type: ListEventKind.Append, member, list: this });
 		return member;
 	}
 
 	prepend(value: T): Member<T> {
-		const member = new Member({
-			parent: this,
-			index: 0,
-			value: value,
-			next: this.first,
-			prev: null,
-		});
-
-		if (this.first) this.first.prev = member;
-		// this is going to be the only member in the list
-		if (!this.last) this.last = member;
-		this.first = member;
-
-		// since top of the list was changed, we need to update all indices
-		this.updateIndices();
+		const member = internal.prepend(this, value);
 		this.notify({ type: ListEventKind.Prepend, member, list: this });
 		return member;
 	}
 
-	pop(): T | undefined {
-		const last = this.last;
-		if (last) {
-			if (last.prev) last.prev.next = null;
-			this.last = last.prev;
-			if (this.first === last) this.first = this.last;
-			this.size.set(this.size.value - 1);
-			this.notify({ type: ListEventKind.Remove, member: last, list: this });
-			return last.value;
-		}
+	pop(): Member<T> | undefined {
+		const last = internal.pop(this);
+		if (last) this.notify({ type: ListEventKind.Remove, member: last, list: this });
+		return last;
 	}
 
-	shift(): T | undefined {
-		const first = this.first;
-		if (first) {
-			if (first.next) first.next.prev = null;
-			this.first = first.next;
-			if (this.last === first) this.last = this.first;
-			this.updateIndices();
-			this.notify({ type: ListEventKind.Remove, member: first, list: this });
-			return first.value;
-		}
+	shift(): Member<T> | undefined {
+		const first = internal.shift(this);
+		if (first) this.notify({ type: ListEventKind.Remove, member: first, list: this });
+		return first;
 	}
 
 	/** @escapes This function escapes the list and returns a plain array. The result is not reactive. */
@@ -256,22 +407,6 @@ export class List<T> {
 		const array: T[] = [];
 		for (const member of this) array.push(member.value);
 		return array;
-	}
-
-	/** @internal */
-	assertIndexLow(index: number) {
-		if (index < 0) throw new RangeError("Index must be non-negative");
-	}
-
-	/** @internal */
-	assertIndexHigh(index: number) {
-		if (index >= this.size.value) throw new RangeError("Index is out of bounds");
-	}
-
-	/** @internal */
-	assertIndexInBounds(index: number) {
-		this.assertIndexLow(index);
-		this.assertIndexHigh(index);
 	}
 
 	find(value: T): Member<T> | undefined {
@@ -298,158 +433,56 @@ export class List<T> {
 	}
 
 	insertAt(index: number, value: T): T {
-		this.assertIndexLow(index);
-		// TODO: handle the case where the index is out of bounds
-		// Consider whether sparse lists should be supported
-		if (index > this.size.value) throw new RangeError("Index is out of bounds");
-
-		// Special case: inserting at the end of the list
-		if (index === this.size.value) {
-			return this.append(value).value;
-		}
-
-		const member = this.at(index);
-		if (!member) throw new RangeError(`Could not find member at index ${index}. This is a bug.`);
-
-		const newMember = new Member({ parent: this, index, value, next: member, prev: member.prev });
-
-		if (member.prev) member.prev.next = newMember;
-		member.prev = newMember;
-
-		if (this.first === member) this.first = newMember;
-
-		this.updateIndices();
+		const newMember = internal.insertAt(this, index, value);
 		this.notify({ type: ListEventKind.Insert, member: newMember, list: this });
 		return newMember.value;
 	}
 
-	removeAt(index: number): T {
-		this.assertIndexInBounds(index);
-
-		const member = this.at(index);
-		if (!member) throw new RangeError(`Could not find member at index ${index}. This is a bug.`);
-
-		this.removeMember(member);
-		return member.value;
+	removeAt(index: number): Member<T> {
+		const member = internal.removeAt(this, index);
+		this.notify({ type: ListEventKind.Remove, member, list: this });
+		return member;
 	}
 
-	replaceAt(index: number, value: T): List<T> {
-		this.assertIndexInBounds(index);
-
-		const member = this.at(index);
-		if (!member) throw new RangeError(`Could not find member at index ${index}. This is a bug.`);
-
-		const newMember = new Member({ parent: this, index, value, next: member.next, prev: member.prev });
-
-		// not using insertAt because it's O(n) while this is O(1)
-		if (member.prev) member.prev.next = newMember;
-		if (member.next) member.next.prev = newMember;
-
-		// update the first and last members if necessary
-		if (this.first === member) this.first = newMember;
-		if (this.last === member) this.last = newMember;
-
-		this.notify({ type: ListEventKind.Replace, member: newMember, old: member, list: this });
-		return this;
+	replaceAt(index: number, value: T): Member<T> {
+		const [old, member] = internal.replaceAt(this, index, value);
+		this.notify({ type: ListEventKind.Replace, member, old, list: this });
+		return member;
 	}
 
 	swap(a: Member<T>, b: Member<T>) {
-		if (a === b) return;
-
-		// Store original references
-		const aNext = a.next;
-		const aPrev = a.prev;
-		const bNext = b.next;
-		const bPrev = b.prev;
-
-		// Handle adjacent nodes
-		if (aNext === b) {
-			// A -> B are adjacent
-			a.next = bNext;
-			a.prev = b;
-			b.next = a;
-			b.prev = aPrev;
-			if (bNext) bNext.prev = a;
-			if (aPrev) aPrev.next = b;
-		} else if (bNext === a) {
-			// B -> A are adjacent
-			b.next = aNext;
-			b.prev = a;
-			a.next = b;
-			a.prev = bPrev;
-			if (aNext) aNext.prev = b;
-			if (bPrev) bPrev.next = a;
-		} else {
-			// Non-adjacent nodes
-			a.next = bNext;
-			a.prev = bPrev;
-			b.next = aNext;
-			b.prev = aPrev;
-
-			// Update surrounding nodes
-			if (aPrev) aPrev.next = b;
-			if (aNext) aNext.prev = b;
-			if (bPrev) bPrev.next = a;
-			if (bNext) bNext.prev = a;
-		}
-
-		// Update first/last pointers
-		if (this.first === a) this.first = b;
-		else if (this.first === b) this.first = a;
-		if (this.last === a) this.last = b;
-		else if (this.last === b) this.last = a;
-
-		// Swap indices
-		const aIndex = a.index.value;
-		const bIndex = b.index.value;
-		a.index.set(bIndex);
-		b.index.set(aIndex);
-
+		internal.swap(this, a, b);
 		this.notify({ type: ListEventKind.Swap, a, b, list: this });
 	}
 
 	swapBetween(i: number, j: number) {
-		this.assertIndexInBounds(i);
-		this.assertIndexInBounds(j);
+		internal.assertIndexInBounds(i, this);
+		internal.assertIndexInBounds(j, this);
 
 		const a = this.at(i);
 		const b = this.at(j);
 		if (a && b) this.swap(a, b);
 	}
 
+	moveBefore(member: Member<T>, before: Member<T>) {
+		if (member.index.value === before.index.value) return;
+		internal.removeMember(this, member);
+		internal.insertMemberBefore(this, before, member);
+		this.notify({ type: ListEventKind.Move, member, index: before.index.value, list: this });
+	}
+
 	moveTo(index: number, member: Member<T>) {
-		this.assertIndexInBounds(index);
-		if (member.index.value === index) return;
+		internal.assertIndexInBounds(index, this);
 
-		// Find the target position
-		const target = this.at(index);
-		if (!target) throw new RangeError(`Could not find member at index ${index}. This is a bug.`);
-
-		console.log("--------------------------------");
-		console.log("target index:", index);
-		console.log("index:", member.index.value, "; value:", member.value);
-		console.log("index:", target.index.value, "; value:", target.value);
-		console.log("Before   :", this.toArray());
-
-		// Remove member from its current position
-		if (member.prev) member.prev.next = member.next;
-		if (member.next) member.next.prev = member.prev;
-		if (this.first === member) this.first = member.next;
-		if (this.last === member) this.last = member.prev;
-
-		console.log("Removed  :", this.toArray());
-
-		member.next = target;
-		member.prev = target.prev;
-		target.prev = member;
-
-		if (this.first === target) this.first = member;
-
-		console.log("Inserted :", this.toArray());
-		console.log("--------------------------------");
-
-		this.updateIndices();
-		this.notify({ type: ListEventKind.Move, member, index, list: this });
+		// Special case: moving to the end of the list
+		if (index === this.size.value - 1) {
+			internal.removeMember(this, member);
+			internal.append(this, member.value);
+			this.notify({ type: ListEventKind.Move, member, index, list: this });
+		} else {
+			const before = this.at(index);
+			if (before) return this.moveBefore(member, before);
+		}
 	}
 
 	readonly(): ReadonlyList<T> {
@@ -500,7 +533,7 @@ export class List<T> {
 				case ListEventKind.Remove:
 					return reversed.removeAt(reversed.size.value - update.member.index.value - 1);
 				case ListEventKind.Replace:
-					return reversed.replaceAt(reversed.size.value - update.old.index.value - 1, update.member.value);
+					return reversed.replaceAt(reversed.size.value - update.member.index.value - 1, update.member.value);
 				case ListEventKind.Swap:
 					return reversed.swapBetween(
 						reversed.size.value - update.a.index.value - 1,
