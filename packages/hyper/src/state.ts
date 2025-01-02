@@ -17,7 +17,7 @@ export class ReadonlyState<T = any> {
 		return this.state.value;
 	}
 
-	transform<U>(transformer: (t: T) => U): ReadonlyState<U> {
+	to<U>(transformer: (t: T) => U): ReadonlyState<U> {
 		const s = new State(transformer(this.value));
 		// publish transformed changes when value changes
 		this.listen(value => s.set(transformer(value)));
