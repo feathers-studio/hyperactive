@@ -6,6 +6,28 @@ import type { Window } from "@hyperactive/hyper/dom";
 
 declare const window: Window;
 
+// setup phase, write your states anywhere!
+
+const loading = new State(true);
+const todos = new List<Item>();
+
+window.addEventListener("load", () => {
+	const fromMem = JSON.parse(window.localStorage.getItem("todos") || "[]") as Item[];
+	if (!fromMem.length) {
+		fromMem.push({
+			title: "Get started!",
+			id: window.crypto.randomUUID(),
+			completed: false,
+		});
+	}
+	fromMem.forEach(todo => todos.append(todo));
+	loading.set(false);
+});
+
+todos.listen(() => {
+	window.localStorage.setItem("todos", JSON.stringify(todos.toArray()));
+});
+
 const S = (path: string) => {
 	return svg(
 		// @ts-expect-error SVG attributes are not typed correctly?
@@ -47,11 +69,7 @@ export function Form(todos: List<Item>) {
 				disabled: loading,
 				placeholder: loading.to(l => (l ? "Loading from local storage..." : "Write your next task")),
 				autofocus: true,
-				ref(el) {
-					loading.listen(l => {
-						if (!l) el.focus();
-					});
-				},
+				ref: el => loading.listen(l => l || el.focus()),
 			}),
 		),
 		button(
@@ -83,53 +101,30 @@ export function LocalEditableInput(item: Member<Item>) {
 }
 
 export function Item(item: Member<Item>) {
-	return item.to(i =>
-		li(
-			{ class: i.completed ? "completed" : "" },
-			button(
-				{
-					title: i.completed ? "Mark as not completed" : "Mark as completed",
-					on: { click: () => item.set({ ...i, completed: !i.completed }) },
-				},
-				svg(
-					// @ts-expect-error SVG attributes are not typed correctly?
-					{ width: "32", height: "32", fill: "#000000", viewBox: "0 0 256 256" },
-					trust('<circle cx="128" cy="128" r="108"></circle>'),
-				),
+	return li(
+		{ class: item.to(i => (i.completed ? "completed" : "")) },
+		button(
+			{
+				title: item.to(i => (i.completed ? "Mark as not completed" : "Mark as completed")),
+				on: { click: () => item.setWith(i => ({ ...i, completed: !i.completed })) },
+			},
+			svg(
+				// @ts-expect-error SVG attributes are not typed correctly?
+				{ width: "32", height: "32", fill: "#000000", viewBox: "0 0 256 256" },
+				trust('<circle cx="128" cy="128" r="108"></circle>'),
 			),
-			button({ class: "task-name" }, LocalEditableInput(item)),
-			button(
-				{ title: "Delete", on: { click: () => item.remove() } },
-				S(
-					'<path d="M216,48H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM192,208H64V64H192ZM80,24a8,8,0,0,1,8-8h80a8,8,0,0,1,0,16H88A8,8,0,0,1,80,24Z"></path>',
-				),
+		),
+		LocalEditableInput(item),
+		button(
+			{ title: "Delete", on: { click: () => item.remove() } },
+			S(
+				'<path d="M216,48H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM192,208H64V64H192ZM80,24a8,8,0,0,1,8-8h80a8,8,0,0,1,0,16H88A8,8,0,0,1,80,24Z"></path>',
 			),
 		),
 	);
 }
 
-const loading = new State(true);
-
 export function Home() {
-	const todos = new List<Item>();
-
-	window.addEventListener("load", () => {
-		const fromMem = JSON.parse(window.localStorage.getItem("todos") || "[]") as Item[];
-		if (!fromMem.length) {
-			fromMem.push({
-				title: "Get started!",
-				id: window.crypto.randomUUID(),
-				completed: false,
-			});
-		}
-		fromMem.forEach(todo => todos.append(todo));
-		loading.set(false);
-	});
-
-	todos.listen(() => {
-		window.localStorage.setItem("todos", JSON.stringify(todos.toArray()));
-	});
-
 	const completed = todos.filter(todo => todo.completed).size;
 	const total = todos.size;
 
