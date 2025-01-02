@@ -1,18 +1,18 @@
 <svg width="1080" height="400" viewBox="0 0 1080 400" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="1080" height="400" fill="white"/>
 <g clip-path="url(#clip0_407_305)">
-<path d="M464 160L464 216.5M464 246L464 216.5M512 246L512 216.5C512 209.167 507.3 194.5 488.5 194.5C469.7 194.5 464.333 209.167 464 216.5" stroke="black" stroke-width="8" stroke-linecap="round"/>
-<path d="M559 154C559 154 538 166.545 538 200C538 233.455 559 246 559 246" stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M577 218L586 200H568L577 182" stroke="url(#paint0_linear_407_305)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M595 154C595 154 616 166.545 616 200C616 233.455 595 246 595 246" stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M464.167 158.333L464.167 214.724M464.167 241.667L464.167 214.724M510.833 241.667L510.833 214.724C510.833 207.405 506.264 192.766 487.986 192.766C469.708 192.766 464.491 207.405 464.167 214.724" stroke="black" stroke-width="8.33333" stroke-linecap="round"/>
+<path d="M557.5 154.5C557.5 154.5 535.833 167 535.833 200.333C535.833 233.667 557.5 246.167 557.5 246.167" stroke="black" stroke-width="8.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M575.833 220.333L585.833 200.333H565.833L575.833 180.333" stroke="url(#paint0_linear_407_305)" stroke-width="8.00725" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M594.221 154.5C594.221 154.5 615.888 167 615.888 200.333C615.888 233.667 594.221 246.167 594.221 246.167" stroke="black" stroke-width="8.33333" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <defs>
-<linearGradient id="paint0_linear_407_305" x1="577" y1="182" x2="577" y2="218" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear_407_305" x1="565.833" y1="200.333" x2="585.833" y2="200.333" gradientUnits="userSpaceOnUse">
 <stop stop-color="#FF6A00"/>
 <stop offset="1" stop-color="#FFAA00"/>
 </linearGradient>
 <clipPath id="clip0_407_305">
-<rect width="160" height="100" fill="white" transform="translate(460 150)"/>
+<rect width="160" height="106.667" fill="white" transform="translate(460 147)"/>
 </clipPath>
 </defs>
 </svg>
