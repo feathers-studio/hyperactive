@@ -1,7 +1,7 @@
 import "./styles.css";
 
 import { div, h2, p, button, form, input, label, svg, ol, li, header, ul } from "@hyperactive/hyper/elements";
-import { trust, ListMember, ListState, State, renderDOM, type HyperNodeish } from "@hyperactive/hyper";
+import { trust, Member, List, State, renderDOM } from "@hyperactive/hyper";
 import type { Document } from "@hyperactive/hyper/dom";
 
 declare const document: Document;
@@ -20,15 +20,15 @@ export const Hero = (completed: State<number>, total: State<number>) => {
 		div(
 			{ class: "progress" },
 			p(
-				completed.transform(v => String(v)),
+				completed.to(v => String(v)),
 				" / ",
-				total.transform(v => String(v)),
+				total.to(v => String(v)),
 			),
 		),
 	);
 };
 
-export function Form(todos: ListState<Item>) {
+export function Form(todos: List<Item>) {
 	const handleSubmit = (event: any) => {
 		event.preventDefault();
 		todos.append({
@@ -65,24 +65,25 @@ export interface Item {
 	completed: boolean;
 }
 
-export function LocalEditableInput(item: ListMember<Item>) {
+export function LocalEditableInput(item: Member<Item>) {
 	const editing = new State(false);
 	const localChange = new State(item.value.title);
 
-	return editing.transform(e =>
+	return editing.to(e =>
 		input({
 			type: "text",
-			value: localChange.value,
+			value: localChange,
 			autofocus: true,
 			on: {
 				blur: () => editing.setWith(e => !e),
+				change: e => localChange.set((e.target as any).value),
 			},
 		}),
 	);
 }
 
-export function Item(item: ListMember<Item>) {
-	return item.transform(i =>
+export function Item(item: Member<Item>) {
+	return item.to(i =>
 		li(
 			{ class: i.completed ? "completed" : "" },
 			button(
@@ -108,7 +109,7 @@ export function Item(item: ListMember<Item>) {
 }
 
 export function Home() {
-	const todos = new ListState<Item>([
+	const todos = new List<Item>([
 		{
 			title: "Some task",
 			id: window.crypto.randomUUID(),
@@ -126,8 +127,8 @@ export function Home() {
 		},
 	]);
 
-	const completed = todos.filter(todo => todo.completed).size();
-	const total = todos.size();
+	const completed = todos.filter(todo => todo.completed).size;
+	const total = todos.size;
 
 	return div.container(
 		//
