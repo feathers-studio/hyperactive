@@ -1,11 +1,16 @@
-export * from "./lib/tags.ts";
-export * from "./lib/attributes.ts";
-export * from "./node.ts";
-export * from "./state.ts";
-export * from "./list.ts";
-export * from "./element.ts";
-export * from "./render/html.ts";
-export * from "./render/dom.ts";
+export type { Attributes } from "./attributes.ts";
+export { h, trust, HyperNode, type HyperNodeish, isHyperNodeish } from "./node.ts";
+export { State, ReadonlyState } from "./state.ts";
+export { List, ReadonlyList } from "./list.ts";
+export { renderHTML } from "./render/html.ts";
+export { renderDOM } from "./render/dom.ts";
+
+import { State } from "./state.ts";
+import { List } from "./list.ts";
+
+export const state = <T = any>(value: T) => new State(value);
+export const list = <T = any>(init?: Iterable<T>) => new List(init);
+
 // export * from "./domutils.ts";
 // export * from "./history.ts";
 // export * from "./router.ts";
