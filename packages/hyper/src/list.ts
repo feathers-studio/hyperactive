@@ -29,7 +29,7 @@ export class Member<T> extends State<T> {
 	}
 }
 
-class ReadonlyMember<T> extends ReadonlyState<T> {
+export class ReadonlyMember<T> extends ReadonlyState<T> {
 	parent: ReadonlyList<T>;
 
 	constructor(member: Member<T>, parent?: ReadonlyList<T>) {

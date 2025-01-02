@@ -110,7 +110,7 @@ describe("State", () => {
 	it("should flow into another state", () => {
 		const a = new State(0);
 		const b = new State(1);
-		a.into(b);
+		a.pipe(b);
 		a.set(100);
 		expect(b.value).toBe(100);
 	});
@@ -119,7 +119,7 @@ describe("State", () => {
 		const a = new State(0);
 		const b = new State(1);
 		const c = State.compose({ a, b });
-		a.into(b);
+		a.pipe(b);
 		a.set(100);
 		expect(c.value).toEqual({ a: 100, b: 100 });
 	});
