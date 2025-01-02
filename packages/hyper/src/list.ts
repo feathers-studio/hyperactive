@@ -189,11 +189,11 @@ export class List<T> {
 	/** @internal */
 	protected listeners: ((event: ListEvent) => void)[] = [];
 
-	set(values: Iterable<T>) {
+	set(iterable: Iterable<T>) {
 		this.array = [];
 
 		let index = 0;
-		for (const value of values) {
+		for (const value of iterable) {
 			const member: Member<T> = new Member({ parent: this, value });
 			this.array.push(member);
 			index++;
@@ -203,9 +203,9 @@ export class List<T> {
 		this.notify({ kind: ListEventKind.Update, list: this });
 	}
 
-	constructor(initial: Iterable<T> = []) {
+	constructor(init: Iterable<T> = []) {
 		// TODO: perhaps this could be lazy?
-		this.set(initial);
+		this.set(init);
 	}
 
 	get first(): Member<T> | undefined {

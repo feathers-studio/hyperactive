@@ -40,7 +40,8 @@ function attrifyHTML(attrs: Attributes<Tag>): string {
 
 			if (attr === "ref") return false;
 
-			const value = v as Attributes<Tag>[typeof attr];
+			let value = v as Attributes<Tag>[typeof attr];
+			if (ReadonlyState.isState(value)) value = value.value;
 
 			if (value === true) return attr;
 			if (value === "") return attr;

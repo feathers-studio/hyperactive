@@ -46,7 +46,12 @@ function createSelectorProxy<T extends Tag>(
 				const { attrs, children } = normaliseParams(props, childNodes);
 
 				const className = new State<MaybeString | MaybeString[]>("");
-				if (ReadonlyState.isState(attrs.class)) attrs.class.pipe(className);
+
+				if (ReadonlyState.isState(attrs.class)) {
+					className.set(attrs.class.value);
+					attrs.class.pipe(className);
+				} else className.set(attrs.class);
+
 				if (parsed.class) className.setWith(c => [parsed.class, c].flatMap(x => (x ? x : [])).filter(Boolean));
 
 				const merged = { ...attrs, id: parsed.id || attrs.id, class: className };

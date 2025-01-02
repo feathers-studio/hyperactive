@@ -1,8 +1,7 @@
 import { test, expect } from "bun:test";
 
-import { elements, renderHTML, trust } from "./index.ts";
-
-const { div, p, h1, br, input } = elements;
+import { renderHTML, trust } from "./index.ts";
+import { div, p, h1, br, input } from "./elements.ts";
 
 test("renderHTML simple", () => {
 	expect(renderHTML(div({ id: "hello", class: "world" }, "Hello world"))).toBe(
@@ -152,15 +151,4 @@ test("renderHTML with selector syntax AND attributes", () => {
 			div[".hello#id.world"].container({ class: "flex", title: "Flex Container" }, "test"),
 		),
 	).toBe(`<div class="hello world container flex" title="Flex Container" id="id">test</div>`);
-});
-
-test("elements[] equality", () => {
-	// checks that proxy fetches from cache instead of creating a new function each time
-	const div = elements.div;
-	const div2 = elements.div;
-
-	const p = elements.p;
-	const p2 = elements.p;
-	expect(div).toBe(div2);
-	expect(p).toBe(p2);
 });
