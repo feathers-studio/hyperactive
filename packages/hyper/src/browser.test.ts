@@ -4,22 +4,22 @@
 // import { div, input, h3, p, span, h1, ul, b } from "./elements.ts";
 
 // import type { Document } from "./lib/dom.ts";
-// import { ListState } from "./list.ts";
+// import { List } from "./list.ts";
 // declare const document: Document;
 
 // const state = new State("1");
 
 // const root = document.getElementById("root")!;
 
-// // renderDOM(
-// // 	root,
-// // 	div(
-// // 		{ class: "container" },
-// // 		h3("Enter a number, it should double below"),
-// // 		input({ type: "number", on: { input: e => state.update((e.target as any).value) } }),
-// // 		p(span(state.transform(v => String(parseFloat(v) * 2)))),
-// // 	),
-// // );
+// renderDOM(
+// 	root,
+// 	div(
+// 		{ class: "container" },
+// 		h3("Enter a number, it should double below"),
+// 		input({ type: "number", on: { change: e => state.set((e.target as any).value) } }),
+// 		p(span(state.transform(v => String(parseFloat(v) * 2)))),
+// 	),
+// );
 
 // {
 // 	// Hyperactive version
@@ -52,7 +52,7 @@
 // 	};
 
 // 	const App = () => {
-// 		const todos = new ListState([
+// 		const todos = new List([
 // 			{ id: 1, content: "Hyperactive" },
 // 			{ id: 2, content: "Jigza" },
 // 			{ id: 3, content: "Telegraf" },
@@ -69,7 +69,7 @@
 // }
 
 // // {
-// // 	const numbers = new ListState([1, 2, 3]);
+// // 	const numbers = new List([1, 2, 3]);
 
 // // 	renderDOM(
 // // 		root,
