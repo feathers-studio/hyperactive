@@ -1,6 +1,4 @@
-import { Falsy } from "../util.ts";
-
-type MaybeString = string | Falsy;
+import { MaybeString } from "../util.ts";
 
 export interface GlobalAttrs {
 	/**

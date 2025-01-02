@@ -58,8 +58,7 @@ export async function* fetchGlobalAttributes() {
 	const globalAttrType = typer.exports(typer.iface("GlobalAttrs", typer.struct(globalAttr)));
 
 	{
-		yield `import { Falsy } from "../util.ts";\n\n`;
-		yield `type MaybeString = string | Falsy;\n\n`;
+		yield `import { MaybeString } from "../util.ts";\n\n`;
 		yield* globalAttrType;
 	}
 }

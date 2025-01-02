@@ -359,6 +359,20 @@ export class List<T> {
 		for (const listener of this.listeners) listener(event);
 	}
 
+	join(joiner: string): State<string> {
+		let init = "";
+		for (const member of this) init += member.value + joiner;
+		const state = new State<string>(init);
+
+		this.listen(() => {
+			let update = "";
+			for (const member of this) update += member.value + joiner;
+			state.set(update);
+		});
+
+		return state;
+	}
+
 	// TODO: consider whether slice should react to source list changes
 	/** The sliced list will not react to changes in the original list. */
 	slice(start: number = 0, end: number = Infinity): ReadonlyList<T> {
@@ -474,6 +488,7 @@ export class ReadonlyList<T> {
 	reverse: () => ReadonlyList<T>;
 	slice: (start: number, end: number) => ReadonlyList<T>;
 	toArray: () => T[];
+	join: (joiner: string) => ReadonlyState<string>;
 
 	constructor(source: List<T>) {
 		this.source = source;
@@ -483,6 +498,7 @@ export class ReadonlyList<T> {
 		this.reverse = () => source.reverse();
 		this.slice = (start, end) => source.slice(start, end);
 		this.toArray = () => source.toArray();
+		this.join = joiner => source.join(joiner);
 	}
 
 	*[Symbol.iterator]() {

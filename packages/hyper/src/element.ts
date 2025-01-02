@@ -1,10 +1,11 @@
 import { h, HyperNode, normaliseParams } from "./node.ts";
 import { parseSelector } from "./parse.ts";
-import { isNonNullable } from "./util.ts";
+import { isNonNullable, MaybeString } from "./util.ts";
 import type { HyperNodeish, NonEmptyElement } from "./node.ts";
 import type { Tag } from "./lib/tags.ts";
 import type { EmptyElements } from "./lib/emptyElements.ts";
-import type { Attributes } from "./lib/attributes.ts";
+import type { Attributes } from "./attributes.ts";
+import { ReadonlyState, State } from "./state.ts";
 
 export namespace Hyper {
 	export interface Empty<T extends Tag> {
@@ -44,11 +45,11 @@ function createSelectorProxy<T extends Tag>(
 			const hyperElement = function hyperElement(props?: Attributes<T> | HyperNodeish, ...childNodes: HyperNodeish[]) {
 				const { attrs, children } = normaliseParams(props, childNodes);
 
-				const merged = {
-					...attrs,
-					id: parsed.id || attrs.id,
-					class: [parsed.class, attrs.class].flatMap(x => (x ? x : [])).filter(Boolean),
-				};
+				const className = new State<MaybeString | MaybeString[]>("");
+				if (ReadonlyState.isState(attrs.class)) attrs.class.pipe(className);
+				if (parsed.class) className.setWith(c => [parsed.class, c].flatMap(x => (x ? x : [])).filter(Boolean));
+
+				const merged = { ...attrs, id: parsed.id || attrs.id, class: className };
 
 				return new HyperNode(element, merged, children.filter(isNonNullable));
 			} as hE;
@@ -67,7 +68,7 @@ export const elements = new Proxy({} as Elements, {
 			return h(element as NonEmptyElement, ...params);
 		} as Elements[T];
 
-		target[element] = createSelectorProxy(element, hyperElement) as any;
+		target[element] = createSelectorProxy<T>(element, hyperElement) as any;
 		return target[element];
 	},
 });

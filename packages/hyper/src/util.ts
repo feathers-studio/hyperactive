@@ -1,3 +1,5 @@
+import { ReadonlyState } from "./state";
+
 export type Distribute<T extends string, U> = { [K in T]: U }[T];
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 export type Keyof<O> = Extract<keyof O, string>;
@@ -18,8 +20,10 @@ export type SetContents<T> = T extends Set<infer U> ? U : never;
 
 // no 0n since bigint support is 2020+
 export const Falsy = new Set([false, "", 0, null, undefined] as const);
-
 export type Falsy = SetContents<typeof Falsy>;
+export type MaybeString = string | Falsy;
+export type MaybeArray<T> = T | T[];
+export type MaybeState<T> = T | ReadonlyState<T>;
 
 // deno-lint-ignore no-explicit-any
 export const isFalsy = (n: any): n is Falsy => Falsy.has(n);

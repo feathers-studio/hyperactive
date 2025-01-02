@@ -1,9 +1,9 @@
 import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
 import { EmptyElements } from "../lib/emptyElements.ts";
-import { State } from "../state.ts";
+import { ReadonlyState, State } from "../state.ts";
 import { escapeAttr, escapeTextNode, isFalsy } from "../util.ts";
 import type { Tag } from "../lib/tags.ts";
-import type { Attributes } from "../lib/attributes.ts";
+import type { Attributes } from "../attributes.ts";
 import { List } from "../list.ts";
 
 function eventListeners(attrs: Attributes<Tag>["on"]) {
@@ -13,12 +13,17 @@ function eventListeners(attrs: Attributes<Tag>["on"]) {
 
 function aria(attrs: Attributes<Tag>["aria"]) {
 	if (!attrs) return "";
-	return (
-		Object.entries(attrs)
-			// @ts-expect-error aria properties will allow booleans in the future
-			.map(([attr, value]) => (value ? `aria-${attr}="${value === true ? "" : value}"` : ""))
-			.join(" ")
-	);
+
+	return Object.entries(attrs)
+		.map(([attr, v]) => {
+			const key = `aria-${attr}`;
+			let value = ReadonlyState.isState(v) ? v.value : v;
+			// @ts-expect-error TODO: some aria properties will allow booleans in the future
+			if (value === true) value = "";
+			if (!value) return "";
+			return `${key}="${value}"`;
+		})
+		.join(" ");
 }
 
 function attrifyHTML(attrs: Attributes<Tag>): string {
@@ -27,7 +32,12 @@ function attrifyHTML(attrs: Attributes<Tag>): string {
 			const attr = k as keyof Attributes<Tag>;
 
 			if (attr === "on") return eventListeners(attrs[attr]);
-			if (attr === "aria") return aria(attrs[attr]);
+
+			if (attr === "aria") {
+				const value = attrs[attr];
+				return aria(value);
+			}
+
 			if (attr === "ref") return false;
 
 			const value = v as Attributes<Tag>[typeof attr];

@@ -1,6 +1,6 @@
 import type { Tag } from "./lib/tags.ts";
 import type { EmptyElements } from "./lib/emptyElements.ts";
-import type { Attributes } from "./lib/attributes.ts";
+import type { Attributes } from "./attributes.ts";
 import { Falsy, isFalsy, isNonNullable } from "./util.ts";
 import { ReadonlyState, State } from "./state.ts";
 import { List, ReadonlyList } from "./list.ts";

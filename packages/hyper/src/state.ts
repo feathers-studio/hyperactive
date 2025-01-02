@@ -25,7 +25,7 @@ export class ReadonlyState<T = any> {
 		return s.readonly();
 	}
 
-	into(state: State<T>) {
+	pipe(state: State<T>) {
 		this.listen(value => state.set(value));
 	}
 

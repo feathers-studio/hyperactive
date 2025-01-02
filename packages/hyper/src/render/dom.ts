@@ -1,7 +1,7 @@
 // TODO: cleanup listeners when nodes are removed from DOM
 // TODO: support fragments
 
-import type { Attributes } from "../lib/attributes.ts";
+import type { Attributes } from "../attributes.ts";
 import type { Document, Element, HTMLElement, Node, Text } from "../lib/dom.ts";
 import type { Tag } from "../lib/tags.ts";
 import { guessEnv } from "../guessEnv.ts";
@@ -53,6 +53,8 @@ function attrifyDOM(el: Element, attrs: Attributes<Tag>) {
 	};
 
 	const handleAria = (aria: Attributes<Tag>["aria"]) => {
+		if (!aria) return;
+
 		for (const member in aria) {
 			const value = aria[member as keyof typeof aria];
 			if (ReadonlyState.isState(value)) {
