@@ -4,7 +4,7 @@ import { State } from "../state.ts";
 import { escapeAttr, escapeTextNode, isFalsy } from "../util.ts";
 import type { Tag } from "../lib/tags.ts";
 import type { Attributes } from "../lib/attributes.ts";
-import { ReadonlyListState } from "../list.ts";
+import { List } from "../list.ts";
 
 function eventListeners(attrs: Attributes<Tag>["on"]) {
 	// noop
@@ -46,7 +46,7 @@ export function renderHTML(node: HyperNodeish): string {
 	if (typeof node === "string") return escapeTextNode(node);
 	if (node instanceof HyperHTMLStringNode) return node.htmlString;
 	if (State.isState(node)) return renderHTML(node.value);
-	if (ReadonlyListState.isListState(node)) return node.toArray().map(renderHTML).join("");
+	if (List.isList(node)) return node.toArray().map(renderHTML).join("");
 
 	let stringified = "<" + node.tag;
 

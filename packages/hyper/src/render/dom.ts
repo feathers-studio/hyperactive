@@ -2,7 +2,7 @@ import type { Attributes } from "../lib/attributes.ts";
 import type { Document, Element, HTMLElement, Node, Text } from "../lib/dom.ts";
 import type { Tag } from "../lib/tags.ts";
 import { guessEnv } from "../guessEnv.ts";
-import { ReadonlyListState } from "../list.ts";
+import { List, ListEventKind } from "../list.ts";
 import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
 import { ReadonlyState } from "../state.ts";
 import { Falsy, isFalsy } from "../util.ts";
@@ -102,9 +102,9 @@ function toDOM(parent: Element, node: HyperNodeish, environment: { document: Doc
 		return init;
 	}
 
-	if (ReadonlyListState.isListState(node)) {
+	if (List.isList(node)) {
 		// TODO: implement list state reactively
-		for (const child of node.toArray()) {
+		for (const child of node) {
 			const childNode = toDOM(parent, child, environment);
 			if (childNode !== null) parent.append(childNode);
 		}

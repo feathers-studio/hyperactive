@@ -2,13 +2,13 @@ import { test, expect } from "bun:test";
 
 import { h, normaliseParams } from "./node.ts";
 import { State } from "./state.ts";
-import { ListState } from "./list.ts";
+import { List } from "./list.ts";
 import { p } from "./elements.ts";
 
 const testNode = h("p", "test");
 const testState = new State("5");
 const testReadonlyState = testState.transform(v => String(v + 5));
-const testListState = new ListState([5, 10]).each(v => h("p", String(v)));
+const testListState = new List([5, 10]).each(v => h("p", String(v)));
 const element = p(testState, "/", testState);
 
 test("normaliseParams: string", () => {

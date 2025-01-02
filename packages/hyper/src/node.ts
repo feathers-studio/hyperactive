@@ -3,7 +3,7 @@ import type { EmptyElements } from "./lib/emptyElements.ts";
 import type { Attributes } from "./lib/attributes.ts";
 import { Falsy, isFalsy, isNonNullable } from "./util.ts";
 import { ReadonlyState, State } from "./state.ts";
-import { ListState, ReadonlyListState } from "./list.ts";
+import { List, ReadonlyList } from "./list.ts";
 
 export type NonEmptyElement = Exclude<Tag, EmptyElements>;
 
@@ -23,15 +23,15 @@ export type HyperNodeish =
 	| HyperNodeMaybe<any>
 	| ReadonlyState<HyperNodeMaybe<any>>
 	| State<HyperNodeMaybe<any>>
-	| ReadonlyListState<HyperNodeMaybe<any>>
-	| ListState<HyperNodeMaybe<any>>;
+	| ReadonlyList<HyperNodeMaybe<any>>
+	| List<HyperNodeMaybe<any>>;
 
 export const isHyperChild = (n: any): n is HyperChild<any> =>
 	n instanceof HyperNode ||
 	n instanceof HyperHTMLStringNode ||
 	typeof n === "string" ||
 	ReadonlyState.isState(n) ||
-	ReadonlyListState.isListState(n);
+	List.isList(n);
 
 export const isHyperNodeish = (x: any): x is HyperNodeish => isHyperChild(x) || isFalsy(x) || State.isState(x);
 
