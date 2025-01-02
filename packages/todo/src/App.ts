@@ -1,10 +1,10 @@
 import "./styles.css";
 
-import { div, h2, p, button, form, input, label, svg, ol, li, header, ul } from "@hyperactive/hyper/elements";
+import { div, h2, p, button, form, input, label, svg, li, header, ul } from "@hyperactive/hyper/elements";
 import { trust, Member, List, State, renderDOM } from "@hyperactive/hyper";
-import type { Document } from "@hyperactive/hyper/dom";
+import type { Window } from "@hyperactive/hyper/dom";
 
-declare const document: Document;
+declare const window: Window;
 
 const S = (path: string) => {
 	return svg(
@@ -16,7 +16,7 @@ const S = (path: string) => {
 
 export const Hero = (completed: State<number>, total: State<number>) => {
 	return header(
-		div(h2("Tasks done"), p("頑張って~!")),
+		div(h2("Tasks done"), p("頑張って〜！")),
 		div(
 			{ class: "progress" },
 			p(
@@ -31,11 +31,9 @@ export const Hero = (completed: State<number>, total: State<number>) => {
 export function Form(todos: List<Item>) {
 	const handleSubmit = (event: any) => {
 		event.preventDefault();
-		todos.append({
-			title: event.target.todo.value,
-			id: window.crypto.randomUUID(),
-			completed: false,
-		});
+		const title = event.target.todo.value;
+		if (!title) return;
+		todos.append({ title, id: window.crypto.randomUUID(), completed: false });
 		event.target.reset();
 	};
 
@@ -66,20 +64,16 @@ export interface Item {
 }
 
 export function LocalEditableInput(item: Member<Item>) {
-	const editing = new State(false);
-	const localChange = new State(item.value.title);
+	const value = new State(item.value.title);
 
-	return editing.to(e =>
-		input({
-			type: "text",
-			value: localChange,
-			autofocus: true,
-			on: {
-				blur: () => editing.setWith(e => !e),
-				change: e => localChange.set((e.target as any).value),
-			},
-		}),
-	);
+	return input({
+		type: "text",
+		value,
+		on: {
+			blur: () => item.setWith(i => ({ ...i, title: value.value })),
+			change: e => value.set((e.target as any).value),
+		},
+	});
 }
 
 export function Item(item: Member<Item>) {
@@ -109,23 +103,23 @@ export function Item(item: Member<Item>) {
 }
 
 export function Home() {
-	const todos = new List<Item>([
-		{
-			title: "Some task",
-			id: window.crypto.randomUUID(),
-			completed: false,
-		},
-		{
-			title: "Some other task",
-			id: window.crypto.randomUUID(),
-			completed: true,
-		},
-		{
-			title: "last task, but this is just really really really really really long, but it's still not done yet",
-			id: window.crypto.randomUUID(),
-			completed: false,
-		},
-	]);
+	const todos = new List<Item>();
+
+	window.addEventListener("load", () => {
+		const fromMem = JSON.parse(window.localStorage.getItem("todos") || "[]") as Item[];
+		if (!fromMem.length) {
+			fromMem.push({
+				title: "Get started!",
+				id: window.crypto.randomUUID(),
+				completed: false,
+			});
+		}
+		fromMem.forEach(todo => todos.append(todo));
+	});
+
+	todos.listen(() => {
+		window.localStorage.setItem("todos", JSON.stringify(todos.toArray()));
+	});
 
 	const completed = todos.filter(todo => todo.completed).size;
 	const total = todos.size;
@@ -138,4 +132,4 @@ export function Home() {
 	);
 }
 
-renderDOM(document.getElementById("app")!, Home());
+renderDOM(window.document.getElementById("app")!, Home());

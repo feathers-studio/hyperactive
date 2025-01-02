@@ -1,5 +1,5 @@
 :root {
-	--primary-colour: #32cd32;
+	--primary-colour: #ffaa00;
 	--secondary-colour: #f0f0f0;
 	--background-colour: #f0f0f0;
 	--border-colour: #ccc;
@@ -139,6 +139,7 @@ ul li .task-name:hover {
 }
 
 ul li .task-name input {
+	height: 100%;
 	width: 100%;
 	text-align: left;
 	overflow: hidden;
@@ -147,6 +148,10 @@ ul li .task-name input {
 	border: none;
 	background: transparent;
 	cursor: pointer;
+}
+
+ul li .task-name input:focus {
+	background: hsl(from var(--secondary-colour) h s calc(l - 10));
 }
 
 ul li .task-name input:focus-visible {

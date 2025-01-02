@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		// Enable latest features
-		"lib": ["ESNext", "DOM"],
+		"lib": ["ESNext"],
 		"target": "ESNext",
 		"module": "ESNext",
 		"moduleDetection": "force",
@@ -18,6 +18,9 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"noFallthroughCasesInSwitch": true,
+
+		// disable ambient types
+		"types": [],
 
 		// Some stricter flags (disabled by default)
 		"noUnusedLocals": false,
