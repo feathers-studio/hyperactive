@@ -44,8 +44,14 @@ export function Form(todos: List<Item>) {
 				type: "text",
 				name: "todo",
 				id: "todo",
-				placeholder: "Write your next task",
+				disabled: loading,
+				placeholder: loading.to(l => (l ? "Loading from local storage..." : "Write your next task")),
 				autofocus: true,
+				ref(el) {
+					loading.listen(l => {
+						if (!l) el.focus();
+					});
+				},
 			}),
 		),
 		button(
@@ -102,6 +108,8 @@ export function Item(item: Member<Item>) {
 	);
 }
 
+const loading = new State(true);
+
 export function Home() {
 	const todos = new List<Item>();
 
@@ -115,6 +123,7 @@ export function Home() {
 			});
 		}
 		fromMem.forEach(todo => todos.append(todo));
+		loading.set(false);
 	});
 
 	todos.listen(() => {

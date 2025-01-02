@@ -40,8 +40,9 @@ function eventListeners(el: Element, listeners: Attributes<Tag>["on"]) {
 function attrifyDOM(el: Element, attrs: Attributes<Tag>) {
 	const set = (key: string, value: unknown) => {
 		if (value === true || value === "") return el.setAttribute(key, "");
+		if (isFalsy(value)) return el.removeAttribute(key);
 		if (Array.isArray(value)) return el.setAttribute(key, value.filter(x => x).join(" "));
-		if (value && !isFalsy(value)) return el.setAttribute(key, String(value));
+		return el.setAttribute(key, String(value));
 	};
 
 	const setAria = (member: string, value: unknown) => {
