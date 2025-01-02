@@ -8,7 +8,7 @@ export class Member<T> extends State<T> {
 	constructor({ parent, value }: { parent: List<T>; value: T }) {
 		super(value);
 		this.parent = parent;
-		this.listen(() => parent.notify({ type: ListEventKind.MemberUpdate, member: this }));
+		this.listen(() => parent.notify({ kind: ListEventKind.MemberUpdate, list: parent, member: this }));
 	}
 
 	getCurrentIndex() {
@@ -51,15 +51,15 @@ export enum ListEventKind {
 }
 
 type ListEvent =
-	| { type: ListEventKind.Append; list: List<any>; member: Member<any> }
-	| { type: ListEventKind.Prepend; list: List<any>; member: Member<any> }
-	| { type: ListEventKind.Insert; list: List<any>; member: Member<any>; index: number }
-	| { type: ListEventKind.Remove; list: List<any>; member: Member<any>; index: number }
-	| { type: ListEventKind.Replace; list: List<any>; member: Member<any>; old: Member<any>; index: number }
-	| { type: ListEventKind.Swap; list: List<any>; a: Member<any>; b: Member<any>; from: number; to: number }
-	| { type: ListEventKind.Move; list: List<any>; member: Member<any>; from: number; to: number }
-	| { type: ListEventKind.Update; list: List<any> }
-	| { type: ListEventKind.MemberUpdate; member: Member<any> };
+	| { kind: ListEventKind.Append; list: List<any>; member: Member<any> }
+	| { kind: ListEventKind.Prepend; list: List<any>; member: Member<any> }
+	| { kind: ListEventKind.Insert; list: List<any>; member: Member<any>; index: number }
+	| { kind: ListEventKind.Remove; list: List<any>; member: Member<any>; index: number }
+	| { kind: ListEventKind.Replace; list: List<any>; member: Member<any>; old: Member<any>; index: number }
+	| { kind: ListEventKind.Swap; list: List<any>; a: Member<any>; b: Member<any>; from: number; to: number }
+	| { kind: ListEventKind.Move; list: List<any>; member: Member<any>; from: number; to: number }
+	| { kind: ListEventKind.Update; list: List<any> }
+	| { kind: ListEventKind.MemberUpdate; list: List<any>; member: Member<any> };
 
 const internal = {
 	assertIndexLow(index: number) {
@@ -200,7 +200,7 @@ export class List<T> {
 		}
 		this.size.set(index);
 
-		this.notify({ type: ListEventKind.Update, list: this });
+		this.notify({ kind: ListEventKind.Update, list: this });
 	}
 
 	constructor(initial: Iterable<T> = []) {
@@ -237,25 +237,25 @@ export class List<T> {
 
 	removeMember(member: Member<T>): number {
 		const index = internal.removeMember(this, member);
-		this.notify({ type: ListEventKind.Remove, list: this, member, index });
+		this.notify({ kind: ListEventKind.Remove, list: this, member, index });
 		return index;
 	}
 
 	replaceMember(member: Member<T>, value: T): number {
 		const index = internal.replaceMember(this, member, value);
-		this.notify({ type: ListEventKind.Replace, list: this, member, old: member, index });
+		this.notify({ kind: ListEventKind.Replace, list: this, member, old: member, index });
 		return index;
 	}
 
 	append(value: T): Member<T> {
 		const member = internal.append(this, value);
-		this.notify({ type: ListEventKind.Append, member, list: this });
+		this.notify({ kind: ListEventKind.Append, member, list: this });
 		return member;
 	}
 
 	prepend(value: T): Member<T> {
 		const member = internal.prepend(this, value);
-		this.notify({ type: ListEventKind.Prepend, member, list: this });
+		this.notify({ kind: ListEventKind.Prepend, member, list: this });
 		return member;
 	}
 
@@ -263,13 +263,13 @@ export class List<T> {
 		const last = internal.drop(this);
 		// TODO: verify that the index is correct. The list will have shrunk by one,
 		// so I'm using the size (which will be last index + 1, equal to previous index)
-		if (last) this.notify({ type: ListEventKind.Remove, list: this, member: last, index: this.size.value });
+		if (last) this.notify({ kind: ListEventKind.Remove, list: this, member: last, index: this.size.value });
 		return last;
 	}
 
 	dropFirst(): Member<T> | undefined {
 		const first = internal.dropFirst(this);
-		if (first) this.notify({ type: ListEventKind.Remove, list: this, member: first, index: 0 });
+		if (first) this.notify({ kind: ListEventKind.Remove, list: this, member: first, index: 0 });
 		return first;
 	}
 
@@ -292,25 +292,25 @@ export class List<T> {
 
 	insertAt(index: number, value: T): Member<T> {
 		const newMember = internal.insertAt(this, index, value);
-		this.notify({ type: ListEventKind.Insert, list: this, member: newMember, index });
+		this.notify({ kind: ListEventKind.Insert, list: this, member: newMember, index });
 		return newMember;
 	}
 
 	removeAt(index: number): Member<T> {
 		const member = internal.removeAt(this, index);
-		this.notify({ type: ListEventKind.Remove, list: this, member, index });
+		this.notify({ kind: ListEventKind.Remove, list: this, member, index });
 		return member;
 	}
 
 	replaceAt(index: number, value: T): Member<T> {
 		const [old, member] = internal.replaceAt(this, index, value);
-		this.notify({ type: ListEventKind.Replace, list: this, member, old, index });
+		this.notify({ kind: ListEventKind.Replace, list: this, member, old, index });
 		return member;
 	}
 
 	swap(a: Member<T>, b: Member<T>) {
 		const [from, to] = internal.swap(this, a, b);
-		this.notify({ type: ListEventKind.Swap, list: this, a, b, from, to });
+		this.notify({ kind: ListEventKind.Swap, list: this, a, b, from, to });
 	}
 
 	swapBetween(i: number, j: number) {
@@ -326,7 +326,7 @@ export class List<T> {
 		if (member === before) return;
 		const from = internal.removeMember(this, member);
 		const to = internal.insertMemberBefore(this, before, member);
-		this.notify({ type: ListEventKind.Move, list: this, member, from, to });
+		this.notify({ kind: ListEventKind.Move, list: this, member, from, to });
 	}
 
 	moveTo(index: number, member: Member<T>) {
@@ -336,7 +336,7 @@ export class List<T> {
 		if (index === this.size.value - 1) {
 			const from = internal.removeMember(this, member);
 			internal.append(this, member.value);
-			this.notify({ type: ListEventKind.Move, list: this, member, from, to: index });
+			this.notify({ kind: ListEventKind.Move, list: this, member, from, to: index });
 		} else {
 			const before = this.at(index);
 			if (before) return this.moveBefore(before, member);
@@ -372,7 +372,7 @@ export class List<T> {
 		for (const member of this) reversed.prepend(member.value);
 
 		this.listen(update => {
-			switch (update.type) {
+			switch (update.kind) {
 				case ListEventKind.Append:
 					return reversed.prepend(update.member.value);
 				case ListEventKind.Prepend:
@@ -409,7 +409,7 @@ export class List<T> {
 		for (const member of this) target.append(modifier(member));
 
 		this.listen(update => {
-			switch (update.type) {
+			switch (update.kind) {
 				case ListEventKind.Append:
 					return target.append(modifier(update.member));
 				case ListEventKind.Prepend:
@@ -440,31 +440,29 @@ export class List<T> {
 		return target.readonly();
 	}
 
-	// // TODO: implement sort
-	// sort(compareFn: (a: T, b: T) => number): List<T> {
-	// 	const sorted = new List<T>();
-	// }
+	sort(compareFn: (a: T, b: T) => number): List<T> {
+		const sorted = new List<T>();
+		sorted.set(this.toArray().sort(compareFn));
 
-	// TODO: this implementation is flawed. If source list is modified so previously
-	// unfiltered members become eligible, they will not be added to the filtered list.
-	// filter(filterFn: (value: T, index: number) => boolean): List<T> {
-	// 	const filtered = new List<T>();
+		// TODO: implement smarter reactivity when source list is sorted
+		this.listen(update => sorted.set(update.list.toArray().sort(compareFn)));
+		return sorted;
+	}
 
-	// 	for (const member of this) {
-	// 		if (filterFn(member.value, member.index.value)) {
-	// 			const appended = filtered.append(member.value);
-	// 			member.listen(update => {
-	// 				if (filterFn(update, member.index.value)) appended.set(update);
-	// 				else appended.remove();
-	// 			});
-	// 		}
-	// 	}
+	filter(filterFn: (value: T, index: number) => boolean): List<T> {
+		const filtered = new List<T>();
 
-	// 	// TODO: we should somehow translate the events from the original list to the filtered list
-	// 	// This involves mapping the index of the event to the index of the filtered list
-	// 	this.listen(update => filtered.update(update.list.toPlainArray().filter(filterFn)));
-	// 	return filtered;
-	// }
+		let index = 0;
+		for (const member of this) {
+			if (filterFn(member.value, index)) filtered.append(member.value);
+			index++;
+		}
+
+		// TODO: we should somehow translate the events from the original list to the filtered list
+		// This involves mapping the index of the event to the index of the filtered list
+		this.listen(update => filtered.set(update.list.toArray().filter(filterFn)));
+		return filtered;
+	}
 }
 
 export class ReadonlyList<T> {
@@ -496,7 +494,7 @@ export class ReadonlyList<T> {
 		for (const member of this) target.append(modifier(member));
 
 		this.source.listen(update => {
-			switch (update.type) {
+			switch (update.kind) {
 				case ListEventKind.Append:
 					return target.append(modifier(update.member.readonly()));
 				case ListEventKind.Prepend:
