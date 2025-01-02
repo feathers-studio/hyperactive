@@ -1,13 +1,25 @@
 {
 	"name": "@hyperactive/hyper",
+	"version": "2.0.0-beta.1",
 	"module": "lib/index.js",
 	"devDependencies": {
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"@types/semver": "^7.5.8",
+		"semver": "^7.6.3"
+	},
+	"peerDependencies": {
+		"@types/web": "0.0.188"
+	},
+	"peerDependenciesMeta": {
+		"@types/web": {
+			"optional": true
+		}
 	},
 	"scripts": {
 		"check": "tsc --noEmit",
 		"build": "tsc",
 		"test": "bun test --coverage",
+		"prepack": "bun run scripts/prepack.ts",
 		"prepare": "bun run build"
 	},
 	"exports": {
@@ -15,5 +27,9 @@
 		"./elements": "./lib/elements.js",
 		"./dom": "./lib/lib/dom.js"
 	},
-	"type": "module"
+	"type": "module",
+	"files": [
+		"lib",
+		"src"
+	]
 }

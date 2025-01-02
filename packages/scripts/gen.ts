@@ -56,5 +56,11 @@ if (requested.includes("tags")) {
 if (requested.includes("dom")) {
 	const target = join(root, "dom.ts");
 	console.log(`Writing ${target}`);
-	await writeTo(target, domlib());
+	const [version, lib] = await domlib();
+	await writeTo(target, lib());
+
+	const pkg = Bun.file(join(import.meta.dir, "../hyper/package.json"));
+	const pkgJson = await pkg.json();
+	pkgJson.peerDependencies["@types/web"] = version;
+	await pkg.writer().write(JSON.stringify(pkgJson, null, "\t") + "\n");
 }

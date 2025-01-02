@@ -1,70 +1,74 @@
-export async function* domlib() {
+export async function domlib() {
 	const res = await fetch("https://unpkg.com/@types/web/index.d.ts");
 	// unpkg will redirect us to the versioned URL
 	const version = res.url.split("@types/web@")[1].split("/index.d.ts")[0];
-	console.log("Using @types/web version", version);
-	const domlib = await res.text();
 
-	const NBSP = String.fromCharCode(160);
+	return [
+		version,
+		async function* () {
+			console.log("Using @types/web version", version);
+			const domlib = await res.text();
 
-	const sanelib = domlib
-		.replace(`\n/// <reference no-default-lib="true"/>\n`, "")
-		.replaceAll("...arguments:", "...args:")
-		.replaceAll("    ", "\t")
-		.replaceAll(NBSP, " ");
+			const NBSP = String.fromCharCode(160);
 
-	const or = (list: string[]) => list.map(each => `(${each})`).join("|");
+			const sanelib = domlib
+				.replace(`\n/// <reference no-default-lib="true"/>\n`, "")
+				.replaceAll("...arguments:", "...args:")
+				.replaceAll("    ", "\t")
+				.replaceAll(NBSP, " ");
 
-	const idRegex = "(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])+";
-	const body = ".*{(\\n(.+))*?\\n}";
+			const or = (list: string[]) => list.map(each => `(${each})`).join("|");
 
-	const single = String.raw`\/\*\* .+ \*\/`;
-	const multi = String.raw`\/\*\*(\n.*?)+\*\/`;
+			const idRegex = "(_|$|[a-zA-Z])(_|$|[a-zA-Z0-9])+";
+			const body = ".*{(\\n(.+))*?\\n}";
 
-	const doc = or([single, multi]);
+			const single = String.raw`\/\*\* .+ \*\/`;
+			const multi = String.raw`\/\*\*(\n.*?)+\*\/`;
 
-	const iface = `\ninterface (?<interface>${idRegex})${body}`;
-	const type = `\ntype (?<type>${idRegex}).*`;
-	const declareVar = `\ndeclare var (?<declareVar>${idRegex})${body};`;
-	const declareFun = `\ndeclare function (?<declareFun>${idRegex}).*`;
+			const doc = or([single, multi]);
 
-	const constructed = RegExp(`(?<doc>${doc})?(?<match>${or([iface, type, declareVar, declareFun])})`, "g");
+			const iface = `\ninterface (?<interface>${idRegex})${body}`;
+			const type = `\ntype (?<type>${idRegex}).*`;
+			const declareVar = `\ndeclare var (?<declareVar>${idRegex})${body};`;
+			const declareFun = `\ndeclare function (?<declareFun>${idRegex}).*`;
 
-	function* exec(str: string, regexp: RegExp): Generator<RegExpExecArray> {
-		let result;
-		while ((result = regexp.exec(str))) yield result;
-	}
+			const constructed = RegExp(`(?<doc>${doc})?(?<match>${or([iface, type, declareVar, declareFun])})`, "g");
 
-	function getType(group: { [k: string]: string }) {
-		for (const key in group) {
-			const value = group[key];
-			if (value) return { key, value: group[key] };
-		}
-	}
-
-	type ParsedItem = {
-		name: string;
-		type: "interface" | "type" | "declareVar" | "declareFun";
-		match: string;
-		doc?: string;
-	};
-
-	const parsed = [...exec(sanelib, constructed)]
-		.map(({ groups: { match, doc, ...groups } = {} }): ParsedItem | undefined => {
-			const { key, value } = getType(groups) || {};
-
-			if (key && value) {
-				return {
-					name: value,
-					type: key as ParsedItem["type"],
-					match: match,
-					...(doc && { doc }),
-				};
+			function* exec(str: string, regexp: RegExp): Generator<RegExpExecArray> {
+				let result;
+				while ((result = regexp.exec(str))) yield result;
 			}
-		})
-		.filter((each): each is ParsedItem => !!each);
 
-	yield `
+			function getType(group: { [k: string]: string }) {
+				for (const key in group) {
+					const value = group[key];
+					if (value) return { key, value: group[key] };
+				}
+			}
+
+			type ParsedItem = {
+				name: string;
+				type: "interface" | "type" | "declareVar" | "declareFun";
+				match: string;
+				doc?: string;
+			};
+
+			const parsed = [...exec(sanelib, constructed)]
+				.map(({ groups: { match, doc, ...groups } = {} }): ParsedItem | undefined => {
+					const { key, value } = getType(groups) || {};
+
+					if (key && value) {
+						return {
+							name: value,
+							type: key as ParsedItem["type"],
+							match: match,
+							...(doc && { doc }),
+						};
+					}
+				})
+				.filter((each): each is ParsedItem => !!each);
+
+			yield `
 /*! *****************************************************************************
 This lib was borrowed and modified under the Apache 2.0 license from
 the @types/web package, originally published by Microsoft Corporation.
@@ -77,13 +81,15 @@ This modified version is based on @types/web version ${version}.
 export const domLibVersion = "${version}";
 `.trim();
 
-	for (const item of parsed) {
-		yield "\n";
+			for (const item of parsed) {
+				yield "\n";
 
-		let ret = item.match.slice(1);
-		if (item.type === "interface") ret = "export " + ret;
-		if (item.doc) ret = item.doc + "\n" + ret;
+				let ret = item.match.slice(1);
+				if (item.type === "interface") ret = "export " + ret;
+				if (item.doc) ret = item.doc + "\n" + ret;
 
-		yield ret;
-	}
+				yield ret;
+			}
+		},
+	] as const;
 }

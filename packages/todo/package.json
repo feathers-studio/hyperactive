@@ -8,15 +8,14 @@
 	"devDependencies": {
 		"@types/bun": "latest",
 		"@types/react": "^19.0.2",
-		"@types/react-dom": "^19.0.2"
+		"@types/react-dom": "^19.0.2",
+		"@types/web": "^0.0.188"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
 	},
 	"dependencies": {
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0",
-		"vite": "^6.0.5",
-		"@hyperactive/hyper": "workspace:*"
+		"@hyperactive/hyper": "workspace:*",
+		"vite": "^6.0.5"
 	}
 }
