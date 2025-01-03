@@ -1,0 +1,17 @@
+{
+	"name": "@hyperactive/web",
+	"module": "src/index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.7.2"
+	},
+	"dependencies": {
+		"@hyperactive/hyper": "workspace:*",
+		"@hyperactive/serve": "workspace:*",
+		"marked": "^15.0.5",
+		"mime-types": "^2.1.35"
+	}
+}

@@ -1,0 +1,17 @@
+/* Geist Variable Font */
+@font-face {
+	font-family: "Geist";
+	src: url("./Geist[wght].woff2") format("woff2");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* GeistMono Variable Font */
+@font-face {
+	font-family: "GeistMono";
+	src: url("./GeistMono[wght].woff2") format("woff2");
+	font-weight: 100 950;
+	font-style: normal;
+	font-display: swap;
+}
