@@ -20,7 +20,7 @@ export class HyperNode<T extends Tag> {
 export type HyperChild<T extends Tag> = HyperNode<T> | HyperHTMLStringNode | HyperTextNode;
 export type HyperNodeMaybe<T extends Tag> = HyperChild<T> | Falsy;
 export type HyperNodeOrState<T extends Tag> = HyperNodeMaybe<T> | ReadonlyState<HyperNodeOrState<T>>;
-export type HyperNodeish = HyperNodeOrState<any> | ReadonlyList<HyperNodeOrState<any>>;
+export type HyperNodeish = HyperNodeOrState<any> | ReadonlyList<HyperNodeOrState<any>> | List<HyperNodeOrState<any>>;
 
 export const isHyperChild = (n: any): n is HyperChild<any> =>
 	n instanceof HyperNode ||
