@@ -1,11 +1,10 @@
 {
 	"compilerOptions": {
 		// Enable latest features
-		"lib": ["ESNext", "DOM"],
+		"lib": ["ESNext"],
 		"target": "ESNext",
 		"module": "ESNext",
 		"moduleDetection": "force",
-		"jsx": "react-jsx",
 		"allowJs": true,
 
 		// Bundler mode
@@ -18,6 +17,7 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"noFallthroughCasesInSwitch": true,
+		"types": [],
 
 		// Some stricter flags (disabled by default)
 		"noUnusedLocals": false,
