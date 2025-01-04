@@ -38,6 +38,15 @@
         "@types/web",
       ],
     },
+    "packages/mark": {
+      "name": "@hyperactive/mark",
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5.0.0",
+      },
+    },
     "packages/scripts": {
       "name": "@hyperactive/scripts",
       "dependencies": {
@@ -151,6 +160,8 @@
     "@feathers-studio/todo": ["@feathers-studio/todo@workspace:packages/todo", { "dependencies": { "@hyperactive/hyper": "packages/hyper", "vite": "^6.0.5" }, "devDependencies": { "@types/bun": "latest", "@types/react": "^19.0.2", "@types/react-dom": "^19.0.2", "@types/web": "^0.0.188" }, "peerDependencies": { "typescript": "^5.0.0" } }],
 
     "@hyperactive/hyper": ["@hyperactive/hyper@workspace:packages/hyper", { "devDependencies": { "@types/bun": "latest", "@types/semver": "^7.5.8", "semver": "^7.6.3" }, "peerDependencies": { "@types/web": "0.0.188" }, "optionalPeers": ["@types/web"] }],
+
+    "@hyperactive/mark": ["@hyperactive/mark@workspace:packages/mark", { "devDependencies": { "@types/bun": "latest" }, "peerDependencies": { "typescript": "^5.0.0" } }],
 
     "@hyperactive/scripts": ["@hyperactive/scripts@workspace:packages/scripts", { "dependencies": { "jsdom": "^25.0.1" }, "devDependencies": { "@types/jsdom": "^21.1.7" } }],
 
