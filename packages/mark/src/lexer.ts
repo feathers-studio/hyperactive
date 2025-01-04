@@ -31,7 +31,10 @@ type BlockTokenType =
 	| "COMMENT"
 	| "QUOTE_MARKER"
 	| "PIPE"
-	| "ALIGN";
+	| "ALIGN"
+	| "CODE_GROUP_START"
+	| "CODE_GROUP_NAME"
+	| "CODE_GROUP_END";
 
 type InlineTokenType =
 	| "WHITESPACE"
@@ -158,6 +161,26 @@ export class Lexer {
 					} else {
 						this.lexText();
 					}
+					break;
+				case ":":
+					if (this.isNewLine()) {
+						if (this.peek(0, 3) === ":::") {
+							this.advance(3);
+							if (this.peek() === " ") {
+								this.addToken("CODE_GROUP_START", "::: ");
+								this.advance();
+								let title = "";
+								while (!this.hasEnded() && this.peek() !== "\n") {
+									title += this.peek();
+									this.advance();
+								}
+								this.addToken("CODE_GROUP_NAME", title);
+							} else {
+								this.addToken("CODE_GROUP_END", ":::");
+								this.advance();
+							}
+						}
+					} else this.lexText();
 					break;
 				case "`":
 					if (this.isNewLine() && this.isCodeFence()) {
@@ -438,7 +461,6 @@ export class Lexer {
 
 		// Skip to next line
 		if (this.peek() === "\n") {
-			this.addToken("NEWLINE", "\n");
 			this.advance();
 		}
 

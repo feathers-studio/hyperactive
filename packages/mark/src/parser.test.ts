@@ -114,15 +114,55 @@ describe("Parser", () => {
 			]);
 		});
 
+		it("parses code groups", () => {
+			const result = parse(
+				//
+				"::: code\n" +
+					//
+					"```js\n" +
+					"console.log('Hello, world!');\n" +
+					"```\n" +
+					//
+					"```python\n" +
+					"print('Hello, world!');\n" +
+					"```\n" +
+					":::",
+			);
+			expect(result).toEqual([
+				new Block.CodeGroup("code", [
+					new Block.CodeBlock("console.log('Hello, world!');", {
+						language: "js",
+						title: "",
+						lineNumbers: false,
+						highlight: [],
+					}),
+				]),
+			]);
+		});
+
 		it("parses tables", () => {
-			const result = parse("| Header 1 | Header 2 |\n| :-- | --: |\n| Cell 1 | Cell 2 |");
+			const result = parse(
+				`
+| Header 1 | Header 2 |
+| :-- | --: |
+| Cell 1 | Cell 2 |
+| Cell 3 | Cell 4 |
+`.trim(),
+			);
 			expect(result).toEqual([
 				new Block.Table(
 					[
-						[new Block.Paragraph([new Inline.Text("Header 1"), new Inline.Text("Header 2")])],
-						[new Block.Paragraph([new Inline.Text("Cell 1"), new Inline.Text("Cell 2")])],
+						new Block.TableRow([
+							new Block.TableCell([new Inline.Text("Cell 1")]),
+							new Block.TableCell([new Inline.Text("Cell 2")]),
+						]),
+						new Block.TableRow([
+							new Block.TableCell([new Inline.Text("Cell 3")]),
+							new Block.TableCell([new Inline.Text("Cell 4")]),
+						]),
 					],
-					new Block.TableHeader([new Inline.Text("Header 1"), new Inline.Text("Header 2")], "left"),
+					new Block.TableRow([new Block.TableCell([new Inline.Text("Header 1"), new Inline.Text("Header 2")])]),
+					["left", "right"],
 				),
 			]);
 		});

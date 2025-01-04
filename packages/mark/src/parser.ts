@@ -9,20 +9,20 @@ export class Parser {
 		this.tokens = tokens;
 	}
 
-	private peek(): Token {
-		return this.tokens[this.current];
+	private peek(offset = 0): Token {
+		return this.tokens[this.current + offset];
 	}
 
-	private previous(): Token {
-		return this.tokens[this.current - 1];
+	private previous(offset = 0): Token {
+		return this.tokens[this.current - 1 - offset];
 	}
 
-	private advance(): Token {
-		if (!this.isAtEnd()) this.current++;
+	private advance(count = 1): Token {
+		if (!this.isEOF()) this.current += count;
 		return this.previous();
 	}
 
-	private isAtEnd(): boolean {
+	private isEOF(): boolean {
 		return this.current >= this.tokens.length;
 	}
 
@@ -37,7 +37,7 @@ export class Parser {
 	}
 
 	private check(type: Token["type"]): boolean {
-		if (this.isAtEnd()) return false;
+		if (this.isEOF()) return false;
 		return this.peek().type === type;
 	}
 
@@ -92,7 +92,7 @@ export class Parser {
 	}
 
 	private parseValue(): Value | Call.Call {
-		if (this.isAtEnd()) {
+		if (this.isEOF()) {
 			throw new Error("Unexpected end of input while parsing value");
 		}
 
@@ -117,6 +117,29 @@ export class Parser {
 			default:
 				throw new Error(`Expected value, got ${token.type}`);
 		}
+	}
+
+	private parseCodeGroup(): Block.CodeGroup {
+		this.advance().value; // consume CODE_GROUP_START
+		let title = "";
+		if (this.check("CODE_GROUP_NAME")) title = this.advance().value;
+		else throw new Error("Expected code group name");
+		if (this.check("NEWLINE")) this.advance(); // consume NEWLINE
+		else throw new Error("Expected newline after code group name");
+
+		const blocks: Block.CodeBlock[] = [];
+		while (this.peek().type !== "CODE_GROUP_END") {
+			if (this.peek().type === "NEWLINE") {
+				this.advance();
+				continue;
+			} else if (this.peek().type === "CODE_START") {
+				blocks.push(this.parseCodeBlock());
+			} else {
+				throw new Error(`Expected code block, got ${this.peek().type}`);
+			}
+		}
+		this.advance(); // consume CODE_GROUP_END
+		return new Block.CodeGroup(title, blocks);
 	}
 
 	private parseCodeBlock(): Block.CodeBlock {
@@ -188,7 +211,7 @@ export class Parser {
 		let content: Block.Block[] = [];
 		let currentParagraph: Inline.Inline[] = [];
 
-		while (!this.isAtEnd()) {
+		while (!this.isEOF()) {
 			if (this.check("QUOTE_MARKER")) {
 				// Consume the quote marker
 				this.advance();
@@ -229,20 +252,195 @@ export class Parser {
 		return new Block.Quote(content);
 	}
 
+	private parseInline(): Inline.Inline {
+		if (this.check("TEXT")) {
+			return new Inline.Text(this.advance().value);
+		} else if (this.check("STRONG") || this.check("EMPHASIS")) {
+			const marker = this.advance();
+			const isDouble = this.check(marker.type);
+
+			if (isDouble) {
+				this.advance(); // consume second marker
+				const content = this.parseInlineContent();
+				if (!this.match(marker.type, marker.type)) {
+					throw new Error("Unclosed strong emphasis");
+				}
+				return new Inline.Strong(content);
+			} else {
+				const content = this.parseInlineContent();
+				if (!this.match(marker.type)) {
+					throw new Error("Unclosed emphasis");
+				}
+				return new Inline.Emphasis(content);
+			}
+		} else if (this.check("CODE_SINGLE")) {
+			this.advance();
+			let content = "";
+			while (!this.isEOF() && !this.check("CODE_SINGLE")) {
+				if (this.check("TEXT")) {
+					content += this.advance().value;
+				} else {
+					content += this.advance().type; // fallback for other tokens
+				}
+			}
+			if (!this.match("CODE_SINGLE")) {
+				throw new Error("Unclosed inline code");
+			}
+			return new Inline.Code(content);
+		} else if (this.check("LINK_OPEN")) {
+			this.advance();
+			const text = this.parseInlineContent();
+			if (!this.match("LINK_CLOSE")) {
+				throw new Error("Unclosed link text");
+			}
+			if (!this.match("PAREN_OPEN")) {
+				throw new Error("Expected link URL");
+			}
+			let url = "";
+			while (!this.isEOF() && !this.check("PAREN_CLOSE")) {
+				url += this.advance().value;
+			}
+			if (!this.match("PAREN_CLOSE")) {
+				throw new Error("Unclosed link URL");
+			}
+			return new Inline.Link(text, url);
+		} else if (this.check("IMAGE_OPEN")) {
+			this.advance();
+			const alt = this.parseInlineContent();
+			if (!this.match("LINK_CLOSE")) {
+				throw new Error("Unclosed image alt text");
+			}
+			if (!this.match("PAREN_OPEN")) {
+				throw new Error("Expected image URL");
+			}
+			let url = "";
+			while (!this.isEOF() && !this.check("PAREN_CLOSE")) {
+				url += this.advance().value;
+			}
+			if (!this.match("PAREN_CLOSE")) {
+				throw new Error("Unclosed image URL");
+			}
+			return new Inline.Image(alt, url);
+		} else {
+			throw new Error(`Unexpected token ${this.peek().type}`);
+		}
+	}
+
+	// until allows us to parse inline content until a certain token, such as newline, table pipe, etc.
+	private parseInlineContent(until: Token["type"] = "NEWLINE"): Inline.Inline[] {
+		const content: Inline.Inline[] = [];
+		while (
+			!this.isEOF() &&
+			!this.check(until) &&
+			!this.check("LINK_CLOSE") &&
+			!this.check("STRONG") &&
+			!this.check("EMPHASIS") &&
+			!this.check("CODE_SINGLE")
+		) {
+			content.push(this.parseInline());
+		}
+		return content;
+	}
+
+	private parseTableCell(): Block.TableCell | Block.TableAlignment {
+		let content: Inline.Inline[] | undefined = undefined;
+		let alignment: Block.TableAlignment | undefined = undefined;
+		while (!this.check("PIPE")) {
+			if (this.check("ALIGN")) {
+				if (content) throw new Error("Cannot have content and alignment in the same cell");
+				if (alignment) throw new Error("Cannot have multiple alignments in a cell");
+				alignment = this.advance().value as Block.TableAlignment;
+			}
+			// TODO: parse align cell
+			if (alignment) throw new Error("Cannot have alignment in the middle of a cell");
+			if (!content) content = [];
+			content.push(this.parseInline());
+		}
+		return alignment ?? new Block.TableCell(content!);
+	}
+
+	private parseTableRow(): Block.TableRow | Block.TableAlignment[] {
+		let cells: Block.TableCell[] | undefined = undefined;
+		let alignments: Block.TableAlignment[] | undefined = undefined;
+
+		while (!this.check("NEWLINE")) {
+			if (this.check("PIPE")) {
+				this.advance();
+			} else throw new Error("Expected pipe");
+
+			const cell = this.parseTableCell();
+			if (cell instanceof Block.TableCell) {
+				if (alignments) throw new Error("Cannot have alignment and content in the same row");
+				if (!cells) cells = [];
+				cells.push(cell);
+			} else {
+				if (cells) throw new Error("Cannot have alignment and content in the same row");
+				if (!alignments) alignments = [];
+				alignments.push(cell);
+			}
+		}
+
+		if (this.check("NEWLINE")) {
+			this.advance();
+		} else throw new Error("Expected newline");
+
+		return alignments ?? new Block.TableRow(cells!);
+	}
+
+	private parseTable(): Block.Table {
+		const rows: Block.TableRow[] = [];
+		let header: Block.TableRow | undefined = undefined;
+		let alignments: Block.TableAlignment[] | undefined = undefined;
+
+		let index = 0;
+		let lastRowLength: number | undefined = undefined;
+
+		// parse a row when we see a pipe
+		while (this.check("PIPE")) {
+			this.advance(); // consume PIPE
+			const row = this.parseTableRow();
+			const length = row instanceof Block.TableRow ? row.cells.length : row.length;
+
+			if (lastRowLength === undefined) {
+				lastRowLength = length;
+			} else if (lastRowLength !== length) {
+				throw new Error("All rows must have the same number of cells");
+			}
+
+			if (row instanceof Block.TableRow) {
+				rows.push(row);
+			} else {
+				if (index !== 1) throw new Error("Alignments must be in the second row");
+				alignments = row;
+				header = rows.shift();
+			}
+
+			index++;
+		}
+
+		return new Block.Table(rows, header, alignments);
+	}
+
 	public parse() {
 		const blocks: (Block.Block | Call.Call)[] = [];
 		let currentList: Block.List | null = null;
 
-		while (!this.isAtEnd()) {
+		while (!this.isEOF()) {
 			try {
-				if (this.check("CALL_START")) {
+				if (this.check("COMMENT")) {
+					blocks.push(new Block.Comment(this.advance().value));
+				} else if (this.check("CALL_START")) {
 					blocks.push(this.parseCall());
 				} else if (this.check("HEADING")) {
 					blocks.push(this.parseHeading());
+				} else if (this.check("CODE_GROUP_START")) {
+					blocks.push(this.parseCodeGroup());
 				} else if (this.check("CODE_START")) {
 					blocks.push(this.parseCodeBlock());
 				} else if (this.check("QUOTE_MARKER")) {
 					blocks.push(this.parseQuote());
+				} else if (this.check("PIPE")) {
+					blocks.push(this.parseTable());
 				} else if (this.check("LIST_MARKER")) {
 					const item = this.parseListItem();
 					if (!currentList) {
@@ -259,7 +457,7 @@ export class Parser {
 					this.advance();
 				}
 			} catch (error) {
-				const errorPosition = !this.isAtEnd() ? `at line ${this.peek().position.line}` : "at end of input";
+				const errorPosition = !this.isEOF() ? `at line ${this.peek().position.line}` : "at end of input";
 				throw new Error(`Parse error ${errorPosition}: ${(error as Error).message}`);
 			}
 		}
@@ -277,16 +475,7 @@ export class Parser {
 
 		const lvl = level as Block.HeadingLevel;
 
-		const content: Inline[] = [];
-
-		// Parse content until newline
-		while (!this.isAtEnd() && !this.check("NEWLINE")) {
-			if (this.check("TEXT")) {
-				content.push(new Inline.Text(this.advance().value));
-			} else {
-				this.advance(); // skip other tokens for now
-			}
-		}
+		const content = this.parseInlineContent();
 
 		// Consume the newline if present
 		if (this.check("NEWLINE")) {
@@ -307,34 +496,5 @@ export class Parser {
 		}
 
 		return new Block.ListItem(this.parseInlineContent());
-	}
-
-	private parseInlineContent(): Block.Paragraph[] {
-		const content: Inline.Inline[] = [];
-		let currentText = "";
-
-		while (!this.isAtEnd() && !this.check("NEWLINE")) {
-			if (this.check("TEXT")) {
-				currentText += this.advance().value;
-			} else if (currentText) {
-				content.push(new Inline.Text(currentText));
-				currentText = "";
-				this.advance(); // skip other tokens for now
-			} else {
-				this.advance(); // skip other tokens for now
-			}
-		}
-
-		// Add any remaining text
-		if (currentText) {
-			content.push(new Inline.Text(currentText));
-		}
-
-		// Consume the newline
-		if (this.check("NEWLINE")) {
-			this.advance();
-		}
-
-		return [new Block.Paragraph(content)];
 	}
 }

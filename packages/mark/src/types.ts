@@ -18,7 +18,7 @@ export class Meta {
 		src: "https://example.com/image.jpg",
 		caption: "An example image"
 	)
- */
+*/
 export namespace Call {
 	export class Parameter {
 		type: "parameter" = "parameter";
@@ -165,17 +165,17 @@ export namespace Block {
 		Example:
 
 		::: code-group
-		```language-1 Title
+		```language-1 Title1
 		content
 		```
-		```language-2 Title
+		```language-2 Title2
 		content
 		```
 		:::
 	*/
 	export class CodeGroup {
 		type: "code-group" = "code-group";
-		constructor(public blocks: CodeBlock[]) {}
+		constructor(public title: string, public blocks: CodeBlock[]) {}
 	}
 
 	/*
@@ -200,6 +200,8 @@ export namespace Block {
 		type: "rule" = "rule";
 	}
 
+	export type TableAlignment = "left" | "center" | "right";
+
 	/*
 		Table headers.
 		Example:
@@ -207,9 +209,15 @@ export namespace Block {
 		| Header | Header | Header | Header |
 		| :-- | :---: | --: | --- |
 	*/
-	export class TableHeader {
-		type: "table-header" = "table-header";
-		constructor(public content: Inline[], public align: "left" | "center" | "right" = "left") {}
+
+	export class TableCell {
+		type: "table-cell" = "table-cell";
+		constructor(public content: Inline[]) {}
+	}
+
+	export class TableRow {
+		type: "table-row" = "table-row";
+		constructor(public cells: TableCell[]) {}
 	}
 
 	/*
@@ -223,7 +231,7 @@ export namespace Block {
 	*/
 	export class Table {
 		type: "table" = "table";
-		constructor(public rows: Exclude<Block, Table>[][], public header?: TableHeader) {}
+		constructor(public rows: TableRow[], public header?: TableRow, public alignments?: TableAlignment[]) {}
 	}
 
 	/*
@@ -237,7 +245,7 @@ export namespace Block {
 		constructor(public reference: string, public content: Inline[]) {}
 	}
 
-	export type Block = Paragraph | Heading | List | CodeBlock | Quote | Rule | Table | Footnote;
+	export type Block = Comment | Paragraph | Heading | List | CodeGroup | CodeBlock | Quote | Rule | Table | Footnote;
 }
 
 export type Block = Block.Block;
@@ -320,15 +328,22 @@ export namespace Inline {
 		constructor(public reference: string) {}
 	}
 
+	export interface ImageOptions {
+		width?: number;
+		height?: number;
+		align?: "left" | "center" | "right";
+		captioned?: boolean;
+	}
+
 	/*
 		Images.
 		Example:
 
-		![alt text](https://example.com/image.jpg :width=100 :height=100)
+		![alt text](https://example.com/image.jpg :width=100 :height=100 :align=left :captioned)
 	*/
 	export class Image {
 		type: "image" = "image";
-		constructor(public src: string, public alt: string, public dimensions?: { width?: number; height?: number }) {}
+		constructor(public src: string, public alt: string, public options?: ImageOptions) {}
 	}
 
 	export type Inline = Text | Emphasis | Strong | Strike | Code | Link | FootnoteReference | Image;

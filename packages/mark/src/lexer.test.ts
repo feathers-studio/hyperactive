@@ -187,6 +187,25 @@ describe("Lexer", () => {
 		});
 	});
 
+	describe("Code group tokens", () => {
+		it("tokenizes code groups", () => {
+			const lexer = new Lexer("::: code\n```js\nconsole.log('Hello, world!');\n```\n:::");
+			const tokens = lexer.tokenize();
+
+			expect(tokens.map(t => t.type)).toEqual([
+				"CODE_GROUP_START",
+				"CODE_GROUP_NAME",
+				"NEWLINE",
+				"CODE_START",
+				"CODE_LANG",
+				"CODE_CONTENT",
+				"CODE_END",
+				"NEWLINE",
+				"CODE_GROUP_END",
+			]);
+		});
+	});
+
 	describe("Inline tokens", () => {
 		it("tokenizes emphasis and strong", () => {
 			const lexer = new Lexer("_em_ *strong*");
