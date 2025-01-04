@@ -146,12 +146,61 @@ describe("Lexer", () => {
 		});
 	});
 
+	describe("Table tokens", () => {
+		it("tokenizes tables", () => {
+			const lexer = new Lexer("| Name | Age |\n| :-- | ---|\n| *John* | _25_ |\n| Jane | 30 |");
+			const tokens = lexer.tokenize();
+
+			expect(tokens.map(t => t.type)).toEqual([
+				"PIPE",
+				"TEXT",
+				"PIPE",
+				"TEXT",
+				"PIPE",
+				"NEWLINE",
+				"PIPE",
+				"ALIGN",
+				"PIPE",
+				"ALIGN",
+				"PIPE",
+				"NEWLINE",
+				"PIPE",
+				"WHITESPACE",
+				"STRONG",
+				"TEXT",
+				"STRONG",
+				"WHITESPACE",
+				"PIPE",
+				"WHITESPACE",
+				"EMPHASIS",
+				"TEXT",
+				"EMPHASIS",
+				"WHITESPACE",
+				"PIPE",
+				"NEWLINE",
+				"PIPE",
+				"TEXT",
+				"PIPE",
+				"TEXT",
+				"PIPE",
+			]);
+		});
+	});
+
 	describe("Inline tokens", () => {
 		it("tokenizes emphasis and strong", () => {
 			const lexer = new Lexer("_em_ *strong*");
 			const tokens = lexer.tokenize();
 
-			expect(tokens.map(t => t.type)).toEqual(["EMPHASIS", "TEXT", "EMPHASIS", "TEXT", "STRONG", "TEXT", "STRONG"]);
+			expect(tokens.map(t => t.type)).toEqual([
+				"EMPHASIS",
+				"TEXT",
+				"EMPHASIS",
+				"WHITESPACE",
+				"STRONG",
+				"TEXT",
+				"STRONG",
+			]);
 		});
 
 		it("tokenizes inline code", () => {

@@ -1,3 +1,9 @@
+// TODO: Error recovery
+// on encountering an error, read the rest of the line and add it as a text token
+// Insert an error token at the point of error, then continue lexing after the newline
+
+import type { Block } from "./types";
+
 type CallTokenType =
 	| "CALL_START"
 	| "CALL_NAME"
@@ -22,11 +28,13 @@ type BlockTokenType =
 	| "CODE_END"
 	| "QUOTE"
 	| "RULE"
-	| "PIPE"
 	| "COMMENT"
-	| "QUOTE_MARKER";
+	| "QUOTE_MARKER"
+	| "PIPE"
+	| "ALIGN";
 
 type InlineTokenType =
+	| "WHITESPACE"
 	| "TEXT"
 	| "EMPHASIS"
 	| "STRONG"
@@ -64,6 +72,18 @@ export class Lexer {
 		return this.input.slice(this.pos + offset, this.pos + offset + length);
 	}
 
+	private peekUntil(char: string): string {
+		let foundIndex: number | null = null;
+		for (let i = this.pos; i < this.input.length; i++) {
+			if (this.input[i] === char) {
+				foundIndex = i;
+				break;
+			}
+		}
+		if (foundIndex === null) return this.input.slice(this.pos);
+		return this.input.slice(this.pos, foundIndex);
+	}
+
 	private previous(): Token | undefined {
 		return this.tokens[this.tokens.length - 1];
 	}
@@ -81,72 +101,48 @@ export class Lexer {
 	}
 
 	private addToken(type: TokenType, value: string, length = value.length): void {
-		this.tokens.push({
-			type,
-			value,
-			position: {
-				start: this.pos,
-				end: this.pos + length,
-				line: this.line,
-				column: this.column,
-			},
-		});
+		const position = {
+			start: this.pos,
+			end: this.pos + length,
+			line: this.line,
+			column: this.column,
+		};
+
+		const isWhitespace = type === "TEXT" && /^\s+$/.test(value);
+		type = isWhitespace ? "WHITESPACE" : type;
+
+		const token = { type, value, position };
+
+		this.tokens.push(token);
 	}
 
 	public tokenize(): Token[] {
 		while (!this.hasEnded()) {
 			const char = this.peek();
 
-			// Check if we're in call parameter context
-			const lastToken = this.tokens[this.tokens.length - 1];
-			const isInCallContext =
-				lastToken && (lastToken.type === "PAREN_OPEN" || lastToken.type === "COMMA" || lastToken.type === "COLON");
-
-			// console.log("---");
-			// console.log(this.input);
-			// console.log(this.pos, this.line, this.column);
-			// console.log(this.tokens.length, { previous: this.previous()?.type, peek: this.peek() });
-
 			switch (char) {
 				case "=":
-					if (this.isNewLine()) {
-						this.lexCall();
-					} else {
-						this.lexText();
-					}
-					break;
-				case "(":
-					this.addToken("PAREN_OPEN", "(");
-					this.advance();
-					break;
-				case ")":
-					this.addToken("PAREN_CLOSE", ")");
-					this.advance();
-					break;
-				case ":":
-					this.addToken("COLON", ":");
-					this.advance();
-					break;
-				case ",":
-					this.addToken("COMMA", ",");
-					this.advance();
-					break;
-				case '"':
-				case "'":
-					if (isInCallContext) {
-						this.lexString();
-					} else {
-						this.lexText();
-					}
+					// this handles COLON COMMA PAREN_OPEN PAREN_CLOSE STRING NUMBER BOOLEAN NULL IDENTIFIER
+					if (this.isNewLine()) this.lexCall();
+					else this.lexText();
 					break;
 				case "#":
 					this.lexHeading();
 					break;
+				case "|": {
+					this.addToken("PIPE", "|");
+					this.advance();
+
+					const alignment = this.readTableAlignment();
+					if (alignment) this.addToken("ALIGN", alignment);
+
+					break;
+				}
 				case "_":
 					this.lexEmphasisOrStrong();
 					break;
 				case "*":
-					if (this.isListMarker()) {
+					if (this.isLineIndented() && this.peek(1) === " ") {
 						this.lexListMarker();
 					} else {
 						this.lexEmphasisOrStrong();
@@ -157,7 +153,7 @@ export class Lexer {
 						this.lexRule();
 					} else if (this.isComment()) {
 						this.lexComment();
-					} else if (this.isListMarker()) {
+					} else if (this.isLineIndented() && this.peek(1) === " ") {
 						this.lexListMarker();
 					} else {
 						this.lexText();
@@ -181,9 +177,6 @@ export class Lexer {
 					} else {
 						this.lexText();
 					}
-					break;
-				case "|":
-					this.lexTablePipe();
 					break;
 				case "\n":
 					this.addToken("NEWLINE", "\n");
@@ -476,19 +469,6 @@ export class Lexer {
 		}
 	}
 
-	private lexQuote(): void {
-		this.addToken("QUOTE", ">");
-		this.advance();
-		if (this.peek() === " ") {
-			this.advance();
-		}
-	}
-
-	private lexTablePipe(): void {
-		this.addToken("PIPE", "|");
-		this.advance();
-	}
-
 	private lexEmphasisOrStrong(): void {
 		const marker = this.peek();
 
@@ -608,7 +588,7 @@ export class Lexer {
 
 		// Handle regular inline text
 		let text = "";
-		const specialChars = ["#", "*", "`", ">", "[", "|", "\n", "-", "=", "(", ")"];
+		const specialChars = ["#", "_", "*", "`", ">", "[", "|", ":", "\n", "-", "=", "(", ")"];
 
 		while (!this.hasEnded() && !specialChars.includes(this.peek())) {
 			text += this.peek();
@@ -620,30 +600,22 @@ export class Lexer {
 		}
 	}
 
-	private isListMarker(): boolean {
-		// Check if at start of line
-		if (this.isNewLine()) {
-			return true;
-		}
-
-		// Look backwards through tokens until we find non-whitespace
+	private seekBackUntilNonWhitespacePosition(): number {
 		let i = this.tokens.length - 1;
 		while (i >= 0) {
 			const token = this.tokens[i];
-			if (token.type === "NEWLINE") return true;
-			if (token.type === "TEXT") {
-				// If the text is all whitespace, keep looking back
-				if (!/^\s+$/.test(token.value)) {
-					return false;
-				}
-			} else {
-				return false;
-			}
-			i--;
+			if (token.type === "WHITESPACE") i--;
+			else return token.position.start;
 		}
+		// reached start of document
+		return 0;
+	}
 
-		// If we get here, we're at the start of the document
-		return true;
+	private isLineIndented(): boolean {
+		const start = this.seekBackUntilNonWhitespacePosition();
+		if (start === 0) return true;
+		if (this.input[start] === "\n") return true;
+		return false;
 	}
 
 	private isCodeFence(): boolean {
@@ -660,6 +632,47 @@ export class Lexer {
 
 	private isNewLine(): boolean {
 		return this.tokens.length === 0 || this.previous()?.type === "NEWLINE";
+	}
+
+	private isWhitespace(offset = 0): boolean {
+		return this.peek(offset) === " " || this.peek(offset) === "\t";
+	}
+
+	private readTableAlignment(): Block.TableAlignment | null {
+		if (this.previous()?.type !== "PIPE") return null;
+
+		let offset = 0;
+
+		while (this.isWhitespace(offset)) offset++;
+
+		// Look for alignment row pattern: |:---:|
+
+		// Skip initial colon
+		const leftAlign = this.peek(offset) === ":";
+		if (leftAlign) offset++;
+
+		// Must have at least one dash
+		if (this.peek(offset) !== "-") return null;
+
+		// Skip dashes
+		while (this.peek(offset) === "-") offset++;
+
+		// Check for trailing colon
+		const rightAlign = this.peek(offset) === ":";
+		if (rightAlign) offset++;
+
+		while (this.isWhitespace(offset)) offset++;
+
+		// Must be followed by pipe or end of line
+		if (this.peek(offset) !== "|" && this.peek(offset) !== "\n") return null;
+
+		this.advance(offset);
+
+		// Return alignment type
+		if (leftAlign && rightAlign) return "center";
+		if (rightAlign) return "right";
+		if (leftAlign) return "left";
+		return "left";
 	}
 
 	private hasEnded(): boolean {
