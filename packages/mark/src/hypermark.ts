@@ -5,15 +5,37 @@ class ParseError extends Error {
 		public index: number,
 		public line: number,
 		public column: number,
-		expected: string,
-		found: string,
+		message: string,
 		public filename?: string,
 	) {
-		const file = filename ?? ":";
-		super(`Expected "${expected}", found "${found}" at index ${index} (${file}:${line}:${column})`);
+		super(message);
 		this.name = "ParseError";
 	}
 }
+
+class UnexpectedSyntax extends ParseError {
+	constructor(index: number, line: number, column: number, syntax: string, filename?: string) {
+		super(index, line, column, `Unexpected ${syntax}`, filename);
+		this.name = "UnexpectedSyntax";
+	}
+}
+
+class DecoratorStartMarker {
+	type: "decorator-start" = "decorator-start";
+}
+
+class DecoratorEndMarker {
+	type: "decorator-end" = "decorator-end";
+}
+
+const limited_log = (n: number) => {
+	return (...args: any[]) => {
+		if (n > 0) {
+			console.log(...args);
+			n--;
+		}
+	};
+};
 
 export function parse(input: string, filename?: string) {
 	let ast = new AST([]);
@@ -23,7 +45,10 @@ export function parse(input: string, filename?: string) {
 	let column = 1;
 
 	const error = (expected: string, found: string) => {
-		return new ParseError(i, line, column, expected, found.replace(/\n/g, "\\n"), filename);
+		const file = filename ?? ":";
+		found = found.replace(/\n/g, "\\n");
+		const message = `Expected "${expected}", found "${found}" at index ${i} (${file}:${line}:${column})`;
+		return new ParseError(i, line, column, message, filename);
 	};
 
 	const peek = (offset: number = 0, count: number = 1) => {
@@ -86,23 +111,47 @@ export function parse(input: string, filename?: string) {
 		while (is_whitespace()) consume();
 	}
 
+	let blocks: (Block | DecoratorEndMarker | DecoratorStartMarker)[] = ast.blocks;
+
 	// master loop decides which block type to parse
 	while (i < input.length) {
 		const char = peek();
 
 		switch (char) {
+			case "<@":
+				blocks.push(new DecoratorEndMarker());
+				break;
 			case "\\":
-				para();
+				blocks.push(para());
 				break;
 			case "\n":
 				consume();
 				continue;
-			case "=":
-				call();
+			case "=": {
+				const result = call();
+				if (result instanceof Meta) {
+					if (ast.blocks.length)
+						throw new UnexpectedSyntax(
+							i,
+							line,
+							column,
+							"=meta() call. Meta can only be declared at the top of a document",
+							filename,
+						);
+					else ast.meta = result;
+				} else blocks.push(result);
 				break;
-			// case "@":
-			// 	decorator();
-			// 	break;
+			}
+			case "@": {
+				const result = decorator();
+				blocks.push(result);
+				// decorators should be normalised after parsing [^1]
+				if (consume_if(">")) {
+					nomnomnom();
+					blocks.push(new DecoratorStartMarker());
+				}
+				break;
+			}
 			// case "#":
 			// 	heading();
 			// 	break;
@@ -122,7 +171,7 @@ export function parse(input: string, filename?: string) {
 				// if (/^\s*[-*]/.test(peek(3))) list();
 				// else if (/^\s*[0-9]\. /.test(peek(3))) ordered_list();
 				// else
-				para();
+				blocks.push(para());
 				break;
 		}
 	}
@@ -279,49 +328,63 @@ export function parse(input: string, filename?: string) {
 		return new Block.Call.Parameter(name, value);
 	}
 
-	function callNotation(): Block.Call {
-		consume();
+	function callNotation(type: "@" | "="): Block.Call | Block.Decorator | Meta {
 		nomnom();
 
 		const name = ident();
 		if (!name) throw error("identifier", peek());
 		nomnom();
 
-		expect("(");
-
+		const has_params = consume_if("(");
 		const params = new Block.Call.Parameters([]);
 
-		let first = true;
+		if (has_params) {
+			// try to parse a single value
+			const value = param_value();
+			if (value !== undefined) {
+				const param = new Block.Call.Parameter("__default", value);
+				params.parameters.push(param);
+			} else {
+				// parse multiple named parameters
+				let first = true;
 
-		while (not(")")) {
-			nomnomnom();
+				while (not(")")) {
+					nomnomnom();
 
-			if (eof()) throw error(")", "EOF");
+					if (eof()) throw error(")", "EOF");
 
-			// expect a comma if not the first value
-			// trailing commas are required at the moment
-			// even empty objects are required to have a comma
-			// TODO: fix this
-			if (!first) expect(",");
-			nomnomnom();
+					// expect a comma if not the first value
+					// trailing commas are required at the moment
+					// even empty objects are required to have a comma
+					// TODO: fix this
+					if (!first) expect(",");
+					nomnomnom();
 
-			const parameter = param();
-			if (parameter === undefined) break;
-			params.parameters.push(parameter);
+					const parameter = param();
+					if (parameter === undefined) break;
+					params.parameters.push(parameter);
 
-			first = false;
+					first = false;
+				}
+			}
+
+			if (not(")")) throw error(")", peek());
+			consume(); // consume the closing parenthesis
 		}
 
-		if (not(")")) throw error(")", peek());
-		consume(); // consume the closing parenthesis
-
-		return new Block.Call.Call(name, params);
+		if (type === "@") return new Block.Decorator(name, params, []);
+		else if (name === "meta") return new Meta(params);
+		else return new Block.Call.Call(name, params);
 	}
 
 	function call() {
-		const res = callNotation();
-		if (res.name === "meta") ast.meta = new Meta(res.parameters);
-		else ast.blocks.push(res);
+		consume();
+		return callNotation("=") as Block.Call | Meta;
+	}
+
+	function decorator() {
+		consume();
+		return callNotation("@") as Block.Decorator;
 	}
 
 	function inline(untilChar: string): Inline[] {
@@ -334,27 +397,22 @@ export function parse(input: string, filename?: string) {
 	}
 
 	// paragraph parser, typically ends when two newlines are encountered
-	// or when a decorator or call or code block is encountered
+	// or when a decorator, list, call, or code block is encountered
 	function para() {
 		// current inline list, if defined, we're in an inline context
 		let inline_list: Inline[] = [];
 
-		// buffer for inline content
-		let buffer = "";
-
 		while (not("\n\n")) {
 			if (eof()) break;
 			const chunk = inline("\n");
+			if (not("\n\n")) consume(); // consume single newlines
 			inline_list.push(...chunk);
-			buffer += consume();
 		}
 
-		ast.blocks.push(new Block.Paragraph(inline_list));
+		return new Block.Paragraph(inline_list);
 	}
+
+	// [^1] decorators should be normalised after parsing
 
 	return ast;
 }
-
-import { readFileSync } from "node:fs";
-
-console.log(parse(readFileSync("reference.hm", "utf-8"), "reference.hm"));
