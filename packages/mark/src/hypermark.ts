@@ -22,10 +22,16 @@ class UnexpectedSyntax extends ParseError {
 
 class DecoratorStartMarker {
 	type: "decorator-start" = "decorator-start";
+	toString(): string {
+		return ">";
+	}
 }
 
 class DecoratorEndMarker {
 	type: "decorator-end" = "decorator-end";
+	toString(): string {
+		return "<@";
+	}
 }
 
 const limited_log = (n: number) => {

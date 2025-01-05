@@ -14,45 +14,60 @@ export type Value =
 */
 export class Meta {
 	type: "meta" = "meta";
-	constructor(public parameters: Block.Call.Parameters) {}
+	constructor(public parameters: Block.Parameters) {}
 }
 
 export namespace Block {
-	/*
-		Define extensions as a call to a function.
-		Example:
-
-		=figure(
-			src: "https://example.com/image.jpg",
-			caption: "An example image"
-		)
-	*/
-	export namespace Call {
-		export class Parameter {
-			type: "parameter" = "parameter";
-			constructor(public name: string, public value: Value | Call) {}
-		}
-
-		export class Parameters {
-			type: "parameters" = "parameters";
-			constructor(public parameters: Parameter[]) {}
-		}
-
-		export class Call {
-			type: "call" = "call";
-			constructor(public name: string, public parameters: Parameters) {}
+	export class Parameter {
+		type: "parameter" = "parameter";
+		constructor(public name: string, public value: Value | Call) {}
+		toString(): string {
+			if (this.name === "__default") return JSON.stringify(this.value);
+			const value = JSON.stringify(this.value);
+			return `${this.name}: ${value}`;
 		}
 	}
 
-	export type Call = Call.Call;
+	export class Parameters {
+		type: "parameters" = "parameters";
+		constructor(public parameters: Parameter[]) {}
+		toString(): string {
+			return this.parameters.map(p => p.toString()).join(", ");
+		}
+	}
+
+	/*
+			Define extensions as a call to a function.
+			Example:
+
+			=figure(
+				src: "https://example.com/image.jpg",
+				caption: "An example image"
+			)
+		*/
+	export class Call {
+		type: "call" = "call";
+		constructor(public name: string, public parameters: Parameters) {}
+		toString(): string {
+			return `=${this.name}(${this.parameters.toString()})`;
+		}
+	}
 
 	export class Decorator {
 		type: "decorator" = "decorator";
-		constructor(
-			public name: string,
-			public parameters: Block.Call.Parameters,
-			public blocks: Block[],
-		) {}
+		constructor(public name: string, public parameters: Block.Parameters, public blocks: Block[]) {}
+		toString(): string {
+			const needs_markers = this.blocks.length === 0 || this.blocks.length > 1;
+
+			let result = `@${this.name}`;
+			if (this.parameters.parameters.length > 0) {
+				result += `(${this.parameters.toString()})`;
+			}
+			if (needs_markers) result += ">";
+			if (this.blocks.length > 0) result += "\n" + this.blocks.map(b => b.toString()).join("\n");
+			if (needs_markers) result += "\n<@";
+			return result;
+		}
 	}
 
 	/*
@@ -64,6 +79,9 @@ export namespace Block {
 	export class Comment {
 		type: "comment" = "comment";
 		constructor(public content: string) {}
+		toString(): string {
+			return `-- ${this.content}`;
+		}
 	}
 
 	/*
@@ -75,6 +93,9 @@ export namespace Block {
 	export class Paragraph {
 		type: "paragraph" = "paragraph";
 		constructor(public content: Inline[]) {}
+		toString(): string {
+			return this.content.map(c => c.toString()).join("");
+		}
 	}
 
 	export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
@@ -89,6 +110,9 @@ export namespace Block {
 	export class Heading {
 		type: "heading" = "heading";
 		constructor(public level: HeadingLevel, public content: Inline[]) {}
+		toString(): string {
+			return `${"#".repeat(this.level)} ${this.content.map(c => c.toString()).join("")}`;
+		}
 	}
 
 	/*
@@ -124,6 +148,9 @@ export namespace Block {
 	export class List {
 		type: "list" = "list";
 		constructor(public ordered: boolean, public items: (ListItem | TaskItem)[]) {}
+		toString(): string {
+			return `${this.ordered ? "1." : "-"} ${this.items.map(i => i.toString()).join("\n")}`;
+		}
 	}
 
 	/*
@@ -137,6 +164,10 @@ export namespace Block {
 	export class ListItem {
 		type: "list-item" = "list-item";
 		constructor(public content: Block[]) {}
+		toString(): string {
+			// TODO: add indentation
+			return this.content.map(c => c.toString()).join("\n");
+		}
 	}
 
 	/*
@@ -150,6 +181,9 @@ export namespace Block {
 	export class TaskItem {
 		type: "task-item" = "task-item";
 		constructor(public content: Block[], public checked: boolean) {}
+		toString(): string {
+			return `- [${this.checked ? "x" : " "}] ${this.content.map(c => c.toString()).join("\n")}`;
+		}
 	}
 
 	export type HighlightRange = { start: number; end: number };
@@ -173,6 +207,18 @@ export namespace Block {
 	export class CodeBlock {
 		type: "code-block" = "code-block";
 		constructor(public content: string, public options?: CodeBlockOptions) {}
+		toString(): string {
+			let result = "```";
+			if (this.options?.language) result += this.options.language;
+			if (this.options?.title) result += ` ${this.options.title}`;
+			if (this.options?.lineNumbers) result += " :line-numbers";
+			if (this.options?.highlight)
+				result += ` :highlight=${this.options.highlight.map(h => `${h.start}-${h.end}`).join(",")}`;
+			if (this.options?.end) result += ` :end=${this.options.end}`;
+			result += "\n" + this.content + "\n```";
+			if (this.options?.end) result += " " + this.options.end;
+			return result;
+		}
 	}
 
 	/*
@@ -185,6 +231,12 @@ export namespace Block {
 	export class Quote {
 		type: "quote" = "quote";
 		constructor(public content: Block[]) {}
+		toString(): string {
+			return this.content
+				.map(c => c.toString())
+				.map(line => "> " + line)
+				.join("\n");
+		}
 	}
 
 	/*
@@ -210,11 +262,17 @@ export namespace Block {
 	export class TableCell {
 		type: "table-cell" = "table-cell";
 		constructor(public content: Inline[]) {}
+		toString(): string {
+			return this.content.map(c => c.toString()).join("");
+		}
 	}
 
 	export class TableRow {
 		type: "table-row" = "table-row";
 		constructor(public cells: TableCell[]) {}
+		toString(): string {
+			return this.cells.map(c => c.toString()).join(" | ");
+		}
 	}
 
 	/*
@@ -233,6 +291,26 @@ export namespace Block {
 			public header?: TableRow,
 			public alignments?: TableAlignment[],
 		) {}
+		toString(): string {
+			let result = "";
+			if (this.header) result += this.header.toString() + "\n";
+			if (this.alignments)
+				result +=
+					this.alignments
+						.map(a => {
+							switch (a) {
+								case "left":
+									return "---";
+								case "center":
+									return ":--:";
+								case "right":
+									return "---:";
+							}
+						})
+						.join(" | ") + "\n";
+			result += this.rows.map(r => r.toString()).join("\n");
+			return result;
+		}
 	}
 
 	/*
@@ -244,6 +322,9 @@ export namespace Block {
 	export class Footnote {
 		type: "footnote" = "footnote";
 		constructor(public reference: string, public content: Inline[]) {}
+		toString(): string {
+			return `[^${this.reference}] ${this.content.map(c => c.toString()).join("")}`;
+		}
 	}
 
 	export type Block =
@@ -272,6 +353,9 @@ export namespace Inline {
 	export class Text {
 		type: "text" = "text";
 		constructor(public content: string) {}
+		toString(): string {
+			return this.content;
+		}
 	}
 
 	/*
@@ -283,6 +367,9 @@ export namespace Inline {
 	export class Emphasis {
 		type: "emphasis" = "emphasis";
 		constructor(public content: Exclude<Inline, Emphasis>[]) {}
+		toString(): string {
+			return `_${this.content.map(c => c.toString()).join("")}_`;
+		}
 	}
 
 	/*
@@ -294,6 +381,9 @@ export namespace Inline {
 	export class Strong {
 		type: "strong" = "strong";
 		constructor(public content: Exclude<Inline, Strong>[]) {}
+		toString(): string {
+			return `*${this.content.map(c => c.toString()).join("")}*`;
+		}
 	}
 
 	/*
@@ -305,6 +395,9 @@ export namespace Inline {
 	export class Strike {
 		type: "strike" = "strike";
 		constructor(public content: Exclude<Inline, Strike>[]) {}
+		toString(): string {
+			return `~~${this.content.map(c => c.toString()).join("")}~~`;
+		}
 	}
 
 	/*
@@ -316,6 +409,9 @@ export namespace Inline {
 	export class Underline {
 		type: "underline" = "underline";
 		constructor(public content: Exclude<Inline, Underline>[]) {}
+		toString(): string {
+			return `__${this.content.map(c => c.toString()).join("")}__`;
+		}
 	}
 
 	/*
@@ -327,6 +423,9 @@ export namespace Inline {
 	export class Code {
 		type: "code" = "code";
 		constructor(public content: string) {}
+		toString(): string {
+			return "`" + this.content + "`";
+		}
 	}
 
 	/*
@@ -338,6 +437,9 @@ export namespace Inline {
 	export class Link {
 		type: "link" = "link";
 		constructor(public content: Exclude<Inline, Link>[], public href: string) {}
+		toString(): string {
+			return `[${this.content.map(c => c.toString()).join("")}](${this.href})`;
+		}
 	}
 
 	/*
@@ -349,13 +451,20 @@ export namespace Inline {
 	export class FootnoteReference {
 		type: "footnote-reference" = "footnote-reference";
 		constructor(public reference: string) {}
+		toString(): string {
+			return `[^${this.reference}]`;
+		}
 	}
 
 	export class VariableInterpolation {
 		type: "interpolation" = "interpolation";
 		constructor(public name: string) {}
+		toString(): string {
+			return "${" + this.name + "}";
+		}
 	}
 
+	// TODO: reimplement as a decorator
 	export interface ImageOptions {
 		width?: number;
 		height?: number;
@@ -371,7 +480,10 @@ export namespace Inline {
 	*/
 	export class Image {
 		type: "image" = "image";
-		constructor(public src: string, public alt: string, public options?: ImageOptions) {}
+		constructor(public src: string, public alt: string) {}
+		toString(): string {
+			return `![${this.alt}](${this.src})`;
+		}
 	}
 
 	export type Inline =
