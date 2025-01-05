@@ -10,7 +10,7 @@
 
 @style(
     font-family: "Inter",
-    line-height: "1.25"
+    line-height: "1.25",
 )
 # Hypermark Reference
 
@@ -22,9 +22,9 @@ Welcome to Hypermark, a modern markup language designed for simplicity, readabil
 
 Hypermark builds on three key elements:
 
-1. **Content** - Standard Markdown-like syntax for basic document structure
-2. **Decorators** - `@`-prefixed modifiers that enhance content
-3. **Extension Calls** - `=`-prefixed functions that add new capabilities
+1. *Content* - Standard Markdown-like syntax for basic document structure
+2. *Decorators* - `@`-prefixed modifiers that enhance content
+3. *Extension Calls* - `=`-prefixed functions that add new capabilities
 
 ## Document Metadata
 
@@ -99,7 +99,7 @@ Hypermark supports six levels of headings:
 ### Lists
 
 @tabs>
-[Unordered]
+@named("Unordered")
 Use `-` or `*` for unordered lists:
 
 ```hypermark
@@ -110,7 +110,7 @@ Use `-` or `*` for unordered lists:
 - Item 3
 ```
 
-[Ordered]
+@named("Ordered")
 Use numbers for ordered lists:
 
 ```hypermark
@@ -192,13 +192,13 @@ Some decorators can wrap multiple blocks:
 
 ```hypermark end:TABS-EXAMPLE
 @tabs>
-[Python]
+@named("Python")
 ```python example.py
 def hello():
     print("Hello")
 ```
 
-[JavaScript]
+@named("JavaScript")
 ```javascript example.js
 function hello() {
     console.log("Hello");
@@ -210,13 +210,13 @@ function hello() {
 Output:
 
 @tabs>
-[Python]
+@named("Python")
 ```python example.py
 def hello():
     print("Hello")
 ```
 
-[JavaScript]
+@named("JavaScript")
 ```javascript example.js
 function hello() {
     console.log("Hello");
