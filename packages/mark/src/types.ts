@@ -1,46 +1,60 @@
-export type Value = string | number | boolean | null | Value[];
-
-export class MetaEntry {
-	type: "meta-entry" = "meta-entry";
-	constructor(public key: string, public value: Value) {}
-}
-
-export class Meta {
-	type: "meta" = "meta";
-	constructor(public children: MetaEntry[]) {}
-}
+export type Value =
+	// primitives
+	| string
+	| number
+	| boolean
+	| null
+	// arrays
+	| Value[]
+	// objects
+	| { [key: string]: Value };
 
 /*
-	Define extensions as a call to a function.
-	Example:
-
-	=figure(
-		src: "https://example.com/image.jpg",
-		caption: "An example image"
-	)
+	meta is simply a special call that can only appear at the top of the document.
 */
-export namespace Call {
-	export class Parameter {
-		type: "parameter" = "parameter";
-		constructor(public name: string, public value: Value | Call) {}
-	}
-
-	export class Parameters {
-		type: "parameters" = "parameters";
-		constructor(public parameters: Parameter[]) {}
-	}
-
-	export class Call {
-		type: "call" = "call";
-		constructor(public name: string, public parameters: Parameters) {}
-	}
-
-	export type Type = Call;
+export class Meta {
+	type: "meta" = "meta";
+	constructor(public parameters: Block.Call.Parameters) {}
 }
 
-export type Call = Call.Type;
-
 export namespace Block {
+	/*
+		Define extensions as a call to a function.
+		Example:
+
+		=figure(
+			src: "https://example.com/image.jpg",
+			caption: "An example image"
+		)
+	*/
+	export namespace Call {
+		export class Parameter {
+			type: "parameter" = "parameter";
+			constructor(public name: string, public value: Value | Call) {}
+		}
+
+		export class Parameters {
+			type: "parameters" = "parameters";
+			constructor(public parameters: Parameter[]) {}
+		}
+
+		export class Call {
+			type: "call" = "call";
+			constructor(public name: string, public parameters: Parameters) {}
+		}
+	}
+
+	export type Call = Call.Call;
+
+	export class Decorator {
+		type: "decorator" = "decorator";
+		constructor(
+			public name: string,
+			public parameters: Block.Call.Parameters,
+			public blocks: Block[],
+		) {}
+	}
+
 	/*
 		Single-line comments only.
 		Example:
@@ -81,23 +95,23 @@ export namespace Block {
 		Lists are blocks of text.
 		Example:
 
-		* Item
-		* Item
-		* Item
+		- Item
+		- Item
+		- Item
 
-		Ordered lists are similar, but use numbers instead of asterisks.
+		Ordered lists use numbers.
 		Example:
 
 		1. Item
 		2. Item
 		3. Item
 
-		Task lists are similar, but use a checkbox.
+		Task lists use checkboxes:
 		Example:
 
-		* [ ] Item
-		* [x] Item
-		* [ ] Item
+		- [ ] Item
+		- [x] Item
+		- [ ] Item
 
 		Nested lists are supported.
 		Example:
@@ -145,37 +159,20 @@ export namespace Block {
 		title?: string;
 		lineNumbers?: boolean;
 		highlight?: HighlightRange[];
+		end?: string;
 	}
 
 	/*
 		Code blocks are blocks of code.
 		Example:
 
-		```language Title :line-numbers :highlight=1-3,4-5
+		```language Title :line-numbers :highlight=1-3,4-5 :end=END
 		content
-		```
+		``` END
 	 */
 	export class CodeBlock {
 		type: "code-block" = "code-block";
 		constructor(public content: string, public options?: CodeBlockOptions) {}
-	}
-
-	/*
-		Code groups are blocks of code.
-		Example:
-
-		::: code-group
-		```language-1 Title1
-		content
-		```
-		```language-2 Title2
-		content
-		```
-		:::
-	*/
-	export class CodeGroup {
-		type: "code-group" = "code-group";
-		constructor(public title: string, public blocks: CodeBlock[]) {}
 	}
 
 	/*
@@ -231,7 +228,11 @@ export namespace Block {
 	*/
 	export class Table {
 		type: "table" = "table";
-		constructor(public rows: TableRow[], public header?: TableRow, public alignments?: TableAlignment[]) {}
+		constructor(
+			public rows: TableRow[],
+			public header?: TableRow,
+			public alignments?: TableAlignment[],
+		) {}
 	}
 
 	/*
@@ -245,7 +246,18 @@ export namespace Block {
 		constructor(public reference: string, public content: Inline[]) {}
 	}
 
-	export type Block = Comment | Paragraph | Heading | List | CodeGroup | CodeBlock | Quote | Rule | Table | Footnote;
+	export type Block =
+		| Call
+		| Decorator
+		| Comment
+		| Paragraph
+		| Heading
+		| List
+		| CodeBlock
+		| Quote
+		| Rule
+		| Table
+		| Footnote;
 }
 
 export type Block = Block.Block;
@@ -296,6 +308,17 @@ export namespace Inline {
 	}
 
 	/*
+		Underline is a string of text with underline.
+		Example:
+
+		__Underline__
+	*/
+	export class Underline {
+		type: "underline" = "underline";
+		constructor(public content: Exclude<Inline, Underline>[]) {}
+	}
+
+	/*
 		Code is a string of code.
 		Example:
 
@@ -328,6 +351,11 @@ export namespace Inline {
 		constructor(public reference: string) {}
 	}
 
+	export class VariableInterpolation {
+		type: "interpolation" = "interpolation";
+		constructor(public name: string) {}
+	}
+
 	export interface ImageOptions {
 		width?: number;
 		height?: number;
@@ -339,14 +367,28 @@ export namespace Inline {
 		Images.
 		Example:
 
-		![alt text](https://example.com/image.jpg :width=100 :height=100 :align=left :captioned)
+		![alt text](https://example.com/image.jpg)
 	*/
 	export class Image {
 		type: "image" = "image";
 		constructor(public src: string, public alt: string, public options?: ImageOptions) {}
 	}
 
-	export type Inline = Text | Emphasis | Strong | Strike | Code | Link | FootnoteReference | Image;
+	export type Inline =
+		| Text
+		| Emphasis
+		| Strong
+		| Strike
+		| Underline
+		| Code
+		| Link
+		| FootnoteReference
+		| Image
+		| VariableInterpolation;
 }
 
 export type Inline = Inline.Inline;
+
+export class AST {
+	constructor(public blocks: Block[], public meta?: Meta) {}
+}

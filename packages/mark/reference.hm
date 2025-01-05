@@ -1,0 +1,323 @@
+=meta(
+    title: "Hypermark Reference",
+    author: "Hypermark Team",
+    date: "2024-03-20",
+    params: {
+        theme: ["light", "dark"],
+        version: "string",
+    },
+)
+
+@style(
+    font-family: "Inter",
+    line-height: "1.25"
+)
+# Hypermark Reference
+
+Welcome to Hypermark, a modern markup language designed for simplicity, readability, and extensibility. This reference document is written in Hypermark.
+
+=warning("While Hypermark was inspired by Markdown, it deviates in significant ways. Expect it to break in legacy Markdown renderers.")
+
+## Core Concepts
+
+Hypermark builds on three key elements:
+
+1. **Content** - Standard Markdown-like syntax for basic document structure
+2. **Decorators** - `@`-prefixed modifiers that enhance content
+3. **Extension Calls** - `=`-prefixed functions that add new capabilities
+
+## Document Metadata
+
+Every Hypermark document can begin with metadata using the `=meta()` call:
+
+```hypermark
+=meta(
+    title: "Document Title",
+    author: "Author Name",
+    date: "2024-03-20",
+    params: {
+        // Type declarations for runtime parameters
+        paramName: type
+    }
+)
+```
+
+## Variables and Interpolation
+
+### Variable Declaration
+
+Variables can be declared using the `=let` call:
+
+```hypermark
+=let(
+    name: "Alice",
+    count: 42,
+    settings: {
+        theme: "dark",
+        fontSize: "16px"
+    }
+)
+```
+
+Variables must satisfy `/a-zA-Z0-9_-/`, but a number or hyphen may not appear at the beginning.
+
+### Variable Interpolation
+
+Variables can be interpolated in text using `${}` syntax:
+
+```hypermark
+=let(
+    user: "Alice",
+    count: 42
+)
+
+# Welcome ${user}!
+
+You have ${count} messages.
+
+@style(color: settings.theme == "dark" ? "#fff" : "#000")
+Your theme is: ${settings.theme}
+```
+
+## Block Elements
+
+Blocks must be separated by an empty line.
+
+### Headings
+
+Hypermark supports six levels of headings:
+
+```hypermark
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6
+```
+
+### Lists
+
+@tabs>
+[Unordered]
+Use `-` or `*` for unordered lists:
+
+```hypermark
+- Item 1
+- Item 2
+  * Nested item
+  * Another nested item
+- Item 3
+```
+
+[Ordered]
+Use numbers for ordered lists:
+
+```hypermark
+1. First item
+2. Second item
+   1. Nested item
+   2. Another nested item
+3. Third item
+```
+
+[Tasks]
+Use `- [ ]` for task lists:
+
+```hypermark
+- [ ] Uncompleted task
+- [x] Completed task
+- [ ] Another task
+```
+<@
+
+### Code Blocks
+
+Code blocks support language syntax highlighting, line numbers, and line highlighting:
+
+```hypermark end:HYPER-END
+```javascript :line-numbers :highlight=2-3
+function greet(name) {
+    const message = `Hello, ${name}!`;
+    console.log(message);
+}
+``` HYPER-END
+
+If your code block contains ```, you can skip it entirely by using a custom delimiter. Since this reference document is also written in Hypermark, the above codeblock exists in source like this:
+
+```hypermark end:HYPER-END2
+```hypermark end:HYPER-END
+```javascript :line-numbers :highlight=2-3
+function greet(name) {
+    const message = `Hello, ${name}!`;
+    console.log(message);
+}
+``` HYPER-END
+``` HYPER-END2
+
+### Tables
+
+Tables support alignment options:
+
+```hypermark
+| Syntax    | Alignment | Example  |
+| :-------- | :-------: | -------: |
+| `:--`     | Left      | Left     |
+| `:--:`    | Center    | Center   |
+| `--:`     | Right     | Right    |
+```
+
+## Decorators
+
+### Single-Block Decorators
+
+Decorators modify the next block:
+
+```hypermark end:DECORATOR1
+@style(color: "blue")
+This text will be blue.
+DECORATOR1
+```
+
+Multiple decorators can be composed:
+
+```hypermark
+@style(font-size: "20px") @align("center")
+This text will be large and centered.
+```
+
+### Container Decorators
+
+Some decorators can wrap multiple blocks:
+
+```hypermark end:TABS-EXAMPLE
+@tabs>
+[Python]
+```python example.py
+def hello():
+    print("Hello")
+```
+
+[JavaScript]
+```javascript example.js
+function hello() {
+    console.log("Hello");
+}
+```
+<@
+``` TABS-EXAMPLE
+
+Output:
+
+@tabs>
+[Python]
+```python example.py
+def hello():
+    print("Hello")
+```
+
+[JavaScript]
+```javascript example.js
+function hello() {
+    console.log("Hello");
+}
+```
+<@
+
+## Extension Calls
+
+Extension calls add new functionality:
+
+```hypermark
+=figure(
+    src: "example.jpg",
+    caption: "An example figure",
+    width: 500
+)
+```
+
+## Styling
+
+The `@style` decorator accepts a safe subset of CSS properties:
+
+```hypermark
+@style(
+    font-family: "Arial",
+    font-size: "16px",
+    line-height: "1.5",
+    color: "#333333",
+    background: "#f5f5f5",
+    padding: "1em",
+    border: "1px solid #dddddd",
+    border-radius: "4px"
+)
+```
+This block demonstrates various supported style properties.
+
+## Inline Formatting
+
+Hypermark supports various inline text formatting:
+
+```hypermark
+- Strong emphasis: *bold text*
+- Emphasis: _italic text_
+- Strikethrough: ~~struck text~~
+- Underline: __underlined text__
+- Inline code: `code`
+- Links: [Hypermark Docs](https://example.com)
+```
+
+## Footnotes
+
+Hypermark supports footnotes with references:
+
+```hypermark
+Here's some text with a footnote[^1].
+
+[^1] This is a footnote with _formatting_ support.
+```
+
+## Escaping Characters
+
+Any character can be escaped using a backslash:
+
+```hypermark
+\* Not bold \*
+\@style(color: "red") Not styled
+\[Not a link](not-a-url)
+\\ A single backslash
+\# Not a heading
+\- Not a list item
+\``` Not a code block
+```
+
+Common escape sequences:
+| Character | Usage | Escaped |
+| :-------- | :---- | :------ |
+| \\ | Backslash | \\\\ |
+| \* | Strong | \\\* |
+| \_ | Emphasis | \\\_ |
+| \@ | Decorator | \\\@ |
+| \= | Call | \\\= |
+| \[ | Link/Tab | \\\[ |
+| \` | Code | \\\` |
+| \# | Heading | \\\# |
+| \- | List | \\\- |
+| \| | Table | \\\| |
+| \< | Container | \\\< |
+
+## File Imports
+
+Content can be imported from other files. The resulting content will be treated as part of Hypermark syntax:
+
+```hypermark
+=import("./partial.hm")
+```
+
+Imports can be used within a code block, the import is treated as plain text:
+
+```hypermark end:END
+```javascript
+=import("./code/example.js")
+```
+``` END
