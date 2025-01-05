@@ -158,9 +158,9 @@ export function parse(input: string, filename?: string) {
 				}
 				break;
 			}
-			// case "#":
-			// 	heading();
-			// 	break;
+			case "#":
+				blocks.push(heading());
+				break;
 			// case "!":
 			// 	image();
 			// 	break;
@@ -320,7 +320,7 @@ export function parse(input: string, filename?: string) {
 		return undefined;
 	}
 
-	function param(): Block.Call.Parameter | undefined {
+	function param(): Block.Parameter | undefined {
 		const name = ident();
 		if (!name) return undefined;
 
@@ -331,7 +331,7 @@ export function parse(input: string, filename?: string) {
 		const value = param_value();
 		if (value === undefined) throw error("value", peek());
 
-		return new Block.Call.Parameter(name, value);
+		return new Block.Parameter(name, value);
 	}
 
 	function callNotation(type: "@" | "="): Block.Call | Block.Decorator | Meta {
@@ -342,13 +342,13 @@ export function parse(input: string, filename?: string) {
 		nomnom();
 
 		const has_params = consume_if("(");
-		const params = new Block.Call.Parameters([]);
+		const params = new Block.Parameters([]);
 
 		if (has_params) {
 			// try to parse a single value
 			const value = param_value();
 			if (value !== undefined) {
-				const param = new Block.Call.Parameter("__default", value);
+				const param = new Block.Parameter("__default", value);
 				params.parameters.push(param);
 			} else {
 				// parse multiple named parameters
@@ -380,7 +380,7 @@ export function parse(input: string, filename?: string) {
 
 		if (type === "@") return new Block.Decorator(name, params, []);
 		else if (name === "meta") return new Meta(params);
-		else return new Block.Call.Call(name, params);
+		else return new Block.Call(name, params);
 	}
 
 	function call() {
@@ -402,6 +402,14 @@ export function parse(input: string, filename?: string) {
 		return [new Inline.Text(buffer)];
 	}
 
+	function heading() {
+		let level = 0;
+		while (consume_if("#")) level++;
+		if (level < 1 || level > 6) throw error("heading level 1-6", peek());
+		const content = inline("\n");
+		return new Block.Heading(level as Block.HeadingLevel, content);
+	}
+
 	// paragraph parser, typically ends when two newlines are encountered
 	// or when a decorator, list, call, or code block is encountered
 	function para() {
@@ -411,7 +419,10 @@ export function parse(input: string, filename?: string) {
 		while (not("\n\n")) {
 			if (eof()) break;
 			const chunk = inline("\n");
-			if (not("\n\n")) consume(); // consume single newlines
+			if (not("\n\n")) {
+				chunk.push(new Inline.Text("\n"));
+				consume(); // consume single newline
+			}
 			inline_list.push(...chunk);
 		}
 
