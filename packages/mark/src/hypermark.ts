@@ -229,9 +229,9 @@ export function parse(input: string, filename?: string) {
 			case ">":
 				blocks.push(quote() ?? para());
 				break;
-			// case "|":
-			// 	table();
-			// 	break;
+			case "|":
+				blocks.push(table() ?? para());
+				break;
 			case "[":
 				if (consume_if("[^")) blocks.push(footnote());
 				else blocks.push(para());
@@ -259,6 +259,7 @@ export function parse(input: string, filename?: string) {
 
 	// #region Value
 
+	// TODO: escape \"
 	function try_param_string(): string | undefined {
 		if (not('"')) return undefined;
 		consume();
@@ -562,7 +563,7 @@ export function parse(input: string, filename?: string) {
 
 		if (!consume_if(char)) return undefined;
 
-		const content = inline(char);
+		const content = inline(char, "\n");
 
 		if (content.length === 0 || not(char)) {
 			revert(checkpoint);
@@ -680,6 +681,9 @@ export function parse(input: string, filename?: string) {
 			content.push(chunk);
 		};
 
+		// Ignore whitespace at the start of the inline
+		nomnom();
+
 		while (not(...untilChar, "\n")) {
 			if (eof()) break;
 
@@ -700,6 +704,13 @@ export function parse(input: string, filename?: string) {
 		}
 
 		if (buffer.length > 0) content.push(new Inline.Text(buffer));
+
+		// Ignore whitespace at the end of the inline
+		const last = content.at(-1);
+		if (last?.type === "text") {
+			last.content = last.content.trimEnd();
+			if (last.content.length === 0) content.pop();
+		}
 
 		return content;
 	}
@@ -768,6 +779,98 @@ export function parse(input: string, filename?: string) {
 		const reparse = parse(buffer, ":quote:");
 
 		return new Block.Quote(reparse.blocks);
+	}
+
+	function try_alignment(): Block.TableAlignment | undefined {
+		const checkpoint = i;
+
+		let buffer = "";
+		while (is(":", "-")) buffer += consume();
+
+		if (buffer.length === 0) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		if (/^:?-+$/.test(buffer)) return "left";
+		if (/^-+:$/.test(buffer)) return "right";
+		if (/^:-+:$/.test(buffer)) return "center";
+
+		revert(checkpoint);
+		return undefined;
+	}
+
+	function table(): Block.Table | undefined {
+		const checkpoint = i;
+
+		let header: Block.TableRow | undefined = undefined;
+		const rows: Block.TableRow[] = [];
+		let alignment: Block.TableAlignmentRow | undefined = undefined;
+
+		// row starts with |
+		while (is("|")) {
+			let row = new Block.TableRow([]);
+			let is_alignment_row = false;
+
+			// cell starts with |
+			while (consume_if("|")) {
+				nomnom();
+				if (is("\n")) break;
+
+				const align = try_alignment();
+
+				// first cell in this row is an alignment cell
+				// AND this is the second row (rows already has 1 row)
+				if (align && (rows.length === 1 || (rows.length === 0 && header))) {
+					// pop the first row and use it as the header
+					if (!header) header = new Block.TableRow(rows.pop()!.cells);
+
+					if (!alignment) alignment = new Block.TableAlignmentRow([]);
+					alignment.alignment.push(align);
+
+					nomnom();
+
+					is_alignment_row = true;
+				} else {
+					if (is_alignment_row) {
+						// You started an alignment row,
+						// but a subsequent cell doesn't have alignment
+						// reparse previous cells as normal inline text
+						is_alignment_row = false;
+
+						row.cells = row.cells.map(cell => {
+							return new Block.TableCell(cell.content.map(c => new Inline.Text(c.toString())));
+						});
+					}
+
+					const content = inline("|");
+					if (not("|")) {
+						revert(checkpoint);
+						return undefined;
+					}
+
+					row.cells.push(new Block.TableCell(content));
+				}
+			}
+
+			if (!is_alignment_row) rows.push(row);
+			consume_if("\n");
+		}
+
+		let len = Math.max(...rows.map(row => row.cells.length));
+
+		for (const row of rows) {
+			while (row.cells.length < len) row.cells.push(new Block.TableCell([]));
+		}
+
+		if (alignment && alignment.alignment.length !== len) {
+			const align = alignment.alignment;
+			const aLen = align.length;
+			if (aLen < len) align.push(...Array(len - aLen).fill("left"));
+			else align.splice(len);
+		}
+
+		return new Block.Table(rows, header, alignment);
 	}
 
 	// [^1] decorators should be normalised after parsing

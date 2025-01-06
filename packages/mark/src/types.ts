@@ -251,6 +251,31 @@ export namespace Block {
 
 	export type TableAlignment = "left" | "center" | "right";
 
+	export class TableAlignmentRow {
+		type: "table-alignment-row" = "table-alignment-row";
+		constructor(public alignment: TableAlignment[]) {}
+		toString(): string {
+			let result = "|";
+			for (const alignment of this.alignment) {
+				switch (alignment) {
+					case "left":
+						result += " ----";
+						break;
+					case "center":
+						result += " :--:";
+						break;
+					case "right":
+						result += " ---:";
+						break;
+				}
+
+				result += " |";
+			}
+
+			return result + " |";
+		}
+	}
+
 	/*
 		Table headers.
 		Example:
@@ -271,7 +296,7 @@ export namespace Block {
 		type: "table-row" = "table-row";
 		constructor(public cells: TableCell[]) {}
 		toString(): string {
-			return this.cells.map(c => c.toString()).join(" | ");
+			return "| " + this.cells.map(c => c.toString()).join(" | ") + " |";
 		}
 	}
 
@@ -289,25 +314,13 @@ export namespace Block {
 		constructor(
 			public rows: TableRow[],
 			public header?: TableRow,
-			public alignments?: TableAlignment[],
+			public alignments?: TableAlignmentRow,
 		) {}
 		toString(): string {
+			// TODO: attempt to pretty-print tables
 			let result = "";
 			if (this.header) result += this.header.toString() + "\n";
-			if (this.alignments)
-				result +=
-					this.alignments
-						.map(a => {
-							switch (a) {
-								case "left":
-									return "---";
-								case "center":
-									return ":--:";
-								case "right":
-									return "---:";
-							}
-						})
-						.join(" | ") + "\n";
+			if (this.alignments) result += this.alignments.toString() + "\n";
 			result += this.rows.map(r => r.toString()).join("\n");
 			return result;
 		}
@@ -343,6 +356,9 @@ export namespace Block {
 
 export type Block = Block.Block;
 
+const special = ["\\", "*", "_", "@", "=", "[", "`", "#", "-", "|", "<"];
+const specialRegExp = new RegExp(`[${special.map(c => "\\" + c).join("")}]`, "g");
+
 export namespace Inline {
 	/*
 		Text is a string of text.
@@ -354,7 +370,7 @@ export namespace Inline {
 		type: "text" = "text";
 		constructor(public content: string) {}
 		toString(): string {
-			return this.content;
+			return this.content.replaceAll(specialRegExp, match => `\\${match}`);
 		}
 	}
 
