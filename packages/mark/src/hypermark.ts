@@ -225,6 +225,7 @@ export function parse(input: string, filename?: string) {
 				break;
 			case "`":
 				if (peek(0, 3) === "```") blocks.push(codeblock());
+				else blocks.push(para());
 				break;
 			case ">":
 				blocks.push(quote() ?? para());
@@ -519,25 +520,19 @@ export function parse(input: string, filename?: string) {
 
 		const content = inline("]", "[", "![") as Exclude<Inline, { type: "link" | "image" }>[];
 
-		if (not("]")) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (not("]")) return revert(checkpoint);
 
 		consume(); // consume the closing bracket
 
-		if (!consume_if("(")) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (!consume_if("(")) return revert(checkpoint);
 
 		let href = "";
-		while (not(")", "\n")) href += consume();
-
-		if (not(")")) {
-			revert(checkpoint);
-			return undefined;
+		while (not(")", "\n")) {
+			if (eof()) return revert(checkpoint);
+			href += consume();
 		}
+
+		if (not(")")) return revert(checkpoint);
 
 		consume(); // consume the closing parenthesis
 
@@ -550,10 +545,7 @@ export function parse(input: string, filename?: string) {
 		if (!consume_if("!")) return undefined;
 
 		const link = try_link();
-		if (link === undefined) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (link === undefined) return revert(checkpoint);
 
 		return new Inline.Image(link.content, link.href);
 	}
@@ -565,12 +557,9 @@ export function parse(input: string, filename?: string) {
 
 		const content = inline(char, "\n");
 
-		if (content.length === 0 || not(char)) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (content.length === 0 || not(char)) return revert(checkpoint);
 
-		consume(); // consume the closing char
+		consume(char); // consume the closing char
 
 		return content;
 	}
@@ -582,7 +571,7 @@ export function parse(input: string, filename?: string) {
 	}
 
 	function try_strike(): Inline.Strike | undefined {
-		const content = try_matching_inline("~") as Exclude<Inline, Inline.Strike>[];
+		const content = try_matching_inline("~~") as Exclude<Inline, Inline.Strike>[];
 		if (content === undefined) return undefined;
 		return new Inline.Strike(content);
 	}
@@ -608,17 +597,11 @@ export function parse(input: string, filename?: string) {
 		// Just capture raw text until the next backtick
 		let content = "";
 		while (not("`", "\n")) {
-			if (eof()) {
-				revert(checkpoint);
-				return undefined;
-			}
+			if (eof()) return revert(checkpoint);
 			content += consume();
 		}
 
-		if (not("`") || content.length === 0) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (not("`") || content.length === 0) return revert(checkpoint);
 
 		consume(); // consume the closing backtick
 		return new Inline.Code(content);
@@ -632,17 +615,11 @@ export function parse(input: string, filename?: string) {
 		// TODO: support expressions
 		let name = "";
 		while (not("}", "\n")) {
-			if (eof()) {
-				revert(checkpoint);
-				return undefined;
-			}
+			if (eof()) return revert(checkpoint);
 			name += consume();
 		}
 
-		if (not("}")) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (not("}")) return revert(checkpoint);
 
 		consume(); // consume the closing brace
 		return new Inline.VariableInterpolation(name);
@@ -655,17 +632,12 @@ export function parse(input: string, filename?: string) {
 
 		let reference = "";
 		while (not("]", "\n")) {
-			if (eof()) {
-				revert(checkpoint);
-				return undefined;
-			}
+			if (eof()) return revert(checkpoint);
 			reference += consume();
 		}
 
-		if (not("]")) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (not("]")) return revert(checkpoint);
+
 		consume(); // consume the closing bracket
 
 		return new Inline.FootnoteReference(reference);
@@ -735,8 +707,10 @@ export function parse(input: string, filename?: string) {
 			if (eof()) break;
 			const chunk = inline("\n");
 			if (not("\n\n")) {
-				chunk.push(new Inline.Text("\n"));
-				consume(); // consume single newline
+				if (is("\n")) {
+					chunk.push(new Inline.Text("\n"));
+					consume(); // consume single newline
+				}
 			}
 			inline_list.push(...chunk);
 		}
@@ -787,17 +761,13 @@ export function parse(input: string, filename?: string) {
 		let buffer = "";
 		while (is(":", "-")) buffer += consume();
 
-		if (buffer.length === 0) {
-			revert(checkpoint);
-			return undefined;
-		}
+		if (buffer.length === 0) return revert(checkpoint);
 
 		if (/^:?-+$/.test(buffer)) return "left";
 		if (/^-+:$/.test(buffer)) return "right";
 		if (/^:-+:$/.test(buffer)) return "center";
 
-		revert(checkpoint);
-		return undefined;
+		return revert(checkpoint);
 	}
 
 	function table(): Block.Table | undefined {
@@ -844,10 +814,7 @@ export function parse(input: string, filename?: string) {
 					}
 
 					const content = inline("|");
-					if (not("|")) {
-						revert(checkpoint);
-						return undefined;
-					}
+					if (not("|")) return revert(checkpoint);
 
 					row.cells.push(new Block.TableCell(content));
 				}
