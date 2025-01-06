@@ -1,4 +1,5 @@
 import { Block, Inline, AST, type Value, Meta } from "./types.ts";
+import { color } from "bun";
 
 class ParseError extends Error {
 	constructor(
@@ -43,18 +44,61 @@ const limited_log = (n: number) => {
 	};
 };
 
+const normalLineNumber = (line_number: number) => {
+	let num = line_number.toString();
+	if (num.length > 3) num = "-" + num.slice(-3);
+	else if (num.length < 4) num = num.padStart(4, " ");
+	return num;
+};
+
+const getLineNeighbours = (input: string, line_number: number, count: number = 5): string[] => {
+	const lines = input.split("\n");
+	return lines
+		.slice(Math.max(0, line_number - count), line_number)
+		.map((line, i) => `${normalLineNumber(line_number - count + i)} | ${line}`);
+};
+
+const squiggly = (column: number) => {
+	return color("red", "ansi") + " ".repeat(7 + column - 1) + "^^^" + "\x1b[0m";
+};
+
 export function parse(input: string, filename?: string) {
+	const countChar = (char: string, from: number, to: number) => {
+		let count = 0;
+		let last_index = -1;
+		for (let i = from; i < to; i++) {
+			if (input[i] === char) {
+				count++;
+				last_index = i - from;
+			}
+		}
+		return { count, last_index };
+	};
+
 	let ast = new AST([]);
 
 	let i = 0;
 	let line = 1;
 	let column = 1;
 
-	const error = (expected: string, found: string) => {
+	const capture_error_presentation = (error: string) => {
 		const file = filename ?? ":";
-		found = found.replace(/\n/g, "\\n");
-		const message = `Expected "${expected}", found "${found}" at index ${i} (${file}:${line}:${column})`;
-		return new ParseError(i, line, column, message, filename);
+		let message = "\n\n\n";
+		message += getLineNeighbours(input, line).join("\n");
+		message += `\n${squiggly(column)}\n`;
+		message += `\n${error}\n`;
+		message += " ".repeat(8) + `at ${file}:${line}:${column}\n`;
+		return message;
+	};
+
+	const error = (expected: string, found: string) => {
+		let message = `Expected "${expected}", found "${found.replace(/\n/g, "\\n")}"\n`;
+		return new ParseError(i, line, column, capture_error_presentation(message), filename);
+	};
+
+	const unexpected = (found: string) => {
+		let message = `Unexpected "${found.replace(/\n/g, "\\n")}"\n`;
+		return new ParseError(i, line, column, capture_error_presentation(message), filename);
 	};
 
 	const peek = (offset: number = 0, count: number = 1) => {
@@ -82,12 +126,25 @@ export function parse(input: string, filename?: string) {
 	};
 
 	const consume = (n: number | string = 1) => {
-		if (typeof n === "string") n = n.length;
+		if (typeof n === "string") {
+			if (not(n)) throw error(n, peek() ?? "EOF");
+			n = n.length;
+		}
+
 		const slice = input.slice(i, i + n);
+		const count = countChar("\n", i, i + n);
 		i += n;
-		const newline_count = slice.split("\n").length - 1;
-		line += newline_count;
-		column = slice.length - slice.lastIndexOf("\n") - 1;
+
+		if (count.count > 0) {
+			// If we found newlines, update line and reset column
+			line += count.count;
+			// Column should be the number of characters after the last newline + 1
+			column = count.last_index === -1 ? 1 : n - count.last_index;
+		} else {
+			// If no newlines, just increment the column
+			column += n;
+		}
+
 		return slice;
 	};
 
@@ -96,17 +153,27 @@ export function parse(input: string, filename?: string) {
 		return undefined;
 	};
 
+	const consume_until = (str: string) => {
+		let buffer = "";
+		while (not(str)) buffer += consume();
+		return buffer;
+	};
+
 	const expect = (str: string) => {
 		if (not(str)) throw error(str, peek());
 		consume(str.length);
 	};
+
+	function is_newline() {
+		return is("\n");
+	}
 
 	function is_inline_whitespace() {
 		return is(" ") || is("\t");
 	}
 
 	function is_whitespace() {
-		return is_inline_whitespace() || is("\n");
+		return is_inline_whitespace() || is_newline();
 	}
 
 	function nomnom() {
@@ -124,26 +191,21 @@ export function parse(input: string, filename?: string) {
 		const char = peek();
 
 		switch (char) {
-			case "<@":
-				blocks.push(new DecoratorEndMarker());
+			case "\n":
+				consume();
+				continue;
+			case "<":
+				if (consume_if("<@")) blocks.push(new DecoratorEndMarker());
+				else blocks.push(para());
 				break;
 			case "\\":
 				blocks.push(para());
 				break;
-			case "\n":
-				consume();
-				continue;
 			case "=": {
 				const result = call();
 				if (result instanceof Meta) {
 					if (ast.blocks.length)
-						throw new UnexpectedSyntax(
-							i,
-							line,
-							column,
-							"=meta() call. Meta can only be declared at the top of a document",
-							filename,
-						);
+						throw unexpected("=meta() call. Meta can only be declared at the top of a document");
 					else ast.meta = result;
 				} else blocks.push(result);
 				break;
@@ -151,7 +213,7 @@ export function parse(input: string, filename?: string) {
 			case "@": {
 				const result = decorator();
 				blocks.push(result);
-				// decorators should be normalised after parsing [^1]
+				// decorators should be normalised in a second pass of the AST [^1]
 				if (consume_if(">")) {
 					nomnomnom();
 					blocks.push(new DecoratorStartMarker());
@@ -161,18 +223,21 @@ export function parse(input: string, filename?: string) {
 			case "#":
 				blocks.push(heading());
 				break;
-			// case "!":
-			// 	image();
-			// 	break;
-			// case "`":
-			// 	if (peek(0, 3) === "```") codeblock();
-			// 	break;
+			case "`":
+				if (peek(0, 3) === "```") blocks.push(codeblock());
+				break;
 			// case "|":
 			// 	table();
 			// 	break;
-			// case "[":
-			// 	footnote();
-			// 	break;
+			case "[":
+				if (consume_if("[^")) blocks.push(footnote());
+				else blocks.push(para());
+				break;
+			case "-":
+				if (consume_if("---\n")) blocks.push(new Block.Rule());
+				else if (consume_if("--")) blocks.push(comment());
+				else blocks.push(para());
+				break;
 			default:
 				// if (/^\s*[-*]/.test(peek(3))) list();
 				// else if (/^\s*[0-9]\. /.test(peek(3))) ordered_list();
@@ -189,7 +254,9 @@ export function parse(input: string, filename?: string) {
 		return buffer.length > 0 ? buffer : undefined;
 	}
 
-	function param_string(): string | undefined {
+	// #region Value
+
+	function try_param_string(): string | undefined {
 		if (not('"')) return undefined;
 		consume();
 
@@ -204,7 +271,7 @@ export function parse(input: string, filename?: string) {
 		return buffer;
 	}
 
-	function param_number(): number | undefined {
+	function try_param_number(): number | undefined {
 		const checkpoint = i;
 		let buffer = "";
 
@@ -226,18 +293,18 @@ export function parse(input: string, filename?: string) {
 		return parseFloat(buffer);
 	}
 
-	function param_null(): null | undefined {
+	function try_param_null(): null | undefined {
 		if (consume_if("null")) return null;
 		return undefined;
 	}
 
-	function param_boolean(): boolean | undefined {
+	function try_param_boolean(): boolean | undefined {
 		if (consume_if("true")) return true;
 		if (consume_if("false")) return false;
 		return undefined;
 	}
 
-	function param_list(): Value[] | undefined {
+	function try_param_list(): Value[] | undefined {
 		const params: Value[] = [];
 
 		if (not("[")) return undefined;
@@ -256,7 +323,7 @@ export function parse(input: string, filename?: string) {
 			if (!first) expect(",");
 			nomnomnom();
 
-			const value = param_value();
+			const value = try_param_value();
 			if (value === undefined) break;
 			params.push(value);
 
@@ -268,7 +335,7 @@ export function parse(input: string, filename?: string) {
 		return params;
 	}
 
-	function param_object(): { [key: string]: Value } | undefined {
+	function try_param_object(): { [key: string]: Value } | undefined {
 		const params: { [key: string]: Value } = {};
 
 		if (not("{")) return undefined;
@@ -296,7 +363,7 @@ export function parse(input: string, filename?: string) {
 			expect(":");
 			nomnomnom();
 
-			const value = param_value();
+			const value = try_param_value();
 			// didn't find a value, could not parse an object
 			if (value === undefined) throw error("value", peek());
 			params[key] = value;
@@ -308,17 +375,19 @@ export function parse(input: string, filename?: string) {
 		return params;
 	}
 
-	function param_value(): Value | undefined {
+	function try_param_value(): Value | undefined {
 		let value: Value | undefined;
 
-		if ((value = param_string()) !== undefined) return value;
-		if ((value = param_number()) !== undefined) return value;
-		if ((value = param_null()) !== undefined) return value;
-		if ((value = param_boolean()) !== undefined) return value;
-		if ((value = param_list()) !== undefined) return value;
-		if ((value = param_object()) !== undefined) return value;
+		if ((value = try_param_string()) !== undefined) return value;
+		if ((value = try_param_number()) !== undefined) return value;
+		if ((value = try_param_null()) !== undefined) return value;
+		if ((value = try_param_boolean()) !== undefined) return value;
+		if ((value = try_param_list()) !== undefined) return value;
+		if ((value = try_param_object()) !== undefined) return value;
 		return undefined;
 	}
+
+	// #endregion Value
 
 	function param(): Block.Parameter | undefined {
 		const name = ident();
@@ -328,7 +397,7 @@ export function parse(input: string, filename?: string) {
 		expect(":");
 		nomnomnom();
 
-		const value = param_value();
+		const value = try_param_value();
 		if (value === undefined) throw error("value", peek());
 
 		return new Block.Parameter(name, value);
@@ -346,7 +415,7 @@ export function parse(input: string, filename?: string) {
 
 		if (has_params) {
 			// try to parse a single value
-			const value = param_value();
+			const value = try_param_value();
 			if (value !== undefined) {
 				const param = new Block.Parameter("__default", value);
 				params.parameters.push(param);
@@ -393,13 +462,247 @@ export function parse(input: string, filename?: string) {
 		return callNotation("@") as Block.Decorator;
 	}
 
-	function inline(untilChar: string): Inline[] {
-		let buffer = "";
-		while (not(untilChar)) {
-			// TODO: implement inline elements
-			buffer += consume();
+	// TODO: =import() calls within codeblocks?
+	function codeblock() {
+		consume("```");
+
+		let language = "";
+		while (!is_whitespace()) language += consume();
+		nomnom();
+
+		let params = "";
+		while (!is_newline()) params += consume();
+		consume(); // consume the newline
+
+		const code_params: Block.CodeBlockOptions = { language };
+
+		for (const param of params.split(/\s+/)) {
+			if (param.startsWith(":")) {
+				const [key, value] = param.slice(1).split("=");
+				if (key === "line-numbers") code_params.lineNumbers = true;
+				else if (key === "highlight")
+					code_params.highlight = value.split(",").map(range => {
+						const [start, end] = range.split("-");
+						return { start: Number(start), end: Number(end) };
+					});
+				else if (key === "end") code_params.end = value;
+			} else if (!code_params.title) code_params.title = param;
+			else throw error("valid codeblock parameter", param);
 		}
-		return [new Inline.Text(buffer)];
+
+		let content = "";
+		const end_string = code_params.end ? " " + code_params.end : "";
+		const expect = "\n```" + end_string;
+
+		// loop as along as we don't find the end of the codeblock
+		// the end is automatically consumed by consume_if
+		while (!consume_if(expect)) {
+			if (eof()) throw error("end of codeblock", "EOF");
+			content += consume();
+		}
+
+		nomnom(); // slurp leftover whitespace after end_string
+
+		return new Block.CodeBlock(content, code_params);
+	}
+
+	function try_link(): Inline.Link | undefined {
+		const checkpoint = i;
+
+		if (!consume_if("[")) return undefined;
+
+		const content = inline("]", "[", "![") as Exclude<Inline, { type: "link" | "image" }>[];
+
+		if (not("]")) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		consume(); // consume the closing bracket
+
+		if (!consume_if("(")) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		let href = "";
+		while (not(")", "\n")) href += consume();
+
+		if (not(")")) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		consume(); // consume the closing parenthesis
+
+		return new Inline.Link(content, href);
+	}
+
+	function try_image(): Inline.Image | undefined {
+		const checkpoint = i;
+
+		if (!consume_if("!")) return undefined;
+
+		const link = try_link();
+		if (link === undefined) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		return new Inline.Image(link.content, link.href);
+	}
+
+	function try_matching_inline(char: string): Inline[] | undefined {
+		const checkpoint = i;
+
+		if (!consume_if(char)) return undefined;
+
+		const content = inline(char);
+
+		if (content.length === 0 || not(char)) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		consume(); // consume the closing char
+
+		return content;
+	}
+
+	function try_strong(): Inline.Strong | undefined {
+		const content = try_matching_inline("*") as Exclude<Inline, Inline.Strong>[];
+		if (content === undefined) return undefined;
+		return new Inline.Strong(content);
+	}
+
+	function try_strike(): Inline.Strike | undefined {
+		const content = try_matching_inline("~") as Exclude<Inline, Inline.Strike>[];
+		if (content === undefined) return undefined;
+		return new Inline.Strike(content);
+	}
+
+	/** MUST be tried before try_emphasis */
+	function try_underline(): Inline.Underline | undefined {
+		const content = try_matching_inline("__") as Exclude<Inline, Inline.Underline>[];
+		if (content === undefined) return undefined;
+		return new Inline.Underline(content);
+	}
+
+	function try_emphasis(): Inline.Emphasis | undefined {
+		const content = try_matching_inline("_") as Exclude<Inline, Inline.Emphasis>[];
+		if (content === undefined) return undefined;
+		return new Inline.Emphasis(content);
+	}
+
+	function try_code(): Inline.Code | undefined {
+		const checkpoint = i;
+
+		if (!consume_if("`")) return undefined;
+
+		// Just capture raw text until the next backtick
+		let content = "";
+		while (not("`", "\n")) {
+			if (eof()) {
+				revert(checkpoint);
+				return undefined;
+			}
+			content += consume();
+		}
+
+		if (not("`") || content.length === 0) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		consume(); // consume the closing backtick
+		return new Inline.Code(content);
+	}
+
+	function try_variable_interpolation(): Inline.VariableInterpolation | undefined {
+		const checkpoint = i;
+
+		if (!consume_if("${")) return undefined;
+
+		// TODO: support expressions
+		let name = "";
+		while (not("}", "\n")) {
+			if (eof()) {
+				revert(checkpoint);
+				return undefined;
+			}
+			name += consume();
+		}
+
+		if (not("}")) {
+			revert(checkpoint);
+			return undefined;
+		}
+
+		consume(); // consume the closing brace
+		return new Inline.VariableInterpolation(name);
+	}
+
+	function try_footnote_reference(): Inline.FootnoteReference | undefined {
+		const checkpoint = i;
+
+		if (!consume_if("[^")) return undefined;
+
+		let reference = "";
+		while (not("]", "\n")) {
+			if (eof()) {
+				revert(checkpoint);
+				return undefined;
+			}
+			reference += consume();
+		}
+
+		if (not("]")) {
+			revert(checkpoint);
+			return undefined;
+		}
+		consume(); // consume the closing bracket
+
+		return new Inline.FootnoteReference(reference);
+	}
+
+	function raw_text_until(...untilChar: string[]): Inline.Text {
+		let buffer = "";
+		while (not(...untilChar)) buffer += consume();
+		return new Inline.Text(buffer);
+	}
+
+	function inline(...untilChar: string[]): Inline[] {
+		const content: Inline[] = [];
+		let buffer = "";
+
+		const add = (chunk: Inline) => {
+			if (buffer.length > 0) content.push(new Inline.Text(buffer));
+			buffer = "";
+			content.push(chunk);
+		};
+
+		while (not(...untilChar, "\n")) {
+			if (eof()) break;
+
+			let chunk: Inline | undefined;
+
+			// escape character
+			if (consume_if("\\")) buffer += consume();
+			else if ((chunk = try_strong())) add(chunk);
+			else if ((chunk = try_strike())) add(chunk);
+			else if ((chunk = try_underline())) add(chunk);
+			else if ((chunk = try_emphasis())) add(chunk);
+			else if ((chunk = try_code())) add(chunk);
+			else if ((chunk = try_link())) add(chunk);
+			else if ((chunk = try_image())) add(chunk);
+			else if ((chunk = try_footnote_reference())) add(chunk);
+			else if ((chunk = try_variable_interpolation())) add(chunk);
+			else buffer += consume();
+		}
+
+		if (buffer.length > 0) content.push(new Inline.Text(buffer));
+
+		return content;
 	}
 
 	function heading() {
@@ -419,6 +722,7 @@ export function parse(input: string, filename?: string) {
 		while (not("\n\n")) {
 			if (eof()) break;
 			const chunk = inline("\n");
+			console.log({ chunk });
 			if (not("\n\n")) {
 				chunk.push(new Inline.Text("\n"));
 				consume(); // consume single newline
@@ -429,7 +733,41 @@ export function parse(input: string, filename?: string) {
 		return new Block.Paragraph(inline_list);
 	}
 
+	function footnote() {
+		let reference = "";
+		while (not("]", "\n")) {
+			if (eof()) throw error("]", "EOF");
+			reference += consume();
+		}
+
+		if (not("]")) throw error("]", peek());
+		consume(); // consume the closing bracket
+
+		const content = inline("\n");
+		return new Block.Footnote(reference, content);
+	}
+
+	function comment() {
+		nomnom();
+		const content = consume_until("\n");
+		return new Block.Comment(content);
+	}
+
 	// [^1] decorators should be normalised after parsing
 
 	return ast;
 }
+
+import { readFileSync } from "node:fs";
+
+const log = limited_log(0);
+
+let from = Number(Bun.argv[2]) || 0;
+let to = Number(Bun.argv[3]) || from + 5;
+
+log(
+	parse(readFileSync("reference.hm", "utf-8"), "reference.hm")
+		.blocks.slice(from, to)
+		.map(b => b.type + ": ---\n" + b.toString())
+		.join("\n---\n"),
+);

@@ -436,7 +436,10 @@ export namespace Inline {
 	*/
 	export class Link {
 		type: "link" = "link";
-		constructor(public content: Exclude<Inline, Link>[], public href: string) {}
+		constructor(
+			public content: Exclude<Inline, { type: "link" | "image" }>[],
+			public href: string,
+		) {}
 		toString(): string {
 			return `[${this.content.map(c => c.toString()).join("")}](${this.href})`;
 		}
@@ -480,9 +483,12 @@ export namespace Inline {
 	*/
 	export class Image {
 		type: "image" = "image";
-		constructor(public src: string, public alt: string) {}
+		constructor(
+			public content: Exclude<Inline, { type: "link" | "image" }>[],
+			public src: string,
+		) {}
 		toString(): string {
-			return `![${this.alt}](${this.src})`;
+			return `![${this.content.map(c => c.toString()).join("")}](${this.src})`;
 		}
 	}
 
