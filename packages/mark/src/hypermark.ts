@@ -226,6 +226,9 @@ export function parse(input: string, filename?: string) {
 			case "`":
 				if (peek(0, 3) === "```") blocks.push(codeblock());
 				break;
+			case ">":
+				blocks.push(quote() ?? para());
+				break;
 			// case "|":
 			// 	table();
 			// 	break;
@@ -506,6 +509,8 @@ export function parse(input: string, filename?: string) {
 		return new Block.CodeBlock(content, code_params);
 	}
 
+	// #region Inline
+
 	function try_link(): Inline.Link | undefined {
 		const checkpoint = i;
 
@@ -665,12 +670,6 @@ export function parse(input: string, filename?: string) {
 		return new Inline.FootnoteReference(reference);
 	}
 
-	function raw_text_until(...untilChar: string[]): Inline.Text {
-		let buffer = "";
-		while (not(...untilChar)) buffer += consume();
-		return new Inline.Text(buffer);
-	}
-
 	function inline(...untilChar: string[]): Inline[] {
 		const content: Inline[] = [];
 		let buffer = "";
@@ -705,6 +704,8 @@ export function parse(input: string, filename?: string) {
 		return content;
 	}
 
+	// #endregion Inline
+
 	function heading() {
 		let level = 0;
 		while (consume_if("#")) level++;
@@ -722,7 +723,6 @@ export function parse(input: string, filename?: string) {
 		while (not("\n\n")) {
 			if (eof()) break;
 			const chunk = inline("\n");
-			console.log({ chunk });
 			if (not("\n\n")) {
 				chunk.push(new Inline.Text("\n"));
 				consume(); // consume single newline
@@ -753,21 +753,24 @@ export function parse(input: string, filename?: string) {
 		return new Block.Comment(content);
 	}
 
+	function quote(): Block.Quote | undefined {
+		let buffer = "";
+
+		outer: while (consume_if(">")) {
+			nomnom();
+			while (not("\n")) {
+				if (eof()) break outer;
+				buffer += consume();
+			}
+			buffer += consume(); // include the newline
+		}
+
+		const reparse = parse(buffer, ":quote:");
+
+		return new Block.Quote(reparse.blocks);
+	}
+
 	// [^1] decorators should be normalised after parsing
 
 	return ast;
 }
-
-import { readFileSync } from "node:fs";
-
-const log = limited_log(0);
-
-let from = Number(Bun.argv[2]) || 0;
-let to = Number(Bun.argv[3]) || from + 5;
-
-log(
-	parse(readFileSync("reference.hm", "utf-8"), "reference.hm")
-		.blocks.slice(from, to)
-		.map(b => b.type + ": ---\n" + b.toString())
-		.join("\n---\n"),
-);
