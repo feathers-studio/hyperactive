@@ -8,8 +8,6 @@
     },
 )
 
--- TODO: add a comment section
-
 @style(
     font-family: "Inter",
     line-height: "1.25",
@@ -329,3 +327,57 @@ Imports can be used within a code block, the import is treated as plain text:
 =import("./code/example.js")
 ```
 ``` END
+
+## Comments
+
+-- Invisible comment here! 👻
+
+Comments in Hypermark use double dashes and are ignored during rendering. Comments are always single line:
+
+```hypermark
+-- This is a single-line comment
+```
+
+## Quotes
+
+Hypermark supports blockquotes using the `>` character:
+
+```hypermark
+> This is a simple quote
+
+> Multi-paragraph quotes
+> continue with `>` on each line
+>
+> Like this second paragraph
+```
+
+Output:
+
+> This is a simple quote
+
+> Multi-paragraph quotes
+> continue with `>` on each line
+>
+> Like this second paragraph
+
+Quotes can be nested and combined with other blocks:
+
+```hypermark
+> ## Quoted heading
+>
+> - List item in quote
+>   > Nested quote
+>   > continues here
+>
+> Regular quote resumes
+```
+
+Output:
+
+> ## Quoted heading
+>
+> - List item in quote
+>   > Nested quote
+>   > continues here
+>
+> Regular quote resumes
