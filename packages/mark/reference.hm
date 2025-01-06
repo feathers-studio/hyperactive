@@ -8,6 +8,8 @@
     },
 )
 
+-- TODO: add a comment section
+
 @style(
     font-family: "Inter",
     line-height: "1.25",
@@ -75,6 +77,7 @@ Variables can be interpolated in text using `${}` syntax:
 
 You have ${count} messages.
 
+-- TODO: expressions are not supported yet
 @style(color: settings.theme == "dark" ? "#fff" : "#000")
 Your theme is: ${settings.theme}
 ```
@@ -99,7 +102,7 @@ Hypermark supports six levels of headings:
 ### Lists
 
 @tabs>
-@named("Unordered")
+@named("Unordered")>
 Use `-` or `*` for unordered lists:
 
 ```hypermark
@@ -109,8 +112,9 @@ Use `-` or `*` for unordered lists:
   * Another nested item
 - Item 3
 ```
+<@
 
-@named("Ordered")
+@named("Ordered")>
 Use numbers for ordered lists:
 
 ```hypermark
@@ -120,8 +124,9 @@ Use numbers for ordered lists:
    2. Another nested item
 3. Third item
 ```
+<@
 
-[Tasks]
+@named("Tasks")>
 Use `- [ ]` for task lists:
 
 ```hypermark
@@ -130,12 +135,13 @@ Use `- [ ]` for task lists:
 - [ ] Another task
 ```
 <@
+<@
 
 ### Code Blocks
 
 Code blocks support language syntax highlighting, line numbers, and line highlighting:
 
-```hypermark end:HYPER-END
+```hypermark :end=HYPER-END
 ```javascript :line-numbers :highlight=2-3
 function greet(name) {
     const message = `Hello, ${name}!`;
@@ -145,8 +151,8 @@ function greet(name) {
 
 If your code block contains ```, you can skip it entirely by using a custom delimiter. Since this reference document is also written in Hypermark, the above codeblock exists in source like this:
 
-```hypermark end:HYPER-END2
-```hypermark end:HYPER-END
+```hypermark :end=HYPER-END2
+```hypermark :end=HYPER-END
 ```javascript :line-numbers :highlight=2-3
 function greet(name) {
     const message = `Hello, ${name}!`;
@@ -173,11 +179,10 @@ Tables support alignment options:
 
 Decorators modify the next block:
 
-```hypermark end:DECORATOR1
+```hypermark :end=DECORATOR1
 @style(color: "blue")
 This text will be blue.
-DECORATOR1
-```
+``` DECORATOR1
 
 Multiple decorators can be composed:
 
@@ -190,7 +195,7 @@ This text will be large and centered.
 
 Some decorators can wrap multiple blocks:
 
-```hypermark end:TABS-EXAMPLE
+```hypermark :end=TABS-EXAMPLE
 @tabs>
 @named("Python")
 ```python example.py
@@ -269,7 +274,9 @@ Hypermark supports various inline text formatting:
 
 ## Footnotes
 
-Hypermark supports footnotes with references:
+Hypermark supports footnotes [^1] with references:
+
+[^1] Here's an example:
 
 ```hypermark
 Here's some text with a footnote[^1].
@@ -292,6 +299,7 @@ Any character can be escaped using a backslash:
 ```
 
 Common escape sequences:
+
 | Character | Usage | Escaped |
 | :-------- | :---- | :------ |
 | \\ | Backslash | \\\\ |
@@ -316,7 +324,7 @@ Content can be imported from other files. The resulting content will be treated 
 
 Imports can be used within a code block, the import is treated as plain text:
 
-```hypermark end:END
+```hypermark :end=END
 ```javascript
 =import("./code/example.js")
 ```
