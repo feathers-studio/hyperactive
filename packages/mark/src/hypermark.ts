@@ -75,7 +75,7 @@ export function parse(input: string, filename?: string) {
 		return { count, last_index };
 	};
 
-	let ast = new AST([]);
+	let doc = new HypermarkDocument([]);
 
 	let i = 0;
 	let line = 1;
@@ -178,7 +178,7 @@ export function parse(input: string, filename?: string) {
 		while (is_whitespace()) consume();
 	}
 
-	let blocks: (Block | DecoratorEndMarker | DecoratorStartMarker)[] = ast.blocks;
+	let blocks: (Block | DecoratorEndMarker | DecoratorStartMarker)[] = doc.blocks;
 
 	// master loop decides which block type to parse
 	while (i < input.length) {
@@ -198,9 +198,9 @@ export function parse(input: string, filename?: string) {
 			case "=": {
 				const result = call();
 				if (result instanceof Meta) {
-					if (ast.blocks.length)
+					if (doc.blocks.length)
 						throw unexpected("=meta() call. Meta can only be declared at the top of a document");
-					else ast.meta = result;
+					else doc.meta = result;
 				} else blocks.push(result);
 				break;
 			}
@@ -228,7 +228,7 @@ export function parse(input: string, filename?: string) {
 				blocks.push(table() ?? para());
 				break;
 			case "[":
-				if (consume_if("[^")) blocks.push(footnote());
+				if (consume_if("[^")) blocks.push(footnote() ?? para());
 				else blocks.push(para());
 				break;
 			case "-":
@@ -738,17 +738,26 @@ export function parse(input: string, filename?: string) {
 	}
 
 	function footnote() {
+		let checkpoint = i;
+
 		let reference = "";
 		while (not("]", "\n")) {
-			if (eof()) throw error("]", "EOF");
+			if (eof()) return revert(checkpoint);
 			reference += consume();
 		}
 
-		if (not("]")) throw error("]", peek());
+		if (not("]")) return revert(checkpoint);
 		consume(); // consume the closing bracket
 
+		if (!consume_if(":")) return revert(checkpoint);
+
+		nomnom();
+
 		const content = inline("\n");
-		return new Block.Footnote(reference, content);
+
+		const footnote = new Block.Footnote(reference, content);
+		doc.footnote_collection[reference] = footnote;
+		return footnote;
 	}
 
 	function comment() {
@@ -865,7 +874,7 @@ export function parse(input: string, filename?: string) {
 		return new Block.Table(rows, header, alignment);
 	}
 
-	// [^1] decorators should be normalised after parsing
+	// [^1]: decorators should be normalised after parsing
 
-	return ast;
+	return doc;
 }

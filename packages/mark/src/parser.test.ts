@@ -441,7 +441,7 @@ describe("Blocks", () => {
 
 	describe("Footnote", () => {
 		it("parses footnotes", () => {
-			const ast = parse("Reference [^1]\n[^1] Content");
+			const ast = parse("Reference [^1]\n[^1]: Content");
 			expect(ast.blocks).toEqual([
 				new Block.Paragraph([
 					//

@@ -330,13 +330,13 @@ export namespace Block {
 		Footnotes are references + content.
 		Example:
 
-		[^1] Footnote
+		[^1]: Footnote
 	*/
 	export class Footnote {
 		type: "footnote" = "footnote";
 		constructor(public reference: string, public content: Inline[]) {}
 		toString(): string {
-			return `[^${this.reference}] ${this.content.map(c => c.toString()).join("")}`;
+			return `[^${this.reference}]: ${this.content.map(c => c.toString()).join("")}`;
 		}
 	}
 
@@ -523,6 +523,11 @@ export namespace Inline {
 
 export type Inline = Inline.Inline;
 
-export class AST {
+export interface FootnoteCollection {
+	[key: string]: Block.Footnote;
+}
+
+export class HypermarkDocument {
+	public footnote_collection: FootnoteCollection = {};
 	constructor(public blocks: Block[], public meta?: Meta) {}
 }
