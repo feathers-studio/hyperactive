@@ -520,11 +520,7 @@ export function parse(input: string, filename?: string) {
 
 		const content = inline("]", "[", "![") as Exclude<Inline, { type: "link" | "image" }>[];
 
-		if (not("]")) return revert(checkpoint);
-
-		consume(); // consume the closing bracket
-
-		if (!consume_if("(")) return revert(checkpoint);
+		if (!consume_if("](")) return revert(checkpoint);
 
 		let href = "";
 		while (not(")", "\n")) {
@@ -532,9 +528,7 @@ export function parse(input: string, filename?: string) {
 			href += consume();
 		}
 
-		if (not(")")) return revert(checkpoint);
-
-		consume(); // consume the closing parenthesis
+		if (!consume_if(")")) return revert(checkpoint);
 
 		return new Inline.Link(content, href);
 	}
