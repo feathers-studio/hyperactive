@@ -486,22 +486,28 @@ export function parse(input: string, filename?: string) {
 				const [key, value] = param.slice(1).split("=");
 				if (key === "line-numbers") code_params.lineNumbers = true;
 				else if (key === "highlight")
-					code_params.highlight = value.split(",").map(range => {
-						const [start, end] = range.split("-");
-						return { start: Number(start), end: Number(end) };
-					});
+					code_params.highlight = value
+						.split(",")
+						.map(range => {
+							const [start, end] = range
+								.split("-")
+								.map(Number)
+								.map(n => (Number.isNaN(n) ? undefined : n));
+							if (start === undefined) return undefined;
+							return { start, end: end ?? start };
+						})
+						.filter((x): x is NonNullable<typeof x> => x !== undefined);
 				else if (key === "end") code_params.end = value;
 			} else if (!code_params.title) code_params.title = param;
 			else throw error("valid codeblock parameter", param);
 		}
 
 		let content = "";
-		const end_string = code_params.end ? " " + code_params.end : "";
-		const expect = "\n```" + end_string;
+		const end_string = "\n```" + (code_params.end ?? "");
 
 		// loop as along as we don't find the end of the codeblock
 		// the end is automatically consumed by consume_if
-		while (!consume_if(expect)) {
+		while (!consume_if(end_string)) {
 			if (eof()) throw error("end of codeblock", "EOF");
 			content += consume();
 		}
