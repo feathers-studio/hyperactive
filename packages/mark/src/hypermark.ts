@@ -700,18 +700,37 @@ export function parse(input: string, filename?: string) {
 	// paragraph parser, typically ends when two newlines are encountered
 	// or when a decorator, list, call, or code block is encountered
 	function para() {
-		// current inline list, if defined, we're in an inline context
 		let inline_list: Inline[] = [];
 
-		while (not("\n\n")) {
-			if (eof()) break;
-			const chunk = inline("\n");
-			if (not("\n\n")) {
-				if (is("\n")) {
-					chunk.push(new Inline.Text("\n"));
-					consume(); // consume single newline
+		while (!eof()) {
+			// Check for block-level elements in next line
+			if (is("\n")) {
+				const next = peek(1);
+
+				if (
+					next === "#" ||
+					next === "`" ||
+					next === ">" ||
+					next === "|" ||
+					next === "-" ||
+					next === "=" ||
+					next === "@" ||
+					next === "[" ||
+					/[0-9+\.]/.test(next)
+				) {
+					break;
 				}
+
+				// Double newline still breaks
+				if (next === "\n") break;
+
+				// Add single newline as text and continue
+				inline_list.push(new Inline.Text("\n"));
+				consume();
+				continue;
 			}
+
+			const chunk = inline("\n");
 			inline_list.push(...chunk);
 		}
 
