@@ -153,12 +153,6 @@ export function parse(input: string, filename?: string) {
 		return undefined;
 	};
 
-	const consume_until = (str: string) => {
-		let buffer = "";
-		while (not(str)) buffer += consume();
-		return buffer;
-	};
-
 	const expect = (str: string) => {
 		if (not(str)) throw error(str, peek());
 		consume(str.length);
@@ -740,8 +734,14 @@ export function parse(input: string, filename?: string) {
 
 	function comment() {
 		nomnom();
-		const content = consume_until("\n");
-		return new Block.Comment(content);
+
+		let buffer = "";
+		while (not("\n")) {
+			if (eof()) break;
+			buffer += consume();
+		}
+
+		return new Block.Comment(buffer);
 	}
 
 	function quote(): Block.Quote | undefined {
@@ -791,7 +791,7 @@ export function parse(input: string, filename?: string) {
 			// cell starts with |
 			while (consume_if("|")) {
 				nomnom();
-				if (is("\n")) break;
+				if (is("\n") || eof()) break;
 
 				const align = try_alignment();
 
