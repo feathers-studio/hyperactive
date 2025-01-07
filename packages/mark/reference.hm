@@ -145,7 +145,7 @@ function greet(name) {
     const message = `Hello, ${name}!`;
     console.log(message);
 }
-``` HYPER-END
+```HYPER-END
 
 If your code block contains ```, you can skip it entirely by using a custom delimiter. Since this reference document is also written in Hypermark, the above codeblock exists in source like this:
 
@@ -156,8 +156,8 @@ function greet(name) {
     const message = `Hello, ${name}!`;
     console.log(message);
 }
-``` HYPER-END
-``` HYPER-END2
+```HYPER-END
+```HYPER-END2
 
 ### Tables
 
@@ -180,7 +180,7 @@ Decorators modify the next block:
 ```hypermark :end=DECORATOR1
 @style(color: "blue")
 This text will be blue.
-``` DECORATOR1
+```DECORATOR1
 
 Multiple decorators can be composed:
 
@@ -208,7 +208,7 @@ function hello() {
 }
 ```
 <@
-``` TABS-EXAMPLE
+```TABS-EXAMPLE
 
 Output:
 
@@ -320,13 +320,7 @@ Content can be imported from other files. The resulting content will be treated 
 =import("./partial.hm")
 ```
 
-Imports can be used within a code block, the import is treated as plain text:
-
-```hypermark :end=END
-```javascript
-=import("./code/example.js")
-```
-``` END
+-- TODO: how to import from a file into a codeblock?
 
 ## Comments
 
