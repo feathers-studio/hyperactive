@@ -1,48 +1,6 @@
 import { Block, Inline, HypermarkDocument, type Value, Meta } from "./types.ts";
-import { color } from "bun";
-
-class ParseError extends Error {
-	constructor(
-		public index: number,
-		public line: number,
-		public column: number,
-		message: string,
-		public filename?: string,
-	) {
-		super(message);
-		this.name = "ParseError";
-	}
-}
-
-class UnexpectedSyntax extends ParseError {
-	constructor(index: number, line: number, column: number, syntax: string, filename?: string) {
-		super(index, line, column, `Unexpected ${syntax}`, filename);
-		this.name = "UnexpectedSyntax";
-	}
-}
-
-class DecoratorStartMarker {
-	type: "decorator-start" = "decorator-start";
-	toString(): string {
-		return ">";
-	}
-}
-
-class DecoratorEndMarker {
-	type: "decorator-end" = "decorator-end";
-	toString(): string {
-		return "<@";
-	}
-}
-
-const limited_log = (n: number) => {
-	return (...args: any[]) => {
-		if (n > 0) {
-			console.log(...args);
-			n--;
-		}
-	};
-};
+import { ParseError, DecoratorEndMarker, DecoratorStartMarker, limited_log } from "./common.ts";
+import { color, inspect } from "bun";
 
 const normalLineNumber = (line_number: number) => {
 	let num = line_number.toString();
@@ -62,7 +20,13 @@ const squiggly = (column: number) => {
 	return color("red", "ansi") + " ".repeat(7 + column - 1) + "^^^" + "\x1b[0m";
 };
 
-export function parse(input: string, filename?: string) {
+export interface ParseOptions {
+	tab_size?: number;
+}
+
+export function parse(input: string, filename?: string, options: ParseOptions = { tab_size: 4 }) {
+	const tab_size = options.tab_size ?? 4;
+
 	const countChar = (char: string, from: number, to: number) => {
 		let count = 0;
 		let last_index = -1;
@@ -75,7 +39,7 @@ export function parse(input: string, filename?: string) {
 		return { count, last_index };
 	};
 
-	let doc = new HypermarkDocument([]);
+	const doc = new HypermarkDocument([]);
 
 	let i = 0;
 	let line = 1;
@@ -178,8 +142,6 @@ export function parse(input: string, filename?: string) {
 		while (is_whitespace()) consume();
 	}
 
-	let blocks: (Block | DecoratorEndMarker | DecoratorStartMarker)[] = doc.blocks;
-
 	function parse_block(): (Block | DecoratorEndMarker | DecoratorStartMarker)[] | undefined {
 		if (eof()) return undefined;
 
@@ -236,12 +198,18 @@ export function parse(input: string, filename?: string) {
 		}
 	}
 
-	// Replace the main loop with the new version that handles arrays
-	while (!eof()) {
-		const block_or_blocks = parse_block();
-		if (block_or_blocks) {
-			blocks.push(...block_or_blocks);
+	function parse_blocks(): (Block | DecoratorEndMarker | DecoratorStartMarker)[] {
+		const blocks: (Block | DecoratorEndMarker | DecoratorStartMarker)[] = [];
+
+		// Replace the main loop with the new version that handles arrays
+		while (!eof()) {
+			const block_or_blocks = parse_block();
+			if (block_or_blocks) {
+				blocks.push(...block_or_blocks);
+			}
 		}
+
+		return blocks;
 	}
 
 	function ident(): string | undefined {
@@ -448,16 +416,6 @@ export function parse(input: string, filename?: string) {
 		if (type === "@") return new Block.Decorator(name, params, []);
 		else if (name === "meta") return new Meta(params);
 		else return new Block.Call(name, params);
-	}
-
-	function call() {
-		consume();
-		return callNotation("=") as Block.Call | Meta;
-	}
-
-	function decorator() {
-		consume();
-		return callNotation("@") as Block.Decorator;
 	}
 
 	// TODO: =import() calls within codeblocks?
@@ -867,7 +825,81 @@ export function parse(input: string, filename?: string) {
 		return new Block.Table(rows, header, alignment);
 	}
 
-	// [^1]: decorators should be normalised after parsing
+	function get_indent(from_offset: number, tab_size: number): number {
+		let indent = 0;
+		let index = from_offset;
 
+		while (peek(index) === " " || peek(index) === "\t") {
+			indent += peek(index) === " " ? 1 : tab_size;
+			index++;
+		}
+
+		return indent;
+	}
+
+	function trim_indent(line: string, indent: number, tab_size: number): string {
+		let index = 0;
+		let indent_level = 0;
+
+		while (indent_level < indent) {
+			if (line[index] === " " || line[index] === "\t") {
+				indent_level += line[index] === " " ? 1 : tab_size;
+				index++;
+			} else break;
+		}
+
+		return line.slice(index);
+	}
+
+	function list_item(indent_level: number): Block.ListItem | undefined {
+		let checkpoint = i;
+
+		console.log({ indent_level });
+
+		if (!consume_if("- ")) return undefined;
+
+		indent_level += 2; // for the marker
+		indent_level += get_indent(i, tab_size); // whitespace before content adds to current indent level
+
+		let content = "";
+
+		while (!eof()) {
+			if (is("\n") && peek(1) !== "\n") {
+				// if the next line is indented less than the current indent level, break
+				if (get_indent(1, tab_size) < indent_level) break;
+				content += consume();
+			}
+			content += consume();
+		}
+
+		const normalised_content = content
+			.split("\n")
+			.map(line => trim_indent(line, indent_level, tab_size))
+			.join("\n");
+
+		console.log({ normalised_content });
+
+		const block = parse(normalised_content, ":list:", { tab_size });
+
+		return new Block.ListItem(block.blocks);
+	}
+
+	function list(): Block.List {
+		const items: Block.ListItem[] = [];
+
+		let item: Block.ListItem | undefined;
+
+		while ((item = list_item(0))) {
+			items.push(item);
+		}
+
+		return new Block.List(items);
+	}
+
+	// [^1]: decorators should be normalised after parsing
+	// [^2]: Also lists
+
+	// @ts-expect-error normalise decorators after parsing
+	doc.blocks = parse_blocks();
 	return doc;
 }
