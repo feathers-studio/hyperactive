@@ -280,8 +280,8 @@ describe("Blocks", () => {
 			]);
 		});
 
-		it("throws on invalid heading levels", () => {
-			expect(() => parse("#######")).toThrow();
+		it("falls back to paragraph on invalid heading levels", () => {
+			expect(parse("#######").blocks).toEqual([new Block.Paragraph([new Inline.Text("#######")])]);
 		});
 	});
 
@@ -368,12 +368,22 @@ describe("Blocks", () => {
 			]);
 		});
 
-		it("throws on unclosed code block", () => {
-			expect(() => parse("```js\ncode")).toThrow();
+		it("gracefully closes unclosed code block", () => {
+			expect(parse("```js\ncode").blocks).toEqual([
+				new Block.CodeBlock("code", {
+					language: "js",
+					title: "",
+				}),
+			]);
 		});
 
-		it("throws on unclosed code block with custom end delimiter", () => {
-			expect(() => parse("```js :end=END\ncode")).toThrow();
+		it("gracefully closes unclosed code block with custom end delimiter", () => {
+			expect(parse("```js :end=END\ncode").blocks).toEqual([
+				new Block.CodeBlock("code", {
+					language: "js",
+					end: "END",
+				}),
+			]);
 		});
 	});
 

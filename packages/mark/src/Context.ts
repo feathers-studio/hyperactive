@@ -58,9 +58,17 @@ export class ParserContext {
 		return this.input.slice(this.index + offset, this.index + offset + count);
 	}
 
-	revert(index: number): undefined {
-		this.index = index;
-		return undefined;
+	checkpoint() {
+		const i = this.index;
+		const l = this.line;
+		const c = this.column;
+
+		return (): undefined => {
+			this.index = i;
+			this.line = l;
+			this.column = c;
+			return undefined;
+		};
 	}
 
 	eof() {

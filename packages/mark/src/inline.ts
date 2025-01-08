@@ -2,44 +2,44 @@ import { Inline } from "./types.ts";
 import type { ParserContext } from "./Context.ts";
 
 export function try_link(ctx: ParserContext): Inline.Link | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	if (!ctx.consume_if("[")) return undefined;
 
 	const content = inline(ctx, "]", "[", "![") as Exclude<Inline, { type: "link" | "image" }>[];
 
-	if (!ctx.consume_if("](")) return ctx.revert(checkpoint);
+	if (!ctx.consume_if("](")) return revert();
 
 	let href = "";
 	while (ctx.not(")", "\n")) {
-		if (ctx.eof()) return ctx.revert(checkpoint);
+		if (ctx.eof()) return revert();
 		href += ctx.consume();
 	}
 
-	if (!ctx.consume_if(")")) return ctx.revert(checkpoint);
+	if (!ctx.consume_if(")")) return revert();
 
 	return new Inline.Link(content, href);
 }
 
 export function try_image(ctx: ParserContext): Inline.Image | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	if (!ctx.consume_if("!")) return undefined;
 
 	const link = try_link(ctx);
-	if (link === undefined) return ctx.revert(checkpoint);
+	if (link === undefined) return revert();
 
 	return new Inline.Image(link.content, link.href);
 }
 
 export function try_matching_inline(ctx: ParserContext, char: string): Inline[] | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	if (!ctx.consume_if(char)) return undefined;
 
 	const content = inline(ctx, char, "\n");
 
-	if (content.length === 0 || ctx.not(char)) return ctx.revert(checkpoint);
+	if (content.length === 0 || ctx.not(char)) return revert();
 
 	ctx.consume(char); // consume the closing char
 
@@ -72,18 +72,18 @@ export function try_emphasis(ctx: ParserContext): Inline.Emphasis | undefined {
 }
 
 export function try_code(ctx: ParserContext): Inline.Code | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	if (!ctx.consume_if("`")) return undefined;
 
 	// Just capture raw text until the next backtick
 	let content = "";
 	while (ctx.not("`", "\n")) {
-		if (ctx.eof()) return ctx.revert(checkpoint);
+		if (ctx.eof()) return revert();
 		content += ctx.consume();
 	}
 
-	if (ctx.not("`") || content.length === 0) return ctx.revert(checkpoint);
+	if (ctx.not("`") || content.length === 0) return revert();
 
 	ctx.consume(); // consume the closing backtick
 	return new Inline.Code(content);
@@ -92,35 +92,35 @@ export function try_code(ctx: ParserContext): Inline.Code | undefined {
 export function try_variable_interpolation(
 	ctx: ParserContext,
 ): Inline.VariableInterpolation | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	if (!ctx.consume_if("${")) return undefined;
 
 	// TODO: support expressions
 	let name = "";
 	while (ctx.not("}", "\n")) {
-		if (ctx.eof()) return ctx.revert(checkpoint);
+		if (ctx.eof()) return revert();
 		name += ctx.consume();
 	}
 
-	if (ctx.not("}")) return ctx.revert(checkpoint);
+	if (ctx.not("}")) return revert();
 
 	ctx.consume(); // consume the closing brace
 	return new Inline.VariableInterpolation(name);
 }
 
 export function try_footnote_reference(ctx: ParserContext): Inline.FootnoteReference | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	if (!ctx.consume_if("[^")) return undefined;
 
 	let reference = "";
 	while (ctx.not("]", "\n")) {
-		if (ctx.eof()) return ctx.revert(checkpoint);
+		if (ctx.eof()) return revert();
 		reference += ctx.consume();
 	}
 
-	if (ctx.not("]")) return ctx.revert(checkpoint);
+	if (ctx.not("]")) return revert();
 
 	ctx.consume(); // consume the closing bracket
 

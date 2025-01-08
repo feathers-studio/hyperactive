@@ -25,12 +25,12 @@ export function try_param_string(ctx: ParserContext): string | undefined {
 }
 
 export function try_param_number(ctx: ParserContext): number | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 	let buffer = "";
 
 	while (ctx.is(/^[0-9]$/)) buffer += ctx.consume();
 	// if didn't find a number to parse
-	if (buffer.length === 0) return ctx.revert(checkpoint);
+	if (buffer.length === 0) return revert();
 
 	if (ctx.is(".")) {
 		buffer += ctx.consume();
@@ -38,7 +38,7 @@ export function try_param_number(ctx: ParserContext): number | undefined {
 		while (ctx.is(/^[0-9]$/)) decimal += ctx.consume();
 
 		//if  only found a dot, not a decimal
-		if (decimal.length === 0) return ctx.revert(checkpoint);
+		if (decimal.length === 0) return revert();
 
 		buffer += "." + decimal;
 	}

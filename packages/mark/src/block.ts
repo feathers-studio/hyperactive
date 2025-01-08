@@ -5,6 +5,8 @@ import { ident, try_param_value } from "./value.ts";
 import { inline } from "./inline.ts";
 
 export function param(ctx: ParserContext): Block.Parameter | undefined {
+	const revert = ctx.checkpoint();
+
 	const name = ident(ctx);
 	if (!name) return undefined;
 
@@ -13,7 +15,7 @@ export function param(ctx: ParserContext): Block.Parameter | undefined {
 	ctx.nomnomnom();
 
 	const value = try_param_value(ctx);
-	if (value === undefined) throw ctx.error("value", ctx.peek());
+	if (value === undefined) return revert();
 
 	return new Block.Parameter(name, value);
 }
@@ -21,11 +23,13 @@ export function param(ctx: ParserContext): Block.Parameter | undefined {
 export function callNotation(
 	ctx: ParserContext,
 	type: "@" | "=",
-): Block.Call | Block.Decorator | Meta {
+): Block.Call | Block.Decorator | undefined {
+	const revert = ctx.checkpoint();
+
 	ctx.nomnom();
 
 	const name = ident(ctx);
-	if (!name) throw ctx.error("identifier", ctx.peek());
+	if (!name) return revert();
 	ctx.nomnom();
 
 	const has_params = ctx.consume_if("(");
@@ -44,7 +48,7 @@ export function callNotation(
 			while (ctx.not(")")) {
 				ctx.nomnomnom();
 
-				if (ctx.eof()) throw ctx.error(")", "EOF");
+				if (ctx.eof()) return revert();
 
 				// expect a comma if not the first value
 				// trailing commas are required at the moment
@@ -61,12 +65,11 @@ export function callNotation(
 			}
 		}
 
-		if (ctx.not(")")) throw ctx.error(")", ctx.peek());
+		if (ctx.not(")")) return revert();
 		ctx.consume(); // consume the closing parenthesis
 	}
 
 	if (type === "@") return new Block.Decorator(name, params, []);
-	else if (name === "meta") return new Meta(params);
 	else return new Block.Call(name, params);
 }
 
@@ -102,6 +105,7 @@ export function codeblock(ctx: ParserContext) {
 					.filter((x): x is NonNullable<typeof x> => x !== undefined);
 			else if (key === "end") code_params.end = value;
 		} else if (!code_params.title) code_params.title = param;
+		// TODO: think of a way to gracefully handle this
 		else throw ctx.error("valid codeblock parameter", param);
 	}
 
@@ -111,7 +115,7 @@ export function codeblock(ctx: ParserContext) {
 	// loop as along as we don't find the end of the codeblock
 	// the end is automatically consumed by consume_if
 	while (!ctx.consume_if(end_string)) {
-		if (ctx.eof()) throw ctx.error("end of codeblock", "EOF");
+		if (ctx.eof()) break; // just allow EOF to be the end of the codeblock
 		content += ctx.consume();
 	}
 
@@ -120,10 +124,12 @@ export function codeblock(ctx: ParserContext) {
 	return new Block.CodeBlock(content, code_params);
 }
 
-export function heading(ctx: ParserContext) {
+export function heading(ctx: ParserContext): Block.Heading | undefined {
+	const revert = ctx.checkpoint();
+
 	let level = 0;
 	while (ctx.consume_if("#")) level++;
-	if (level < 1 || level > 6) throw ctx.error("heading level 1-6", ctx.peek());
+	if (level < 1 || level > 6) return revert();
 	const content = inline(ctx, "\n");
 	return new Block.Heading(level as Block.HeadingLevel, content);
 }
@@ -169,18 +175,18 @@ export function para(ctx: ParserContext) {
 }
 
 export function footnote(ctx: ParserContext) {
-	let checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	let reference = "";
 	while (ctx.not("]", "\n")) {
-		if (ctx.eof()) return ctx.revert(checkpoint);
+		if (ctx.eof()) return revert();
 		reference += ctx.consume();
 	}
 
-	if (ctx.not("]")) return ctx.revert(checkpoint);
+	if (ctx.not("]")) return revert();
 	ctx.consume(); // consume the closing bracket
 
-	if (!ctx.consume_if(":")) return ctx.revert(checkpoint);
+	if (!ctx.consume_if(":")) return revert();
 
 	ctx.nomnom();
 
@@ -224,22 +230,22 @@ export function quote(ctx: ParserContext): Block.Quote | undefined {
 }
 
 export function try_alignment(ctx: ParserContext): Block.TableAlignment | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	let buffer = "";
 	while (ctx.is(":", "-")) buffer += ctx.consume();
 
-	if (buffer.length === 0) return ctx.revert(checkpoint);
+	if (buffer.length === 0) return revert();
 
 	if (/^:?-+$/.test(buffer)) return "left";
 	if (/^-+:$/.test(buffer)) return "right";
 	if (/^:-+:$/.test(buffer)) return "center";
 
-	return ctx.revert(checkpoint);
+	return revert();
 }
 
 export function table(ctx: ParserContext): Block.Table | undefined {
-	const checkpoint = ctx.index;
+	const revert = ctx.checkpoint();
 
 	let header: Block.TableRow | undefined = undefined;
 	const rows: Block.TableRow[] = [];
@@ -282,7 +288,7 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 				}
 
 				const content = inline(ctx, "|");
-				if (ctx.not("|")) return ctx.revert(checkpoint);
+				if (ctx.not("|")) return revert();
 
 				row.cells.push(new Block.TableCell(content));
 			}
@@ -376,65 +382,6 @@ export function list(ctx: ParserContext): Block.List {
 	return new Block.List(items);
 }
 
-export function parse_block(
-	ctx: ParserContext,
-	is_top_level: boolean,
-): (Block | DecoratorEndMarker | DecoratorStartMarker)[] | undefined {
-	if (ctx.eof()) return undefined;
-
-	const char = ctx.peek();
-
-	switch (char) {
-		case "\n":
-			ctx.consume();
-			return undefined;
-		case "<":
-			if (ctx.consume_if("<@")) return [new DecoratorEndMarker()];
-			return [para(ctx)];
-		case "\\":
-			return [para(ctx)];
-		case "=": {
-			ctx.consume();
-			const result = callNotation(ctx, "=");
-			if (is_top_level && result instanceof Meta) {
-				if (ctx.doc.blocks.length)
-					throw ctx.unexpected("=meta() call. Meta can only be declared at the top of a document");
-				ctx.doc.meta = result;
-				return undefined;
-			}
-			return [result as Block.Call];
-		}
-		case "@": {
-			ctx.consume();
-			const result = callNotation(ctx, "@") as Block.Decorator;
-			if (ctx.consume_if(">")) {
-				ctx.nomnomnom();
-				return [result, new DecoratorStartMarker()];
-			}
-			return [result];
-		}
-		case "#":
-			return [heading(ctx)];
-		case "`":
-			return [ctx.peek(0, 3) === "```" ? codeblock(ctx) : para(ctx)];
-		case ">":
-			return [quote(ctx) ?? para(ctx)];
-		case "|":
-			return [table(ctx) ?? para(ctx)];
-		case "[":
-			return [ctx.consume_if("[^") ? footnote(ctx) ?? para(ctx) : para(ctx)];
-		case "-":
-			if (ctx.consume_if("---\n")) return [new Block.Rule()];
-			if (ctx.consume_if("--")) return [comment(ctx)];
-			if (ctx.is("- ")) return [list(ctx)];
-			return [para(ctx)];
-		default:
-			// Check for ordered lists
-			if (/^\d+\.\s/.test(ctx.peek(0, 4))) return [list(ctx)];
-			return [para(ctx)];
-	}
-}
-
 export function parse_blocks<T extends boolean>(
 	ctx: ParserContext,
 	is_top_level: T,
@@ -443,9 +390,74 @@ export function parse_blocks<T extends boolean>(
 
 	// Replace the main loop with the new version that handles arrays
 	while (!ctx.eof()) {
-		const block_or_blocks = parse_block(ctx, is_top_level);
-		if (block_or_blocks) {
-			blocks.push(...block_or_blocks);
+		const char = ctx.peek();
+
+		switch (char) {
+			case "\n":
+				ctx.consume();
+				continue;
+			case "<":
+				if (ctx.consume_if("<@")) {
+					blocks.push(new DecoratorEndMarker());
+					continue;
+				}
+				blocks.push(para(ctx));
+				continue;
+			case "\\":
+				blocks.push(para(ctx));
+				continue;
+			case "=": {
+				ctx.consume();
+				const result = callNotation(ctx, "=");
+				if (is_top_level && result?.type === "call" && result.name === "meta") {
+					if (ctx.doc.blocks.length)
+						throw ctx.unexpected(
+							"=meta() call. Meta can only be declared once at the top of a document",
+						);
+					ctx.doc.meta = new Meta(result.parameters);
+					continue;
+				}
+				blocks.push(result ?? para(ctx));
+				continue;
+			}
+			case "@": {
+				ctx.consume();
+				const result = callNotation(ctx, "@") as Block.Decorator;
+				if (ctx.consume_if(">")) {
+					ctx.nomnomnom();
+					blocks.push(result);
+					blocks.push(new DecoratorStartMarker());
+					continue;
+				}
+				blocks.push(result);
+				continue;
+			}
+			case "#":
+				blocks.push(heading(ctx) ?? para(ctx));
+				continue;
+			case "`":
+				blocks.push(ctx.peek(0, 3) === "```" ? codeblock(ctx) : para(ctx));
+				continue;
+			case ">":
+				blocks.push(quote(ctx) ?? para(ctx));
+				continue;
+			case "|":
+				blocks.push(table(ctx) ?? para(ctx));
+				continue;
+			case "[":
+				blocks.push(ctx.consume_if("[^") ? footnote(ctx) ?? para(ctx) : para(ctx));
+				continue;
+			case "-":
+				if (ctx.consume_if("---\n")) blocks.push(new Block.Rule());
+				else if (ctx.consume_if("--")) blocks.push(comment(ctx));
+				else if (ctx.is("- ")) blocks.push(list(ctx));
+				else blocks.push(para(ctx));
+				continue;
+			default:
+				// Check for ordered lists
+				if (/^\d+\.\s/.test(ctx.peek(0, 4))) blocks.push(list(ctx));
+				blocks.push(para(ctx));
+				continue;
 		}
 	}
 
