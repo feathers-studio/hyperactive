@@ -115,6 +115,12 @@ export namespace Block {
 		}
 	}
 
+	export interface ListOptions {
+		start_marker: string;
+		ordered?: boolean;
+		has_tasks?: boolean;
+	}
+
 	/*
 		Lists are blocks of text.
 		Example:
@@ -147,9 +153,11 @@ export namespace Block {
 	 */
 	export class List {
 		type: "list" = "list";
-		constructor(public ordered: boolean, public items: (ListItem | TaskItem)[]) {}
+		constructor(public items: (ListItem | TaskItem)[], public options?: ListOptions) {}
 		toString(): string {
-			return `${this.ordered ? "1." : "-"} ${this.items.map(i => i.toString()).join("\n")}`;
+			return `${this.options?.ordered ? "1." : "-"} ${this.items
+				.map(i => i.toString())
+				.join("\n")}`;
 		}
 	}
 
@@ -528,6 +536,8 @@ export interface FootnoteCollection {
 }
 
 export class HypermarkDocument {
+	public meta?: Meta;
 	public footnote_collection: FootnoteCollection = {};
-	constructor(public blocks: Block[], public meta?: Meta) {}
+
+	constructor(public blocks: Block[] = []) {}
 }
