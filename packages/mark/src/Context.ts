@@ -1,4 +1,4 @@
-import type { HypermarkDocument } from "./types";
+import type { HypermarkDocument } from "./types.ts";
 import { ParseError, count_char, get_line_neighbours, squiggly } from "./common.ts";
 
 export interface ParseOptions {

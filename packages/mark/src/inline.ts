@@ -1,5 +1,5 @@
-import { Inline } from "./types";
-import type { ParserContext } from "./Context";
+import { Inline } from "./types.ts";
+import type { ParserContext } from "./Context.ts";
 
 export function try_link(ctx: ParserContext): Inline.Link | undefined {
 	const checkpoint = ctx.index;

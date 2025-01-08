@@ -1,5 +1,5 @@
-import type { Value } from "./types";
-import type { ParserContext } from "./Context";
+import type { Value } from "./types.ts";
+import type { ParserContext } from "./Context.ts";
 
 export function ident(ctx: ParserContext): string | undefined {
 	let buffer = "";

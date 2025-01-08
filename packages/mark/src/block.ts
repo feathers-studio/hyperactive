@@ -1,8 +1,8 @@
 import { DecoratorEndMarker, DecoratorStartMarker } from "./common.ts";
 import { is_newline, is_whitespace, ParserContext } from "./Context.ts";
+import { Block, HypermarkDocument, Inline, Meta } from "./types.ts";
+import { ident, try_param_value } from "./value.ts";
 import { inline } from "./inline.ts";
-import { Block, HypermarkDocument, Inline, Meta } from "./types";
-import { ident, try_param_value } from "./value";
 
 export function param(ctx: ParserContext): Block.Parameter | undefined {
 	const name = ident(ctx);
