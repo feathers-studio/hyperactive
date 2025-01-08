@@ -1,4 +1,4 @@
-import { Block, Inline, AST, type Value, Meta } from "./types.ts";
+import { Block, Inline, HypermarkDocument, type Value, Meta } from "./types.ts";
 import { color } from "bun";
 
 class ParseError extends Error {
@@ -180,68 +180,67 @@ export function parse(input: string, filename?: string) {
 
 	let blocks: (Block | DecoratorEndMarker | DecoratorStartMarker)[] = doc.blocks;
 
-	// master loop decides which block type to parse
-	while (i < input.length) {
+	function parse_block(): (Block | DecoratorEndMarker | DecoratorStartMarker)[] | undefined {
+		if (eof()) return undefined;
+
 		const char = peek();
 
 		switch (char) {
 			case "\n":
 				consume();
-				continue;
+				return undefined;
 			case "<":
-				if (consume_if("<@")) blocks.push(new DecoratorEndMarker());
-				else blocks.push(para());
-				break;
+				if (consume_if("<@")) return [new DecoratorEndMarker()];
+				return [para()];
 			case "\\":
-				blocks.push(para());
-				break;
+				return [para()];
 			case "=": {
-				const result = call();
+				consume();
+				const result = callNotation("=");
 				if (result instanceof Meta) {
 					if (doc.blocks.length)
 						throw unexpected("=meta() call. Meta can only be declared at the top of a document");
-					else doc.meta = result;
-				} else blocks.push(result);
-				break;
+					doc.meta = result;
+					return undefined;
+				}
+				return [result as Block.Call];
 			}
 			case "@": {
-				const result = decorator();
-				blocks.push(result);
-				// decorators should be normalised in a second pass of the AST [^1]
+				consume();
+				const result = callNotation("@") as Block.Decorator;
 				if (consume_if(">")) {
 					nomnomnom();
-					blocks.push(new DecoratorStartMarker());
+					return [result, new DecoratorStartMarker()];
 				}
-				break;
+				return [result];
 			}
 			case "#":
-				blocks.push(heading());
-				break;
+				return [heading()];
 			case "`":
-				if (peek(0, 3) === "```") blocks.push(codeblock());
-				else blocks.push(para());
-				break;
+				return [peek(0, 3) === "```" ? codeblock() : para()];
 			case ">":
-				blocks.push(quote() ?? para());
-				break;
+				return [quote() ?? para()];
 			case "|":
-				blocks.push(table() ?? para());
-				break;
+				return [table() ?? para()];
 			case "[":
-				if (consume_if("[^")) blocks.push(footnote() ?? para());
-				else blocks.push(para());
-				break;
+				return [consume_if("[^") ? footnote() ?? para() : para()];
 			case "-":
-				if (consume_if("---\n")) blocks.push(new Block.Rule());
-				else if (consume_if("--")) blocks.push(comment());
-				else blocks.push(para());
-				break;
+				if (consume_if("---\n")) return [new Block.Rule()];
+				if (consume_if("--")) return [comment()];
+				if (is("- ")) return [list()];
+				return [para()];
 			default:
-				// if (/^\s*[-*]/.test(peek(3))) list();
-				// else if (/^\s*[0-9]\. /.test(peek(3))) ordered_list();
-				// else
-				blocks.push(para());
-				break;
+				// Check for ordered lists
+				if (/^\d+\.\s/.test(peek(0, 4))) return [list()];
+				return [para()];
+		}
+	}
+
+	// Replace the main loop with the new version that handles arrays
+	while (!eof()) {
+		const block_or_blocks = parse_block();
+		if (block_or_blocks) {
+			blocks.push(...block_or_blocks);
 		}
 	}
 

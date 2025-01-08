@@ -8,6 +8,8 @@
     },
 )
 
+-- TODO: decide whether to parse autolinks
+
 @style(
     font-family: "Inter",
     line-height: "1.25",
@@ -274,12 +276,12 @@ Hypermark supports various inline text formatting:
 
 Hypermark supports footnotes [^1] with references:
 
-[^1] Here's an example:
+[^1]: Here's an example:
 
 ```hypermark
 Here's some text with a footnote[^1].
 
-[^1] This is a footnote with _formatting_ support.
+[^1]: This is a footnote with _formatting_ support.
 ```
 
 ## Escaping Characters
