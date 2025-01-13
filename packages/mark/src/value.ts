@@ -8,15 +8,27 @@ export function ident(ctx: ParserContext): string | undefined {
 	return buffer.length > 0 ? buffer : undefined;
 }
 
-// TODO: escape \"
 export function try_param_string(ctx: ParserContext): string | undefined {
-	if (ctx.not('"')) return undefined;
-	ctx.consume();
+	const revert = ctx.checkpoint();
+
+	const marker = ctx.consume_if('"') ?? ctx.consume_if("'");
+
+	if (marker === undefined) return undefined;
 
 	let buffer = "";
-	while (ctx.not('"')) {
-		// found end of file before closing quote
-		if (ctx.eof()) throw ctx.error('"', "EOF");
+	while (true) {
+		// if the next character is a backslash, escape the following character
+		if (ctx.consume_if("\\")) {
+			buffer += ctx.consume();
+			continue;
+		}
+
+		// found the marker, consume it and complete the string
+		if (ctx.consume_if(marker)) break;
+
+		// found end of file or newline before closing quote
+		if (ctx.eof() || ctx.is("\n")) return revert();
+
 		buffer += ctx.consume();
 	}
 
