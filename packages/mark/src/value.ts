@@ -32,7 +32,6 @@ export function try_param_string(ctx: ParserContext): string | undefined {
 		buffer += ctx.consume();
 	}
 
-	ctx.consume(); // consume the closing quote
 	return buffer;
 }
 
@@ -100,6 +99,8 @@ export function try_param_list(ctx: ParserContext): Value[] | undefined {
 }
 
 export function try_param_object(ctx: ParserContext): { [key: string]: Value } | undefined {
+	const revert = ctx.checkpoint();
+
 	const params: { [key: string]: Value } = {};
 
 	if (ctx.not("{")) return undefined;
@@ -110,16 +111,14 @@ export function try_param_object(ctx: ParserContext): { [key: string]: Value } |
 	while (ctx.not("}")) {
 		ctx.nomnomnom();
 
-		if (ctx.eof()) throw ctx.error("}", "EOF");
+		if (ctx.eof()) return revert();
 
 		// expect a comma if not the first value
-		// trailing commas are required at the moment
-		// even empty objects are required to have a comma
-		// TODO: fix this
-		if (!first) ctx.expect(",");
+		// trailing commas are allowed
+		if (!first) if (!ctx.consume_if(",")) return revert();
 		ctx.nomnomnom();
 
-		const key = ident(ctx);
+		const key = ident(ctx) ?? try_param_string(ctx);
 		// didn't find a key, could not parse an object
 		if (!key) break;
 		ctx.nomnomnom();
@@ -129,12 +128,12 @@ export function try_param_object(ctx: ParserContext): { [key: string]: Value } |
 
 		const value = try_param_value(ctx);
 		// didn't find a value, could not parse an object
-		if (value === undefined) throw ctx.error("value", ctx.peek());
+		if (value === undefined) return revert();
 		params[key] = value;
 		first = false;
 	}
 
-	if (ctx.not("}")) throw ctx.error("}", ctx.peek());
+	if (ctx.not("}")) return revert();
 	ctx.consume(); // consume the closing bracket
 	return params;
 }
