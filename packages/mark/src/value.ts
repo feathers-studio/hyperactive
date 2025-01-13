@@ -70,6 +70,8 @@ export function try_param_boolean(ctx: ParserContext): boolean | undefined {
 }
 
 export function try_param_list(ctx: ParserContext): Value[] | undefined {
+	const revert = ctx.checkpoint();
+
 	const params: Value[] = [];
 
 	if (ctx.not("[")) return undefined;
@@ -79,13 +81,11 @@ export function try_param_list(ctx: ParserContext): Value[] | undefined {
 	while (ctx.not("]")) {
 		ctx.nomnomnom();
 
-		if (ctx.eof()) throw ctx.error("]", "EOF");
+		if (ctx.eof()) return revert();
 
 		// expect a comma if not the first value
-		// trailing commas are required at the moment
-		// even empty lists are required to have a comma
-		// TODO: fix this
-		if (!first) ctx.expect(",");
+		// trailing commas are supported
+		if (!first) if (!ctx.consume_if(",")) return revert();
 		ctx.nomnomnom();
 
 		const value = try_param_value(ctx);
@@ -95,8 +95,7 @@ export function try_param_list(ctx: ParserContext): Value[] | undefined {
 		first = false;
 	}
 
-	if (ctx.not("]")) throw ctx.error("]", ctx.peek());
-	ctx.consume(); // consume the closing bracket
+	if (!ctx.consume_if("]")) return revert();
 	return params;
 }
 
