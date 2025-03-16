@@ -444,7 +444,7 @@ export class List<T> {
 					member.set(modifier(update.member));
 					return target.moveTo(update.to, member);
 				case ListEventKind.Update:
-					return target.set(update.list.toArray().map(modifier));
+					return target.set(update.list.array.map(modifier));
 				case ListEventKind.MemberUpdate:
 					return target.at(update.member.getCurrentIndex())?.set(modifier(update.member));
 				default:
@@ -528,7 +528,7 @@ export class ReadonlyList<T> {
 				case ListEventKind.Move:
 					return target.moveTo(update.to, update.member);
 				case ListEventKind.Update:
-					return target.set(update.list.toArray().map(modifier));
+					return target.set(update.list.array.map(x => modifier(x.readonly())));
 				case ListEventKind.MemberUpdate:
 					return target.at(update.member.getCurrentIndex())?.set(modifier(update.member.readonly()));
 				default:
