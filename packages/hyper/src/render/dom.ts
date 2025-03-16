@@ -222,8 +222,12 @@ function toDOM(node: HyperNodeish, environment: { document: Document; parent: El
 				}
 				case ListEventKind.Update: {
 					clear(parent);
-					tracking.splice(0, tracking.length);
-					for (const child of node) tracking.push(listMemberTo1(toDOM(child, environment)));
+					tracking.splice(0);
+					for (const child of node) {
+						const toRender = listMemberTo1(toDOM(child, environment));
+						parent.append(toRender);
+						tracking.push(toRender);
+					}
 					return;
 				}
 				case ListEventKind.MemberUpdate: {
