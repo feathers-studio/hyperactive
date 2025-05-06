@@ -176,7 +176,7 @@ interface ButtonAttributes {
 	 */
 	formaction: string;
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this attribute sets the encoding type to use during form submission. If
 	 * this attribute is specified, it overrides the
 	 * enctype attribute of the button's
@@ -184,7 +184,7 @@ interface ButtonAttributes {
 	 */
 	formenctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this attribute sets the submission method to use during form submission
 	 * (GET, POST, etc.). If this attribute is
 	 * specified, it overrides the method attribute of the
@@ -192,7 +192,7 @@ interface ButtonAttributes {
 	 */
 	formmethod: "GET" | "POST" | "dialog";
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this boolean attribute specifies that the form is not to be validated
 	 * when it is submitted. If this attribute is specified, it overrides the
 	 * novalidate attribute of the button's
@@ -200,7 +200,7 @@ interface ButtonAttributes {
 	 */
 	formnovalidate: boolean;
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this attribute specifies the browsing context (for example, tab, window,
 	 * or inline frame) in which to display the response that is received after
 	 * submitting the form. If this attribute is specified, it overrides the
@@ -561,7 +561,7 @@ interface InputAttributes {
 	 */
 	formaction: string;
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this attribute sets the encoding type to use during form submission. If
 	 * this attribute is specified, it overrides the
 	 * enctype attribute of the button's
@@ -569,7 +569,7 @@ interface InputAttributes {
 	 */
 	formenctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this attribute sets the submission method to use during form submission
 	 * (GET, POST, etc.). If this attribute is
 	 * specified, it overrides the method attribute of the
@@ -577,7 +577,7 @@ interface InputAttributes {
 	 */
 	formmethod: "GET" | "POST" | "dialog";
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this boolean attribute specifies that the form is not to be validated
 	 * when it is submitted. If this attribute is specified, it overrides the
 	 * novalidate attribute of the button's
@@ -585,7 +585,7 @@ interface InputAttributes {
 	 */
 	formnovalidate: boolean;
 	/**
-	 * If the button/input is a submit button (e.g. type="submit"),
+	 * If the button/input is a submit button (e.g., type="submit"),
 	 * this attribute specifies the browsing context (for example, tab, window,
 	 * or inline frame) in which to display the response that is received after
 	 * submitting the form. If this attribute is specified, it overrides the

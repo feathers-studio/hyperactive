@@ -23,16 +23,17 @@ export async function* fetchAttributes() {
 			return acc;
 		}, {} as Record<string, Attribute[]>);
 
+	// TODO: decide what to do with global attributes that don't appear in fetchGlobalAttributes.ts
+	// ex: elementtiming is a weird case, it has restrictions so doesn't appear in "Global_attributes" page
+	// but it doesn't fit in any specific element either since the restrictions are wide,
+	// such as "elements which have a background-image"
+
 	const { "Global attribute": globalAttr, ...elements } = groupByList(
 		[...document.querySelector("article table.standard-table tbody")!.children]
 			.filter(tr => tr.nodeName === "TR")
 			.filter(tr => !(tr.innerHTML as string).includes(`"icon icon-deprecated"`))
 			.map(tr => [...tr.children])
 			.map(([attr, elems, description]) => {
-				const elements = elems
-					.textContent!.replaceAll(/<|>/g, "")
-					.split(/,\s+/)
-					.map(e => e.trim());
 
 				const [propElement, isExpElement] = attr.children;
 
@@ -46,6 +47,14 @@ export async function* fetchAttributes() {
 						.map(x => x.trim())
 						.join("\n")
 						.replace("\n\n", "\n") + (isExp ? "\n\n@experimental" : "");
+
+						
+				// TODO: clean this up, special case for elementtiming
+				// <img>, <image> elements inside an <svg>, poster images of <video> elements, elements which have a background-image, and elements containing text nodes, such as a <p>
+				const elements = prop === "elementtiming" ? ["Global attribute"] : elems
+				.textContent!.replaceAll(/<|>/g, "")
+				.split(/,\s+/)
+				.map(e => e.trim());
 
 				// type will be replaced later
 				return { type: "", prop, elements, desc };

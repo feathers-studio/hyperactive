@@ -106,7 +106,7 @@ export interface GlobalAttrs {
 	 */
 	part: string;
 	/**
-	 * Used to designate an element as a popover element (see Popover API). Popover elements are hidden via display: none until opened via an invoking/control element (i.e. a `<button>` or `<input type="button">` with a popovertarget attribute) or a HTMLElement.showPopover() call.
+	 * Used to designate an element as a popover element (see Popover API). Popover elements are hidden via display: none until opened via an invoking/control element (i.e., a `<button>` or `<input type="button">` with a popovertarget attribute) or a HTMLElement.showPopover() call.
 	 */
 	popover: "auto" | "manual";
 	/**
