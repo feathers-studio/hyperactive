@@ -1,6 +1,6 @@
 {
 	"name": "@hyperactive/hyper",
-	"version": "2.0.0-beta.3",
+	"version": "2.0.0-beta.4",
 	"module": "lib/index.js",
 	"devDependencies": {
 		"@types/bun": "latest",
@@ -8,7 +8,7 @@
 		"semver": "^7.6.3"
 	},
 	"peerDependencies": {
-		"@types/web": "0.0.188"
+		"@types/web": "0.0.232"
 	},
 	"peerDependenciesMeta": {
 		"@types/web": {

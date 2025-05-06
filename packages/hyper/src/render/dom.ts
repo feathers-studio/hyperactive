@@ -137,8 +137,11 @@ function toDOM(node: HyperNodeish, environment: { document: Document; parent: El
 		node.listen(val => {
 			const update = toDOM(val, environment);
 
-			for (let i = 0; i < initChildren.length; i++) {
-				parent.replaceChild(update[i], initChildren[i]);
+			// skip HyperHTMLStringNode because it gets replaced by innerHTML
+			if (!(val instanceof HyperHTMLStringNode)) {
+				for (let i = 0; i < initChildren.length; i++) {
+					parent.replaceChild(update[i], initChildren[i]);
+				}
 			}
 
 			// replace init for future updates
