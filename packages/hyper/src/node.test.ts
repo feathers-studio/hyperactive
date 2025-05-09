@@ -7,7 +7,7 @@ import { p } from "./elements.ts";
 
 const testNode = h("p", "test");
 const testState = new State("5");
-const testReadonlyState = testState.transform(v => String(v + 5));
+const testReadonlyState = testState.to(v => String(v + 5));
 const testListState = new List([5, 10]).each(v => h("p", String(v)));
 const element = p(testState, "/", testState);
 

@@ -24,7 +24,7 @@ Hyperactive is also available on [NPM](https://www.npmjs.com/package/@hyperactiv
 
 This is not a release version, so expect some bugs.
 
-[![Hyperactive Version 2.0.0-beta.4](https://img.shields.io/static/v1?label=Version&message=2.0.0-beta.4&style=for-the-badge&labelColor=FF6A00&color=fff)](https://npmjs.com/package/@hyperactive/hyper)
+[![Hyperactive Version 2.0.0-beta.5](https://img.shields.io/static/v1?label=Version&message=2.0.0-beta.5&style=for-the-badge&labelColor=FF6A00&color=fff)](https://npmjs.com/package/@hyperactive/hyper)
 
 <div align="center">
 <h2>Usage</h2>

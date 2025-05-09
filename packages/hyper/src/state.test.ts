@@ -63,7 +63,7 @@ describe("State", () => {
 
 	it("should be transformable", () => {
 		const state = new State(0);
-		const transformed = state.transform(value => value + 1);
+		const transformed = state.to(value => value + 1);
 		state.set(100);
 		expect(transformed.value).toBe(101);
 	});
