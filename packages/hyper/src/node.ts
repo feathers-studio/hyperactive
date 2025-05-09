@@ -3,6 +3,8 @@ import type { EmptyElements } from "./lib/emptyElements.ts";
 import type { Attributes } from "./attributes.ts";
 import { Falsy, isFalsy, isNonNullable } from "./util.ts";
 import { ReadonlyState, State } from "./state.ts";
+import * as Context from "./context.internal.ts";
+import { Context as Context2 } from "./context.ts";
 import { List, ReadonlyList } from "./list.ts";
 
 export type NonEmptyElement = Exclude<Tag, EmptyElements>;
@@ -18,9 +20,14 @@ export class HyperNode<T extends Tag> {
 }
 
 export type HyperChild<T extends Tag> = HyperNode<T> | HyperHTMLStringNode | HyperTextNode;
-export type HyperNodeMaybe<T extends Tag> = HyperChild<T> | Falsy;
-export type HyperNodeOrState<T extends Tag> = HyperNodeMaybe<T> | ReadonlyState<HyperNodeOrState<T>>;
-export type HyperNodeish = HyperNodeOrState<any> | ReadonlyList<HyperNodeOrState<any>> | List<HyperNodeOrState<any>>;
+export type HyperNodeish =
+	| HyperChild<any>
+	| Falsy
+	| ReadonlyState<HyperNodeish>
+	| ReadonlyList<HyperNodeish>
+	| List<HyperNodeish>
+	| Context.Provider<any>
+	| Context.Consumer<any>;
 
 export const isHyperChild = (n: any): n is HyperChild<any> =>
 	n instanceof HyperNode ||
@@ -29,7 +36,8 @@ export const isHyperChild = (n: any): n is HyperChild<any> =>
 	ReadonlyState.isState(n) ||
 	List.isList(n);
 
-export const isHyperNodeish = (x: any): x is HyperNodeish => isHyperChild(x) || isFalsy(x) || State.isState(x);
+export const isHyperNodeish = (x: any): x is HyperNodeish =>
+	isHyperChild(x) || isFalsy(x) || State.isState(x) || Context2.isContext(x);
 
 export function normaliseParams<T extends Tag>(props?: Attributes<T> | HyperNodeish, childNodes?: HyperNodeish[]) {
 	const [attrs, children]: [Attributes<T>, HyperNodeish[]] = isHyperNodeish(props)
