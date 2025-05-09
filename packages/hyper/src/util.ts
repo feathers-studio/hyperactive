@@ -33,3 +33,5 @@ export const isNonNullable = <T>(n: T): n is NonNullable<T> => n != null;
 export const unreachable = (arg: never): never => {
 	throw new Error("Unreachable");
 };
+
+export const randId = () => Math.random().toString(36).substring(2, 10);

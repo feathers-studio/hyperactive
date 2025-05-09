@@ -2,9 +2,10 @@
 // TODO: support fragments
 
 import type { Attributes } from "../attributes.ts";
+import * as Context from "../context.internal.ts";
+import { guessEnv } from "../guessEnv.ts";
 import type { Document, Element, HTMLElement, Node, Text } from "../lib/dom.ts";
 import type { Tag } from "../lib/tags.ts";
-import { guessEnv } from "../guessEnv.ts";
 import { List, ListEventKind } from "../list.ts";
 import { HyperHTMLStringNode, type HyperNodeish } from "../node.ts";
 import { ReadonlyState } from "../state.ts";
@@ -103,7 +104,13 @@ function attrifyDOM(el: Element, attrs: Attributes<Tag>) {
 		});
 }
 
-function toDOM(node: HyperNodeish, environment: { document: Document; parent: Element }): Node[] {
+export interface RenderEnvironment {
+	document: Document;
+	parent: Element;
+	registry: ReadonlyMap<symbol, Context.Provider<unknown>>;
+}
+
+function toDOM(node: HyperNodeish, environment: RenderEnvironment): Node[] {
 	const document = environment.document;
 	const parent = environment.parent;
 	const comment = (text: string = "") => document.createComment(text);
@@ -114,6 +121,21 @@ function toDOM(node: HyperNodeish, environment: { document: Document; parent: El
 		if (nodes.length === 0) return comment();
 		return nodes[0];
 	};
+
+	if (node instanceof Context.Provider) {
+		const registry = new Map(environment.registry);
+		registry.set(node.contextId, node);
+		return toDOM(node.contextualChild, { ...environment, registry });
+	}
+
+	if (node instanceof Context.Consumer) {
+		const ctx = environment.registry.get(node.contextId);
+		if (!ctx)
+			throw new Error(
+				`Requested context for (id: ${String(node.contextId).slice(7, -1)}) not found. Was the Context Provider used?`,
+			);
+		return toDOM(node.renderWithContext(ctx.contextValue), environment);
+	}
 
 	if (typeof node === "string") return [document.createTextNode(node)];
 
@@ -288,6 +310,6 @@ export function renderDOM(rootNode: HTMLElement, hyperNode: HyperNodeish, { envi
 	}
 
 	clear(rootNode);
-	const nodes = toDOM(hyperNode, { ...environment, parent: rootNode });
+	const nodes = toDOM(hyperNode, { ...environment, parent: rootNode, registry: new Map() });
 	for (const node of nodes) rootNode.append(node);
 }

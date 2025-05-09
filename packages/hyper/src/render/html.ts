@@ -5,6 +5,7 @@ import { escapeAttr, escapeTextNode, isFalsy } from "../util.ts";
 import type { Tag } from "../lib/tags.ts";
 import type { Attributes } from "../attributes.ts";
 import { List } from "../list.ts";
+import * as Context from "../context.internal.ts";
 
 function eventListeners(attrs: Attributes<Tag>["on"]) {
 	// noop
@@ -52,7 +53,23 @@ function attrifyHTML(attrs: Attributes<Tag>): string {
 		.join(" ");
 }
 
-export function renderHTML(node: HyperNodeish): string {
+export interface Environment {
+	registry: ReadonlyMap<symbol, Context.Provider<unknown>>;
+}
+
+function toHTML(node: HyperNodeish, environment: Environment): string {
+	if (node instanceof Context.Provider) {
+		const registry = new Map(environment.registry);
+		registry.set(node.contextId, node);
+		return toHTML(node.contextualChild, { ...environment, registry });
+	}
+
+	if (node instanceof Context.Consumer) {
+		const ctx = environment.registry.get(node.contextId);
+		if (!ctx) throw new Error(`Requested context for (id: ${String(node.contextId).slice(7, -1)}) not found. Was the Context Provider used?`);
+		return toHTML(node.renderWithContext(ctx.contextValue), environment);
+	}
+
 	if (isFalsy(node)) return "";
 	if (typeof node === "string") return escapeTextNode(node);
 	if (node instanceof HyperHTMLStringNode) return node.htmlString;
@@ -66,8 +83,13 @@ export function renderHTML(node: HyperNodeish): string {
 	if (attr) stringified += " " + attr;
 
 	if (EmptyElements.has(node.tag as EmptyElements)) stringified += " />";
-	else if (node.children.length) stringified += ">" + node.children.map(renderHTML).join("") + `</${node.tag}>`;
+	else if (node.children.length)
+		stringified += ">" + node.children.map(child => toHTML(child, environment)).join("") + `</${node.tag}>`;
 	else stringified += `></${node.tag}>`;
 
 	return stringified;
+}
+
+export function renderHTML(node: HyperNodeish): string {
+	return toHTML(node, { registry: new Map() });
 }
