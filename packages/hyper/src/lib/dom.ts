@@ -4,10 +4,10 @@ the @types/web package, originally published by Microsoft Corporation.
 
 See the full license here: https://github.com/microsoft/TypeScript-DOM-lib-generator/blob/main/LICENSE.txt
 
-This modified version is based on @types/web version 0.0.232.
+This modified version is based on @types/web version 0.0.234.
 ***************************************************************************** */
 
-export const domLibVersion = "0.0.232";
+export const domLibVersion = "0.0.234";
 export interface AddEventListenerOptions extends EventListenerOptions {
 	once?: boolean;
 	passive?: boolean;
@@ -160,21 +160,48 @@ export interface AudioWorkletNodeOptions extends AudioNodeOptions {
 export interface AuthenticationExtensionsClientInputs {
 	appid?: string;
 	credProps?: boolean;
+	credentialProtectionPolicy?: string;
+	enforceCredentialProtectionPolicy?: boolean;
 	hmacCreateSecret?: boolean;
+	largeBlob?: AuthenticationExtensionsLargeBlobInputs;
 	minPinLength?: boolean;
 	prf?: AuthenticationExtensionsPRFInputs;
 }
 export interface AuthenticationExtensionsClientInputsJSON {
+	appid?: string;
+	credProps?: boolean;
+	largeBlob?: AuthenticationExtensionsLargeBlobInputsJSON;
+	prf?: AuthenticationExtensionsPRFInputsJSON;
 }
 export interface AuthenticationExtensionsClientOutputs {
 	appid?: boolean;
 	credProps?: CredentialPropertiesOutput;
 	hmacCreateSecret?: boolean;
+	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
 	prf?: AuthenticationExtensionsPRFOutputs;
+}
+export interface AuthenticationExtensionsLargeBlobInputs {
+	read?: boolean;
+	support?: string;
+	write?: BufferSource;
+}
+export interface AuthenticationExtensionsLargeBlobInputsJSON {
+	read?: boolean;
+	support?: string;
+	write?: Base64URLString;
+}
+export interface AuthenticationExtensionsLargeBlobOutputs {
+	blob?: ArrayBuffer;
+	supported?: boolean;
+	written?: boolean;
 }
 export interface AuthenticationExtensionsPRFInputs {
 	eval?: AuthenticationExtensionsPRFValues;
 	evalByCredential?: Record<string, AuthenticationExtensionsPRFValues>;
+}
+export interface AuthenticationExtensionsPRFInputsJSON {
+	eval?: AuthenticationExtensionsPRFValuesJSON;
+	evalByCredential?: Record<string, AuthenticationExtensionsPRFValuesJSON>;
 }
 export interface AuthenticationExtensionsPRFOutputs {
 	enabled?: boolean;
@@ -183,6 +210,10 @@ export interface AuthenticationExtensionsPRFOutputs {
 export interface AuthenticationExtensionsPRFValues {
 	first: BufferSource;
 	second?: BufferSource;
+}
+export interface AuthenticationExtensionsPRFValuesJSON {
+	first: Base64URLString;
+	second?: Base64URLString;
 }
 export interface AuthenticatorSelectionCriteria {
 	authenticatorAttachment?: AuthenticatorAttachment;
@@ -597,6 +628,9 @@ export interface GamepadEventInit extends EventInit {
 }
 export interface GetAnimationsOptions {
 	subtree?: boolean;
+}
+export interface GetComposedRangesOptions {
+	shadowRoots?: ShadowRoot[];
 }
 export interface GetHTMLOptions {
 	serializableShadowRoots?: boolean;
@@ -2149,6 +2183,7 @@ export interface ANGLE_instanced_arrays {
 	readonly VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE: 0x88FE;
 }
 export interface ARIAMixin {
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaActiveDescendantElement) */
 	ariaActiveDescendantElement: Element | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaAtomic) */
 	ariaAtomic: string | null;
@@ -2170,18 +2205,23 @@ export interface ARIAMixin {
 	ariaColIndexText: string | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaColSpan) */
 	ariaColSpan: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaControlsElements) */
 	ariaControlsElements: ReadonlyArray<Element> | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaCurrent) */
 	ariaCurrent: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaDescribedByElements) */
 	ariaDescribedByElements: ReadonlyArray<Element> | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaDescription) */
 	ariaDescription: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaDetailsElements) */
 	ariaDetailsElements: ReadonlyArray<Element> | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaDisabled) */
 	ariaDisabled: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaErrorMessageElements) */
 	ariaErrorMessageElements: ReadonlyArray<Element> | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaExpanded) */
 	ariaExpanded: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaFlowToElements) */
 	ariaFlowToElements: ReadonlyArray<Element> | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaHasPopup) */
 	ariaHasPopup: string | null;
@@ -2193,6 +2233,7 @@ export interface ARIAMixin {
 	ariaKeyShortcuts: string | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaLabel) */
 	ariaLabel: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaLabelledByElements) */
 	ariaLabelledByElements: ReadonlyArray<Element> | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaLevel) */
 	ariaLevel: string | null;
@@ -2206,6 +2247,7 @@ export interface ARIAMixin {
 	ariaMultiSelectable: string | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaOrientation) */
 	ariaOrientation: string | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaOwnsElements) */
 	ariaOwnsElements: ReadonlyArray<Element> | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/ariaPlaceholder) */
 	ariaPlaceholder: string | null;
@@ -9283,13 +9325,14 @@ export interface GlobalEventHandlersEventMap {
 	"animationstart": AnimationEvent;
 	"auxclick": PointerEvent;
 	"beforeinput": InputEvent;
+	"beforematch": Event;
 	"beforetoggle": ToggleEvent;
 	"blur": FocusEvent;
 	"cancel": Event;
 	"canplay": Event;
 	"canplaythrough": Event;
 	"change": Event;
-	"click": MouseEvent;
+	"click": PointerEvent;
 	"close": Event;
 	"compositionend": CompositionEvent;
 	"compositionstart": CompositionEvent;
@@ -9400,6 +9443,8 @@ export interface GlobalEventHandlers {
 	onauxclick: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/beforeinput_event) */
 	onbeforeinput: ((this: GlobalEventHandlers, ev: InputEvent) => any) | null;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/beforematch_event) */
+	onbeforematch: ((this: GlobalEventHandlers, ev: Event) => any) | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement/beforetoggle_event) */
 	onbeforetoggle: ((this: GlobalEventHandlers, ev: ToggleEvent) => any) | null;
 	/**
@@ -9433,7 +9478,7 @@ export interface GlobalEventHandlers {
 	 *
 	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/click_event)
 	 */
-	onclick: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	onclick: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLDialogElement/close_event) */
 	onclose: ((this: GlobalEventHandlers, ev: Event) => any) | null;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/contextlost_event) */
@@ -21901,6 +21946,8 @@ export interface Selection {
 	empty(): void;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Selection/extend) */
 	extend(node: Node, offset?: number): void;
+	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Selection/getComposedRanges) */
+	getComposedRanges(options?: GetComposedRangesOptions): StaticRange[];
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Selection/getRangeAt) */
 	getRangeAt(index: number): Range;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Selection/modify) */
@@ -22021,7 +22068,7 @@ export interface ServiceWorkerRegistration extends EventTarget {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ServiceWorkerRegistration/unregister) */
 	unregister(): Promise<boolean>;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ServiceWorkerRegistration/update) */
-	update(): Promise<void>;
+	update(): Promise<ServiceWorkerRegistration>;
 	addEventListener<K extends keyof ServiceWorkerRegistrationEventMap>(type: K, listener: (this: ServiceWorkerRegistration, ev: ServiceWorkerRegistrationEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
 	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 	removeEventListener<K extends keyof ServiceWorkerRegistrationEventMap>(type: K, listener: (this: ServiceWorkerRegistration, ev: ServiceWorkerRegistrationEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
@@ -27977,6 +28024,8 @@ declare var onanimationstart: ((this: Window, ev: AnimationEvent) => any) | null
 declare var onauxclick: ((this: Window, ev: PointerEvent) => any) | null;
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/beforeinput_event) */
 declare var onbeforeinput: ((this: Window, ev: InputEvent) => any) | null;
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/beforematch_event) */
+declare var onbeforematch: ((this: Window, ev: Event) => any) | null;
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement/beforetoggle_event) */
 declare var onbeforetoggle: ((this: Window, ev: ToggleEvent) => any) | null;
 /**
@@ -28010,7 +28059,7 @@ declare var onchange: ((this: Window, ev: Event) => any) | null;
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/click_event)
  */
-declare var onclick: ((this: Window, ev: MouseEvent) => any) | null;
+declare var onclick: ((this: Window, ev: PointerEvent) => any) | null;
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLDialogElement/close_event) */
 declare var onclose: ((this: Window, ev: Event) => any) | null;
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/contextlost_event) */

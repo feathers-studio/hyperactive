@@ -24,7 +24,7 @@ Hyperactive is also available on [NPM](https://www.npmjs.com/package/@hyperactiv
 
 This is not a release version, so expect some bugs.
 
-[![Hyperactive Version 2.0.0-beta.7](https://img.shields.io/static/v1?label=Version&message=2.0.0-beta.7&style=for-the-badge&labelColor=FF6A00&color=fff)](https://npmjs.com/package/@hyperactive/hyper)
+[![Hyperactive Version 2.0.0-beta.8](https://img.shields.io/static/v1?label=Version&message=2.0.0-beta.8&style=for-the-badge&labelColor=FF6A00&color=fff)](https://npmjs.com/package/@hyperactive/hyper)
 
 <div align="center">
 <h2>Usage</h2>
@@ -52,7 +52,7 @@ assertEquals(
 
 ### In the browser
 
-[![@types/web 0.0.232](https://img.shields.io/static/v1?label=@types/web&message=0.0.232&style=for-the-badge&labelColor=ff0000&color=fff)](https://npmjs.com/package/@types/web)
+[![@types/web 0.0.234](https://img.shields.io/static/v1?label=@types/web&message=0.0.234&style=for-the-badge&labelColor=ff0000&color=fff)](https://npmjs.com/package/@types/web)
 
 Please install `@types/web` to use Hyperactive in the browser. Your package manager will automatically install the correct version of `@types/web` for you by default. See the [versions](./docs/versions.md) table for the correct version of `@types/web` for each version of Hyperactive.
 

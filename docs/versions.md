@@ -8,6 +8,7 @@ This table shows the version of `@types/web` that Hyperactive expects to be inst
 
 | Hyperactive Version | @types/web Version |
 | ------------------- | ------------------ |
+| 2.0.0-beta.8 | 0.0.234 |
 | 2.0.0-beta.7 | 0.0.232 |
 | 2.0.0-beta.6 | 0.0.232 |
 | 2.0.0-beta.5 | 0.0.232 |
