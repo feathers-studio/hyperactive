@@ -42,7 +42,10 @@ function createSelectorProxy<T extends Tag>(
 		get(_: hE, selector: string) {
 			const parsed = parseSelector([loaded, selector].filter(Boolean).join(" "));
 
-			const hyperElement = function hyperElement(props?: Attributes<T> | HyperNodeish, ...childNodes: HyperNodeish[]) {
+			const hyperElement = function hyperElement(
+				props?: Attributes<T> | HyperNodeish,
+				...childNodes: HyperNodeish[]
+			) {
 				const { attrs, children } = normaliseParams(props, childNodes);
 
 				const className = new State<MaybeString | MaybeString[]>("");
@@ -64,16 +67,10 @@ function createSelectorProxy<T extends Tag>(
 	});
 }
 
-export const elements = new Proxy({} as Elements, {
-	get<T extends Tag>(target: Elements, element: T): Hyper.Element<T> {
-		const fromCache = target[element];
-		if (fromCache) return fromCache;
+export function create<T extends Tag>(element: T) {
+	const hyperElement = function hyperElement(...params: any[]) {
+		return h(element as NonEmptyElement, ...params);
+	} as Elements[T];
 
-		const hyperElement = function hyperElement(...params: any[]) {
-			return h(element as NonEmptyElement, ...params);
-		} as Elements[T];
-
-		target[element] = createSelectorProxy<T>(element, hyperElement) as any;
-		return target[element];
-	},
-});
+	return /* @__PURE__ */ createSelectorProxy<T>(element, hyperElement);
+}

@@ -9,7 +9,9 @@ export async function* fetchTags() {
 	const baseURL = "https://developer.mozilla.org";
 
 	const tags = (
-		[...document.querySelectorAll("section:not([aria-labelledby=obsolete_and_deprecated_elements]) tr")] as Element[]
+		[
+			...document.querySelectorAll("section:not([aria-labelledby=obsolete_and_deprecated_elements]) tr"),
+		] as Element[]
 	)
 		.flatMap(x => {
 			const y = x.children[0];
@@ -48,7 +50,7 @@ export async function* fetchTags() {
 				yield* (function* ({ title, href, description }: typeof opts) {
 					yield "\n\n";
 					yield* typer.desc([description, typer.see(baseURL + href, "MDN | " + title)].join("\n\n"));
-					yield* typer.statement(typer.exports(typer.constant(title, `elements.${title}`)));
+					yield* typer.statement(typer.exports(typer.constant(title, `create("${title}")`)));
 				})(opts);
 			},
 		);
@@ -58,7 +60,7 @@ export async function* fetchTags() {
 			*content() {
 				yield typer.preamble;
 				yield "\n\n";
-				yield* typer.imports("./element.ts", { imports: ["elements"] });
+				yield* typer.imports("./element.ts", { imports: ["create"] });
 				yield* types;
 			},
 		};
