@@ -1,10 +1,14 @@
+// @ts-nocheck This file is not yet ready for use
+
 import { type HyperNode } from "./node.ts";
-import { history, type Location } from "./history.ts";
 import { State } from "./state.ts";
 
 type RouteFragment = [(path: string) => boolean, HyperNode<any> | null];
 
-export function leaf(pathlike: (path: string) => boolean, node: HyperNode<any> | null): RouteFragment {
+export function leaf(
+	pathlike: (path: string) => boolean,
+	node: HyperNode<any> | null,
+): RouteFragment {
 	return [pathlike, node];
 }
 
