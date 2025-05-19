@@ -1,3 +1,5 @@
+import { domGlobal } from "./lib/dom.extra";
+
 export type Subscriber = (value: any) => void;
 
 type ComposedStateValue<Obj extends Record<string, State>> = {
@@ -40,7 +42,9 @@ export class ReadonlyState<T = any> {
 	/**
 	 * Compose multiple states into a single state
 	 */
-	static compose<RefMap extends { [k: string]: State }>(refs: RefMap): ReadonlyState<ComposedStateValue<RefMap>> {
+	static compose<RefMap extends { [k: string]: State }>(
+		refs: RefMap,
+	): ReadonlyState<ComposedStateValue<RefMap>> {
 		type Composed = ComposedStateValue<RefMap>;
 
 		// lazily initialised below
@@ -64,6 +68,13 @@ export class ReadonlyState<T = any> {
 	}
 
 	debounce(ms: number): ReadonlyState<T> {
+		const setTimeout = domGlobal.setTimeout;
+		const clearTimeout = domGlobal.clearTimeout;
+
+		if (!setTimeout || !clearTimeout) {
+			throw new Error("setTimeout and clearTimeout are not available");
+		}
+
 		const debounced = new State<T>(this.value);
 		let timeout: ReturnType<typeof setTimeout>;
 
