@@ -1,7 +1,11 @@
 import { ReadonlyState } from "./state";
 
 export type Distribute<T extends string, U> = { [K in T]: U }[T];
-export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+	k: infer I,
+) => void
+	? I
+	: never;
 export type Keyof<O> = Extract<keyof O, string>;
 
 const escapables = {
@@ -12,9 +16,11 @@ const escapables = {
 	'"': "&quot;",
 };
 
-export const escapeAttr = (s: string) => s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
+export const escapeAttr = (s: string) =>
+	s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
 
-export const escapeTextNode = (s: string) => s.replace(/<|>|&/g, r => escapables[r as keyof typeof escapables] || r);
+export const escapeTextNode = (s: string) =>
+	s.replace(/<|>|&/g, r => escapables[r as keyof typeof escapables] || r);
 
 export type SetContents<T> = T extends Set<infer U> ? U : never;
 
@@ -26,7 +32,13 @@ export type MaybeArray<T> = T | T[];
 export type MaybeState<T> = T | ReadonlyState<T>;
 
 // deno-lint-ignore no-explicit-any
-export const isFalsy = (n: any): n is Falsy => Falsy.has(n);
+export const isFalsy = (n: any): n is Falsy => {
+	if (n == null) return true;
+	if (n === false) return true;
+	if (n === 0) return true;
+	if (n === "") return true;
+	return false;
+};
 
 export const isNonNullable = <T>(n: T): n is NonNullable<T> => n != null;
 

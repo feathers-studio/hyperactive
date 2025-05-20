@@ -15,14 +15,24 @@ export class HyperHTMLStringNode {
 	constructor(public htmlString: string) {}
 }
 
+export class HyperComment {
+	constructor(public text: string) {}
+}
+
 export class HyperNode<T extends Tag> {
 	constructor(public tag: T, public attrs: Attributes<T>, public children: HyperNodeish[]) {}
 }
 
-export type HyperChild<T extends Tag> = HyperNode<T> | HyperHTMLStringNode | HyperTextNode;
+export type HyperChild<T extends Tag> =
+	| HyperNode<T>
+	| HyperHTMLStringNode
+	| HyperTextNode
+	| HyperComment;
+
 export type HyperNodeish =
 	| HyperChild<any>
 	| Falsy
+	| Array<HyperNodeish>
 	| ReadonlyState<HyperNodeish>
 	| ReadonlyList<HyperNodeish>
 	| List<HyperNodeish>
@@ -32,14 +42,19 @@ export type HyperNodeish =
 export const isHyperChild = (n: any): n is HyperChild<any> =>
 	n instanceof HyperNode ||
 	n instanceof HyperHTMLStringNode ||
+	n instanceof HyperComment ||
 	typeof n === "string" ||
+	Array.isArray(n) ||
 	ReadonlyState.isState(n) ||
 	List.isList(n);
 
 export const isHyperNodeish = (x: any): x is HyperNodeish =>
 	isHyperChild(x) || isFalsy(x) || State.isState(x) || Context2.isContext(x);
 
-export function normaliseParams<T extends Tag>(props?: Attributes<T> | HyperNodeish, childNodes?: HyperNodeish[]) {
+export function normaliseParams<T extends Tag>(
+	props?: Attributes<T> | HyperNodeish,
+	childNodes?: HyperNodeish[],
+) {
 	const [attrs, children]: [Attributes<T>, HyperNodeish[]] = isHyperNodeish(props)
 		? [{}, [props, ...(childNodes || [])]]
 		: [props || {}, childNodes || []];
@@ -52,7 +67,10 @@ export function h<Tag extends NonEmptyElement, Attrs extends Attributes<Tag>>(
 	props?: Attrs | Falsy,
 ): HyperNode<Tag>;
 
-export function h<Tag extends NonEmptyElement>(elem: Tag, ...children: HyperNodeish[]): HyperNode<Tag>;
+export function h<Tag extends NonEmptyElement>(
+	elem: Tag,
+	...children: HyperNodeish[]
+): HyperNode<Tag>;
 
 export function h<Tag extends NonEmptyElement, Attrs extends Attributes<Tag>>(
 	elem: Tag,

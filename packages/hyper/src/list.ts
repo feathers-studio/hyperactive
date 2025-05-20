@@ -8,7 +8,9 @@ export class Member<T> extends State<T> {
 	constructor({ parent, value }: { parent: List<T>; value: T }) {
 		super(value);
 		this.parent = parent;
-		this.listen(() => parent.notify({ kind: ListEventKind.MemberUpdate, list: parent, member: this }));
+		this.listen(() =>
+			parent.notify({ kind: ListEventKind.MemberUpdate, list: parent, member: this }),
+		);
 	}
 
 	getCurrentIndex() {
@@ -55,8 +57,21 @@ type ListEvent =
 	| { kind: ListEventKind.Prepend; list: List<any>; member: Member<any> }
 	| { kind: ListEventKind.Insert; list: List<any>; member: Member<any>; index: number }
 	| { kind: ListEventKind.Remove; list: List<any>; member: Member<any>; index: number }
-	| { kind: ListEventKind.Replace; list: List<any>; member: Member<any>; old: Member<any>; index: number }
-	| { kind: ListEventKind.Swap; list: List<any>; a: Member<any>; b: Member<any>; from: number; to: number }
+	| {
+			kind: ListEventKind.Replace;
+			list: List<any>;
+			member: Member<any>;
+			old: Member<any>;
+			index: number;
+	  }
+	| {
+			kind: ListEventKind.Swap;
+			list: List<any>;
+			a: Member<any>;
+			b: Member<any>;
+			from: number;
+			to: number;
+	  }
 	| { kind: ListEventKind.Move; list: List<any>; member: Member<any>; from: number; to: number }
 	| { kind: ListEventKind.Update; list: List<any> }
 	| { kind: ListEventKind.MemberUpdate; list: List<any>; member: Member<any> };
@@ -263,7 +278,8 @@ export class List<T> {
 		const last = internal.drop(this);
 		// TODO: verify that the index is correct. The list will have shrunk by one,
 		// so I'm using the size (which will be last index + 1, equal to previous index)
-		if (last) this.notify({ kind: ListEventKind.Remove, list: this, member: last, index: this.size.value });
+		if (last)
+			this.notify({ kind: ListEventKind.Remove, list: this, member: last, index: this.size.value });
 		return last;
 	}
 
@@ -398,7 +414,10 @@ export class List<T> {
 				case ListEventKind.Replace:
 					return reversed.replaceAt(reversed.size.value - update.index - 1, update.member.value);
 				case ListEventKind.Swap:
-					return reversed.swapBetween(reversed.size.value - update.from - 1, reversed.size.value - update.to - 1);
+					return reversed.swapBetween(
+						reversed.size.value - update.from - 1,
+						reversed.size.value - update.to - 1,
+					);
 				case ListEventKind.Move:
 					const member = reversed.at(reversed.size.value - update.from - 1);
 					if (!member) return;
@@ -430,8 +449,6 @@ export class List<T> {
 					return target.prepend(modifier(update.member));
 				case ListEventKind.Insert:
 					return target.insertAt(update.index, modifier(update.member));
-				case ListEventKind.Remove:
-					return target.removeAt(update.index);
 				case ListEventKind.Remove:
 					return target.removeAt(update.index);
 				case ListEventKind.Replace:
@@ -519,8 +536,6 @@ export class ReadonlyList<T> {
 					return target.insertAt(update.index, modifier(update.member.readonly()));
 				case ListEventKind.Remove:
 					return target.removeAt(update.index);
-				case ListEventKind.Remove:
-					return target.removeAt(update.index);
 				case ListEventKind.Replace:
 					return target.replaceAt(update.index, modifier(update.member.readonly()));
 				case ListEventKind.Swap:
@@ -530,7 +545,9 @@ export class ReadonlyList<T> {
 				case ListEventKind.Update:
 					return target.set(update.list.array.map(x => modifier(x.readonly())));
 				case ListEventKind.MemberUpdate:
-					return target.at(update.member.getCurrentIndex())?.set(modifier(update.member.readonly()));
+					return target
+						.at(update.member.getCurrentIndex())
+						?.set(modifier(update.member.readonly()));
 				default:
 					unreachable(update);
 			}

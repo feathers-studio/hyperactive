@@ -1424,6 +1424,24 @@ export interface Common extends GlobalAttrs, DataAttr, DOMEvents {
 	aria: AriaAttributes;
 }
 
-export type RefCallback<T extends Tag> = (el: TagToHTMLElement<T>) => void;
+export type LifecycleHook<T extends Tag> = (el: TagToHTMLElement<T>) => (() => void) | undefined;
 
-export type Attributes<T extends Tag> = Partial<Common & { ref: RefCallback<T> } & UniqueElementAttrs[T]>;
+export interface LifecycleCallbacks<T extends Tag> {
+	/**
+	 * Called immediately after the element is created.
+	 *
+	 * If an `exit` callback is returned, it is called when the element is removed from the DOM.
+	 */
+	init?: LifecycleHook<T>;
+
+	/** Called immediately after the element is attached to the DOM,
+	 * and all children are also attached to it.
+	 *
+	 * If a `removing` callback is returned, it is called when the element is about to be removed from the DOM.
+	 */
+	attach?: LifecycleHook<T>;
+}
+
+export type Attributes<T extends Tag> = Partial<
+	Common & LifecycleCallbacks<T> & UniqueElementAttrs[T]
+>;

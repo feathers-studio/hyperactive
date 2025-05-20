@@ -3,7 +3,9 @@ import { getSpecialType } from "./util/getSpecialType.ts";
 import * as typer from "./util/hypertyper.ts";
 
 export async function* fetchAttributes() {
-	const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes").then(res => res.text());
+	const html = await fetch("https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes").then(
+		res => res.text(),
+	);
 	const { window } = new JSDOM(html);
 	const { document } = window;
 
@@ -34,7 +36,6 @@ export async function* fetchAttributes() {
 			.filter(tr => !(tr.innerHTML as string).includes(`"icon icon-deprecated"`))
 			.map(tr => [...tr.children])
 			.map(([attr, elems, description]) => {
-
 				const [propElement, isExpElement] = attr.children;
 
 				const prop = propElement.textContent!.trim();
@@ -48,13 +49,15 @@ export async function* fetchAttributes() {
 						.join("\n")
 						.replace("\n\n", "\n") + (isExp ? "\n\n@experimental" : "");
 
-						
 				// TODO: clean this up, special case for elementtiming
 				// <img>, <image> elements inside an <svg>, poster images of <video> elements, elements which have a background-image, and elements containing text nodes, such as a <p>
-				const elements = prop === "elementtiming" ? ["Global attribute"] : elems
-				.textContent!.replaceAll(/<|>/g, "")
-				.split(/,\s+/)
-				.map(e => e.trim());
+				const elements =
+					prop === "elementtiming"
+						? ["Global attribute"]
+						: elems
+								.textContent!.replaceAll(/<|>/g, "")
+								.split(/,\s+/)
+								.map(e => e.trim());
 
 				// type will be replaced later
 				return { type: "", prop, elements, desc };
@@ -143,8 +146,26 @@ export interface Common extends GlobalAttrs, DataAttr, DOMEvents {
 	aria: AriaAttributes;
 }
 
-export type RefCallback<T extends Tag> = (el: TagToHTMLElement<T>) => void;
+export type LifecycleHook<T extends Tag> = (el: TagToHTMLElement<T>) => (() => void) | undefined;
 
-export type Attributes<T extends Tag> = Partial<Common & { ref: RefCallback<T> } & UniqueElementAttrs[T]>;
+export interface LifecycleCallbacks<T extends Tag> {
+	/**
+	 * Called immediately after the element is created.
+	 *
+	 * If an \`exit\` callback is returned, it is called when the element is removed from the DOM.
+	 */
+	init?: LifecycleHook<T>;
+
+	/** Called immediately after the element is attached to the DOM,
+	 * and all children are also attached to it.
+	 *
+	 * If a \`detach\` callback is returned, it is called when the element is about to be removed from the DOM.
+	 */
+	attach?: LifecycleHook<T>;
+}
+
+export type Attributes<T extends Tag> = Partial<
+	Common & LifecycleCallbacks<T> & UniqueElementAttrs[T]
+>;
 `.trim();
 }
