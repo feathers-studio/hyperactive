@@ -1,7 +1,7 @@
 import { DecoratorEndMarker, DecoratorStartMarker } from "./common.ts";
-import { ident, is_newline, is_whitespace, ParserContext } from "./Context.ts";
+import { ident, ParserContext } from "./Context.ts";
 import { Block, HypermarkDocument, Inline, Meta } from "./types.ts";
-import { try_param_value } from "./value.ts";
+import { try_param_string, try_param_value } from "./value.ts";
 import { inline } from "./inline.ts";
 
 export function param(ctx: ParserContext): Block.Parameter | undefined {
@@ -22,6 +22,47 @@ export function param(ctx: ParserContext): Block.Parameter | undefined {
 	return new Block.Parameter(name, value);
 }
 
+/** A parenthesised parameter list, shared by calls, decorators and code fences. */
+export function parameters(ctx: ParserContext): Block.Parameters | undefined {
+	const revert = ctx.checkpoint();
+	if (!ctx.consume_if("(")) return undefined;
+
+	const params = new Block.Parameters([]);
+	ctx.nomnomnom();
+
+	// A single unnamed value: =warning("careful")
+	const value = try_param_value(ctx);
+	if (value !== undefined) {
+		params.parameters.push(new Block.Parameter("__default", value));
+		ctx.nomnomnom();
+		if (ctx.consume_if(",")) ctx.nomnomnom();
+	} else {
+		// Named parameters. Whitespace is skipped before looking for `)`, so a call can
+		// close on its own line with or without a trailing comma. Checked the other way
+		// round, a multi-line call without one threw `Expected ","`.
+		while (true) {
+			ctx.nomnomnom();
+			if (ctx.is(")")) break;
+			if (ctx.eof()) return revert();
+
+			if (params.parameters.length > 0) {
+				// Thrown rather than reverted: two parameters with no comma between them
+				// are a mistake worth naming, not text that happens to begin with `=`.
+				ctx.expect(",");
+				ctx.nomnomnom();
+				if (ctx.is(")")) break; // a trailing comma
+			}
+
+			const parameter = param(ctx);
+			if (parameter === undefined) break;
+			params.parameters.push(parameter);
+		}
+	}
+
+	if (!ctx.consume_if(")")) return revert();
+	return params;
+}
+
 export function callNotation(
 	ctx: ParserContext,
 	type: "@" | "=",
@@ -34,97 +75,131 @@ export function callNotation(
 	if (!name) return revert();
 	ctx.nomnom();
 
-	const has_params = ctx.consume_if("(");
-	const params = new Block.Parameters([]);
-
-	if (has_params) {
-		ctx.nomnomnom();
-
-		// A single unnamed value: =warning("careful")
-		const value = try_param_value(ctx);
-		if (value !== undefined) {
-			params.parameters.push(new Block.Parameter("__default", value));
-			ctx.nomnomnom();
-			if (ctx.consume_if(",")) ctx.nomnomnom();
-		} else {
-			// Named parameters. Whitespace is skipped before looking for `)`, so a call can
-			// close on its own line with or without a trailing comma. Checked the other way
-			// round, a multi-line call without one threw `Expected ","`.
-			while (true) {
-				ctx.nomnomnom();
-				if (ctx.is(")")) break;
-				if (ctx.eof()) return revert();
-
-				if (params.parameters.length > 0) {
-					// Thrown rather than reverted: two parameters with no comma between them
-					// are a mistake worth naming, not text that happens to begin with `=`.
-					ctx.expect(",");
-					ctx.nomnomnom();
-					if (ctx.is(")")) break; // a trailing comma
-				}
-
-				const parameter = param(ctx);
-				if (parameter === undefined) break;
-				params.parameters.push(parameter);
-			}
-		}
-
-		if (!ctx.consume_if(")")) return revert();
-	}
+	const params = ctx.is("(") ? parameters(ctx) : new Block.Parameters([]);
+	if (params === undefined) return revert();
 
 	if (type === "@") return new Block.Decorator(name, params, []);
 	else return new Block.Call(name, params);
 }
 
-// TODO: =import() calls within codeblocks?
-export function codeblock(ctx: ParserContext) {
-	ctx.consume("```");
+/**
+ * The length of a code fence `offset` characters ahead: three or more backticks.
+ *
+ * As in GFM, a line whose info string holds a backtick is not a fence, so "```js `x`"
+ * is inline code.
+ */
+export function fence_length(ctx: ParserContext, offset = 0): number | undefined {
+	let length = 0;
+	while (ctx.peek(offset + length) === "`") length++;
+	if (length < 3) return undefined;
 
-	let language = "";
-	while (!is_whitespace(ctx)) language += ctx.consume();
+	for (let i = offset + length; ; i++) {
+		const char = ctx.peek(i);
+		if (char === "" || char === "\n") return length;
+		if (char === "`") return undefined;
+	}
+}
+
+/**
+ * Run `parse` on a context that ends where the current line does.
+ *
+ * A fence's opening line is all GitHub reads as its info string, so nothing parsed
+ * from it may continue onto the body. Positions are carried in and out, so errors
+ * still point at the real line and column.
+ */
+function on_this_line<T>(ctx: ParserContext, parse: (line: ParserContext) => T): T {
+	let end = ctx.input.indexOf("\n", ctx.index);
+	if (end === -1) end = ctx.input.length;
+
+	const line = new ParserContext(ctx.input.slice(0, end), ctx.doc, {
+		tab_size: ctx.tab_size,
+		filename: ctx.filename,
+	});
+	line.index = ctx.index;
+	line.line = ctx.line;
+	line.column = ctx.column;
+
+	const result = parse(line);
+
+	ctx.index = line.index;
+	ctx.line = line.line;
+	ctx.column = line.column;
+	return result;
+}
+
+/**
+ * A word on a fence's opening line: the language, or a title without spaces.
+ *
+ * A `(` inside one is a missing space. GitHub takes everything up to the first space
+ * as the language, so ```` ```ts(twoslash) ```` loses its highlighting there.
+ */
+function fence_word(ctx: ParserContext): string {
+	let word = "";
+	while (!ctx.eof() && ctx.not(" ", "\t")) {
+		if (ctx.is("(")) throw ctx.error("a space before (", "(");
+		word += ctx.consume();
+	}
+	return word;
+}
+
+/** `lang [title] [(params)]`: everything on a fence's opening line after the backticks. */
+function fence_info(ctx: ParserContext): Block.CodeBlockOptions {
+	ctx.nomnom();
+	const options: Block.CodeBlockOptions = { language: fence_word(ctx) };
 	ctx.nomnom();
 
-	let params = "";
-	while (!is_newline(ctx)) params += ctx.consume();
-	ctx.consume(); // consume the newline
+	if (ctx.is('"', "'")) {
+		const title = try_param_string(ctx);
+		if (title === undefined) throw ctx.error("a closing quote", "the end of the line");
+		options.title = title;
+	} else if (!ctx.eof() && ctx.not("(")) {
+		options.title = fence_word(ctx);
+	}
+	ctx.nomnom();
 
-	const code_params: Block.CodeBlockOptions = { language };
-
-	for (const param of params.split(/\s+/)) {
-		if (param.startsWith(":")) {
-			const [key, value] = param.slice(1).split("=");
-			if (key === "line-numbers") code_params.lineNumbers = true;
-			else if (key === "highlight")
-				code_params.highlight = value
-					.split(",")
-					.map(range => {
-						const [start, end] = range
-							.split("-")
-							.map(Number)
-							.map(n => (Number.isNaN(n) ? undefined : n));
-						if (start === undefined) return undefined;
-						return { start, end: end ?? start };
-					})
-					.filter((x): x is NonNullable<typeof x> => x !== undefined);
-			else if (key === "end") code_params.end = value;
-		} else if (!code_params.title) code_params.title = param;
-		// TODO: think of a way to gracefully handle this
-		else throw ctx.error("valid codeblock parameter", param);
+	if (ctx.is("(")) {
+		const params = parameters(ctx);
+		if (params === undefined) throw ctx.error(") on the same line", "the end of the line");
+		options.params = params;
+		ctx.nomnom();
 	}
 
-	let content = "";
-	const end_string = "\n```" + (code_params.end ?? "");
+	if (!ctx.eof()) throw ctx.error("the end of the line", ctx.peek());
+	return options;
+}
 
-	// loop as along as we don't find the end of the codeblock
-	// the end is automatically consumed by consume_if
-	while (!ctx.consume_if(end_string)) {
-		if (ctx.eof()) break; // just allow EOF to be the end of the codeblock
-		content += ctx.consume();
+export function codeblock(ctx: ParserContext): Block.CodeBlock | undefined {
+	const length = fence_length(ctx);
+	if (length === undefined) return undefined;
+	ctx.consume(length);
+
+	const options = on_this_line(ctx, fence_info);
+	ctx.consume_if("\n");
+
+	// As in GFM: a fence closes on a line of at least as many backticks and nothing else,
+	// indented by up to three spaces. A longer fence is how a block shows a shorter one.
+	const closer = new RegExp(`^ {0,3}\`{${length},}[ \\t]*$`);
+
+	const lines: string[] = [];
+	let position = ctx.index;
+	while (position < ctx.input.length) {
+		let end = ctx.input.indexOf("\n", position);
+		if (end === -1) end = ctx.input.length;
+
+		const line = ctx.input.slice(position, end);
+		if (closer.test(line)) {
+			position = end;
+			break;
+		}
+
+		lines.push(line);
+		position = end + 1;
 	}
 
-	ctx.nomnom(); // slurp leftover whitespace after end_string
+	// An unclosed fence runs to the end of the document, as in GFM.
+	ctx.consume(Math.min(position, ctx.input.length) - ctx.index);
 
-	return new Block.CodeBlock(content, code_params);
+	return new Block.CodeBlock(lines.join("\n"), options);
 }
 
 export function heading(ctx: ParserContext): Block.Heading | undefined {
@@ -149,7 +224,6 @@ export function para(ctx: ParserContext) {
 
 			if (
 				next === "#" ||
-				next === "`" ||
 				next === ">" ||
 				next === "|" ||
 				next === "=" ||
@@ -161,6 +235,9 @@ export function para(ctx: ParserContext) {
 
 			// `--` opens a comment or a `---` rule.
 			if (ctx.peek(1, 2) === "--") break;
+
+			// A fence, but not inline code that happens to open a wrapped line.
+			if (fence_length(ctx, 1) !== undefined) break;
 
 			// A list interrupts a paragraph, but an ordered one only when it starts at 1, as
 			// in CommonMark. Otherwise a wrapped line that happens to open with a number —
@@ -523,7 +600,7 @@ export function parse_blocks<T extends boolean>(
 				blocks.push(heading(ctx) ?? para(ctx));
 				continue;
 			case "`":
-				blocks.push(ctx.peek(0, 3) === "```" ? codeblock(ctx) : para(ctx));
+				blocks.push(codeblock(ctx) ?? para(ctx));
 				continue;
 			case ">":
 				blocks.push(quote(ctx) ?? para(ctx));

@@ -318,72 +318,137 @@ describe("Blocks", () => {
 	});
 
 	describe("Code Block", () => {
+		const params = (...entries: [string, unknown][]) =>
+			new Block.Parameters(entries.map(([name, value]) => new Block.Parameter(name, value as never)));
+
 		it("parses a simple code block", () => {
-			const ast = parse("```js\nconst x = 1;\n```");
-			expect(ast.blocks).toEqual([
-				new Block.CodeBlock("const x = 1;", { language: "js", title: "" }),
+			expect(parse("```js\nconst x = 1;\n```").blocks).toEqual([
+				new Block.CodeBlock("const x = 1;", { language: "js" }),
 			]);
 		});
 
-		it("parses code block with title", () => {
-			const ast = parse("```js example.js\nconst x = 1;\n```");
-			expect(ast.blocks).toEqual([
-				new Block.CodeBlock("const x = 1;", {
-					language: "js",
-					title: "example.js",
+		it("parses a code block with no language", () => {
+			expect(parse("```\nplain\n```").blocks).toEqual([new Block.CodeBlock("plain", { language: "" })]);
+		});
+
+		it("parses a title written as one word", () => {
+			expect(parse("```js example.js\nconst x = 1;\n```").blocks).toEqual([
+				new Block.CodeBlock("const x = 1;", { language: "js", title: "example.js" }),
+			]);
+		});
+
+		it("parses a quoted title with spaces", () => {
+			// A second bare word used to throw, so a title could not contain a space.
+			expect(parse('```ts "the current way"\nx\n```').blocks).toEqual([
+				new Block.CodeBlock("x", { language: "ts", title: "the current way" }),
+			]);
+		});
+
+		it("parses parameters with the call grammar, flags included", () => {
+			expect(parse('```ts (highlight: "2-3", line-numbers)\nx\n```').blocks).toEqual([
+				new Block.CodeBlock("x", {
+					language: "ts",
+					params: params(["highlight", "2-3"], ["line-numbers", true]),
 				}),
 			]);
 		});
 
-		it("parses code block with line numbers", () => {
-			const ast = parse("```js :line-numbers\nconst x = 1;\n```");
-			expect(ast.blocks).toEqual([
-				new Block.CodeBlock("const x = 1;", {
-					language: "js",
-					lineNumbers: true,
-				}),
+		it("parses a title and parameters together", () => {
+			expect(parse("```ts bot.ts (twoslash)\nx\n```").blocks).toEqual([
+				new Block.CodeBlock("x", { language: "ts", title: "bot.ts", params: params(["twoslash", true]) }),
 			]);
 		});
 
-		it("parses code block with highlight", () => {
-			const ast = parse("```js :highlight=1-2,4\ncode\n```");
-			expect(ast.blocks).toEqual([
-				new Block.CodeBlock("code", {
-					language: "js",
-					highlight: [
-						{ start: 1, end: 2 },
-						{ start: 4, end: 4 },
-					],
-				}),
+		it("passes parameter names it does not know through", () => {
+			const [block] = parse('```ts (region: "launch", anything-else: 1)\nx\n```').blocks as Block.CodeBlock[];
+			expect(block.options?.params?.parameters.map(p => p.name)).toEqual(["region", "anything-else"]);
+		});
+
+		it("requires a space before the parameters", () => {
+			// GitHub takes everything up to the first space as the language, so `ts(twoslash)`
+			// would lose its highlighting there.
+			expect(() => parse("```ts(twoslash)\nx\n```")).toThrow("a space before (");
+			expect(() => parse("```ts bot.ts(twoslash)\nx\n```")).toThrow("a space before (");
+		});
+
+		it("keeps the parameters on the opening line", () => {
+			// GitHub reads only the opening line as the info string. An unclosed `(` must not
+			// run on and read the body as parameters.
+			expect(() => parse("```ts (twoslash\nbot.launch();\n```")).toThrow(") on the same line");
+		});
+
+		it("rejects text after the parameters", () => {
+			expect(() => parse("```ts (twoslash) extra\nx\n```")).toThrow("the end of the line");
+		});
+
+		it("is held by a longer fence", () => {
+			// Replaces `:end=`, whose closer GitHub never recognised, so the rest of the
+			// document was swallowed there.
+			expect(parse("````md\n```js\ninner\n```\n````\n\nAfter.").blocks).toEqual([
+				new Block.CodeBlock("```js\ninner\n```", { language: "md" }),
+				new Block.Paragraph([new Inline.Text("After.")]),
 			]);
 		});
 
-		it("parses code block with custom end delimiter", () => {
-			const ast = parse("```js :end=END\ncode\n```END");
-			expect(ast.blocks).toEqual([
-				new Block.CodeBlock("code", {
-					language: "js",
-					end: "END",
-				}),
+		it("closes on a longer fence, trailing spaces, or up to three spaces of indent", () => {
+			for (const closer of ["`````", "```   ", "   ```"]) {
+				expect(parse(`\`\`\`js\nx\n${closer}\n\nAfter.`).blocks.map(b => b.type)).toEqual([
+					"code-block",
+					"paragraph",
+				]);
+			}
+		});
+
+		it("treats a line of backticks followed by text as content", () => {
+			expect(parse("```js\nx\n```END\ny\n```").blocks).toEqual([
+				new Block.CodeBlock("x\n```END\ny", { language: "js" }),
 			]);
 		});
 
-		it("gracefully closes unclosed code block", () => {
-			expect(parse("```js\ncode").blocks).toEqual([
-				new Block.CodeBlock("code", {
-					language: "js",
-					title: "",
-				}),
+		it("parses an empty block without swallowing what follows", () => {
+			// The rest of the document used to become the block's content.
+			expect(parse("```js\n```\n\nAfter.").blocks).toEqual([
+				new Block.CodeBlock("", { language: "js" }),
+				new Block.Paragraph([new Inline.Text("After.")]),
 			]);
 		});
 
-		it("gracefully closes unclosed code block with custom end delimiter", () => {
-			expect(parse("```js :end=END\ncode").blocks).toEqual([
-				new Block.CodeBlock("code", {
-					language: "js",
-					end: "END",
-				}),
-			]);
+		it("parses an opening line at the end of the document", () => {
+			// Used to hang forever: the info-string loops never stopped at the end of the input.
+			// A regression would hang this test rather than fail it.
+			expect(parse("```js").blocks).toEqual([new Block.CodeBlock("", { language: "js" })]);
+			expect(parse("```js title").blocks).toEqual([new Block.CodeBlock("", { language: "js", title: "title" })]);
+		});
+
+		it("runs an unclosed block to the end of the document", () => {
+			expect(parse("```js\ncode").blocks).toEqual([new Block.CodeBlock("code", { language: "js" })]);
+			expect(parse("```js\ncode\n").blocks).toEqual([new Block.CodeBlock("code", { language: "js" })]);
+		});
+
+		it("is not a fence when the opening line holds a backtick, as in GFM", () => {
+			expect(parse("```js `x`").blocks.map(b => b.type)).toEqual(["paragraph"]);
+		});
+
+		it("interrupts a paragraph", () => {
+			expect(parse("Text\n```js\nx\n```").blocks.map(b => b.type)).toEqual(["paragraph", "code-block"]);
+		});
+
+		it("does not split a paragraph at a wrapped line that opens with inline code", () => {
+			// Any backtick at the start of a line used to end the paragraph.
+			expect(parse("Some text\n`code` continues.").blocks).toHaveLength(1);
+		});
+
+		it("round-trips through toString, fencing its own fences", () => {
+			const source = [
+				"````md \"a fence in a fence\" (line-numbers)",
+				"```js",
+				"inner",
+				"```",
+				"````",
+			].join("\n");
+			const [block] = parse(source).blocks as Block.CodeBlock[];
+			expect(block.toString()).toBe(source);
+			expect(parse(block.toString()).blocks).toEqual([block]);
 		});
 	});
 

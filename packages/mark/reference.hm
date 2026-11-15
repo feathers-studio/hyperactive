@@ -139,27 +139,31 @@ Use `- [ ]` for task lists:
 
 ### Code Blocks
 
-Code blocks support language syntax highlighting, line numbers, and line highlighting:
+A code block opens with three backticks and a language, optionally followed by a title and parameters:
 
-```hypermark :end=HYPER-END
-```javascript :line-numbers :highlight=2-3
+````hypermark
+```javascript greet.js (line-numbers, highlight: "2-3")
 function greet(name) {
     const message = `Hello, ${name}!`;
     console.log(message);
 }
-```HYPER-END
+```
+````
 
-If your code block contains ```, you can skip it entirely by using a custom delimiter. Since this reference document is also written in Hypermark, the above codeblock exists in source like this:
+A title with spaces is quoted, as in `"Greeting a user"`. Parameters use the same syntax as extension calls, and which ones mean anything is up to the renderer. A space is required before `(`, because a Markdown renderer takes everything up to the first space as the language.
 
-```hypermark :end=HYPER-END2
-```hypermark :end=HYPER-END
-```javascript :line-numbers :highlight=2-3
+A code block closes on a line of at least as many backticks as it opened with, so a block containing another is fenced with more backticks. Since this reference document is also written in Hypermark, the above codeblock exists in source like this:
+
+`````hypermark
+````hypermark
+```javascript greet.js (line-numbers, highlight: "2-3")
 function greet(name) {
     const message = `Hello, ${name}!`;
     console.log(message);
 }
-```HYPER-END
-```HYPER-END2
+```
+````
+`````
 
 ### Tables
 
@@ -179,10 +183,10 @@ Tables support alignment options:
 
 Decorators modify the next block:
 
-```hypermark :end=DECORATOR1
+```hypermark
 @style(color: "blue")
 This text will be blue.
-```DECORATOR1
+```
 
 Multiple decorators can be composed:
 
@@ -195,7 +199,7 @@ This text will be large and centered.
 
 Some decorators can wrap multiple blocks:
 
-```hypermark :end=TABS-EXAMPLE
+````hypermark
 @tabs>
 @named("Python")
 ```python example.py
@@ -210,7 +214,7 @@ function hello() {
 }
 ```
 <@
-```TABS-EXAMPLE
+````
 
 Output:
 

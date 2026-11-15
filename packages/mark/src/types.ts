@@ -23,6 +23,7 @@ export namespace Block {
 		constructor(public name: string, public value: Value | Call) {}
 		toString(): string {
 			if (this.name === "__default") return JSON.stringify(this.value);
+			if (this.value === true) return this.name; // a flag
 			const value = JSON.stringify(this.value);
 			return `${this.name}: ${value}`;
 		}
@@ -205,38 +206,43 @@ export namespace Block {
 		}
 	}
 
-	export type HighlightRange = { start: number; end: number };
-
 	export interface CodeBlockOptions {
-		language?: string;
+		/** The first word of the opening line, or "" for none. */
+		language: string;
 		title?: string;
-		lineNumbers?: boolean;
-		highlight?: HighlightRange[];
-		end?: string;
+		/** Open-ended: the renderer decides which names it understands. */
+		params?: Parameters;
 	}
 
 	/*
 		Code blocks are blocks of code.
 		Example:
 
-		```language Title :line-numbers :highlight=1-3,4-5 :end=END
+		```ts bot.ts (highlight: "1-3", line-numbers)
 		content
-		``` END
+		```
+
+		A fence longer than any line of backticks in the content is how a block shows
+		another block.
 	 */
 	export class CodeBlock {
 		type: "code-block" = "code-block";
 		constructor(public content: string, public options?: CodeBlockOptions) {}
 		toString(): string {
-			let result = "```";
-			if (this.options?.language) result += this.options.language;
-			if (this.options?.title) result += ` ${this.options.title}`;
-			if (this.options?.lineNumbers) result += " :line-numbers";
-			if (this.options?.highlight)
-				result += ` :highlight=${this.options.highlight.map(h => `${h.start}-${h.end}`).join(",")}`;
-			if (this.options?.end) result += ` :end=${this.options.end}`;
-			result += "\n" + this.content + "\n```";
-			if (this.options?.end) result += " " + this.options.end;
-			return result;
+			// One backtick longer than the longest line in the content that would close it.
+			const closers = this.content.match(/^ {0,3}`{3,}[ \t]*$/gm) ?? [];
+			const longest = Math.max(2, ...closers.map(line => line.trim().length));
+			const fence = "`".repeat(longest + 1);
+
+			let info = this.options?.language ?? "";
+			const title = this.options?.title;
+			if (title !== undefined) {
+				// Quoted only when a bare word would read back as something else.
+				info += " " + (/^[^\s"'(]+$/.test(title) ? title : JSON.stringify(title));
+			}
+			if (this.options?.params?.parameters.length) info += ` (${this.options.params})`;
+
+			return `${fence}${info}\n${this.content}\n${fence}`;
 		}
 	}
 
