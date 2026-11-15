@@ -36,37 +36,38 @@ export function callNotation(
 	const params = new Block.Parameters([]);
 
 	if (has_params) {
-		// try to parse a single value
+		ctx.nomnomnom();
+
+		// A single unnamed value: =warning("careful")
 		const value = try_param_value(ctx);
 		if (value !== undefined) {
-			const param = new Block.Parameter("__default", value);
-			params.parameters.push(param);
+			params.parameters.push(new Block.Parameter("__default", value));
+			ctx.nomnomnom();
+			if (ctx.consume_if(",")) ctx.nomnomnom();
 		} else {
-			// parse multiple named parameters
-			let first = true;
-
-			while (ctx.not(")")) {
+			// Named parameters. Whitespace is skipped before looking for `)`, so a call can
+			// close on its own line with or without a trailing comma. Checked the other way
+			// round, a multi-line call without one threw `Expected ","`.
+			while (true) {
 				ctx.nomnomnom();
-
+				if (ctx.is(")")) break;
 				if (ctx.eof()) return revert();
 
-				// expect a comma if not the first value
-				// trailing commas are required at the moment
-				// even empty objects are required to have a comma
-				// TODO: fix this
-				if (!first) ctx.expect(",");
-				ctx.nomnomnom();
+				if (params.parameters.length > 0) {
+					// Thrown rather than reverted: two parameters with no comma between them
+					// are a mistake worth naming, not text that happens to begin with `=`.
+					ctx.expect(",");
+					ctx.nomnomnom();
+					if (ctx.is(")")) break; // a trailing comma
+				}
 
 				const parameter = param(ctx);
 				if (parameter === undefined) break;
 				params.parameters.push(parameter);
-
-				first = false;
 			}
 		}
 
-		if (ctx.not(")")) return revert();
-		ctx.consume(); // consume the closing parenthesis
+		if (!ctx.consume_if(")")) return revert();
 	}
 
 	if (type === "@") return new Block.Decorator(name, params, []);

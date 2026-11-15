@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test";
 import { parse } from "./hypermark.ts";
-import { Block, Inline } from "./types.ts";
+import { Block, Inline, Meta } from "./types.ts";
 
 describe("Inline", () => {
 	describe("Text", () => {
@@ -634,6 +634,82 @@ describe("Blocks", () => {
 
 		it("is interrupted by a comment", () => {
 			expect(parse("Text\n-- note").blocks.map(b => b.type)).toEqual(["paragraph", "comment"]);
+		});
+	});
+
+	describe("Call", () => {
+		const params = (entries: Record<string, unknown>) =>
+			new Block.Parameters(
+				Object.entries(entries).map(([name, value]) => new Block.Parameter(name, value as never)),
+			);
+		const call = (name: string, entries: Record<string, unknown> = {}) =>
+			new Block.Call(name, params(entries));
+
+		it("parses named parameters on one line", () => {
+			expect(parse('=figure(src: "a.jpg", width: 500)').blocks).toEqual([
+				call("figure", { src: "a.jpg", width: 500 }),
+			]);
+		});
+
+		it("parses a call spanning lines without a trailing comma", () => {
+			// Threw `Expected ","` before: `)` was looked for before skipping the newline.
+			expect(parse('=figure(\n\tsrc: "a.jpg",\n\twidth: 500\n)').blocks).toEqual([
+				call("figure", { src: "a.jpg", width: 500 }),
+			]);
+		});
+
+		it("parses a call spanning lines with a trailing comma", () => {
+			expect(parse('=figure(\n\tsrc: "a.jpg",\n\twidth: 500,\n)').blocks).toEqual([
+				call("figure", { src: "a.jpg", width: 500 }),
+			]);
+		});
+
+		it("parses an object parameter that closes on its own line", () => {
+			// Became a paragraph before, printing the call as text with no error at all.
+			expect(parse("=f(\n\toptions: {\n\t\ta: 1\n\t}\n)").blocks).toEqual([
+				call("f", { options: { a: 1 } }),
+			]);
+		});
+
+		it("parses a single unnamed value", () => {
+			expect(parse('=warning("careful")').blocks).toEqual([call("warning", { __default: "careful" })]);
+		});
+
+		it("allows whitespace around a single value", () => {
+			const expected = [call("warning", { __default: "careful" })];
+			expect(parse('=warning( "careful" )').blocks).toEqual(expected);
+			expect(parse('=warning(\n\t"careful"\n)').blocks).toEqual(expected);
+			expect(parse('=warning(\n\t"careful",\n)').blocks).toEqual(expected);
+		});
+
+		it("parses a call with no parameters, with or without parentheses", () => {
+			expect(parse("=toc").blocks).toEqual([call("toc")]);
+			expect(parse("=toc()").blocks).toEqual([call("toc")]);
+			expect(parse("=toc(\n)").blocks).toEqual([call("toc")]);
+		});
+
+		it("names a missing comma between parameters", () => {
+			expect(() => parse("=f(a: 1 b: 2)")).toThrow('Expected ","');
+		});
+
+		it("falls back to a paragraph when a call is never closed", () => {
+			expect(parse("=f(a: 1").blocks.map(b => b.type)).toEqual(["paragraph"]);
+		});
+
+		it("hoists =meta spanning lines into the document", () => {
+			const doc = parse('=meta(\n\ttitle: "Reference",\n\tauthor: "Team"\n)\n\n# Body');
+			expect(doc.meta).toEqual(new Meta(params({ title: "Reference", author: "Team" })));
+			expect(doc.blocks.map(b => b.type)).toEqual(["heading"]);
+		});
+	});
+
+	describe("Decorator", () => {
+		it("parses a decorator spanning lines without a trailing comma", () => {
+			const [decorator, block] = parse('@style(\n\tcolor: "blue"\n)\nBlue text.').blocks;
+			expect(decorator).toEqual(
+				new Block.Decorator("style", new Block.Parameters([new Block.Parameter("color", "blue")]), []),
+			);
+			expect(block).toEqual(new Block.Paragraph([new Inline.Text("Blue text.")]));
 		});
 	});
 

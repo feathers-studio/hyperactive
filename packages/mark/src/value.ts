@@ -73,29 +73,26 @@ export function try_param_list(ctx: ParserContext): Value[] | undefined {
 
 	const params: Value[] = [];
 
-	if (ctx.not("[")) return undefined;
-	ctx.consume(); // consume the opening bracket
+	if (!ctx.consume_if("[")) return undefined;
 
-	let first = true;
-	while (ctx.not("]")) {
+	// Whitespace is skipped before looking for the closing bracket, not after: checked
+	// first, a `]` on its own line was never seen, and the list was rejected unless it
+	// happened to end in a trailing comma.
+	while (true) {
 		ctx.nomnomnom();
-
+		if (ctx.consume_if("]")) return params;
 		if (ctx.eof()) return revert();
 
-		// expect a comma if not the first value
-		// trailing commas are supported
-		if (!first) if (!ctx.consume_if(",")) return revert();
-		ctx.nomnomnom();
+		if (params.length > 0) {
+			if (!ctx.consume_if(",")) return revert();
+			ctx.nomnomnom();
+			if (ctx.consume_if("]")) return params; // a trailing comma
+		}
 
 		const value = try_param_value(ctx);
-		if (value === undefined) break;
+		if (value === undefined) return revert();
 		params.push(value);
-
-		first = false;
 	}
-
-	if (!ctx.consume_if("]")) return revert();
-	return params;
 }
 
 export function try_param_object(ctx: ParserContext): { [key: string]: Value } | undefined {
@@ -103,39 +100,33 @@ export function try_param_object(ctx: ParserContext): { [key: string]: Value } |
 
 	const params: { [key: string]: Value } = {};
 
-	if (ctx.not("{")) return undefined;
-	ctx.consume(); // consume the opening bracket
-	ctx.nomnomnom();
+	if (!ctx.consume_if("{")) return undefined;
 
+	// Whitespace before the closer is skipped first, as in try_param_list.
 	let first = true;
-	while (ctx.not("}")) {
+	while (true) {
 		ctx.nomnomnom();
-
+		if (ctx.consume_if("}")) return params;
 		if (ctx.eof()) return revert();
 
-		// expect a comma if not the first value
-		// trailing commas are allowed
-		if (!first) if (!ctx.consume_if(",")) return revert();
-		ctx.nomnomnom();
+		if (!first) {
+			if (!ctx.consume_if(",")) return revert();
+			ctx.nomnomnom();
+			if (ctx.consume_if("}")) return params; // a trailing comma
+		}
 
 		const key = ident(ctx) ?? try_param_string(ctx);
-		// didn't find a key, could not parse an object
-		if (!key) break;
+		if (!key) return revert();
 		ctx.nomnomnom();
 
 		ctx.expect(":");
 		ctx.nomnomnom();
 
 		const value = try_param_value(ctx);
-		// didn't find a value, could not parse an object
 		if (value === undefined) return revert();
 		params[key] = value;
 		first = false;
 	}
-
-	if (ctx.not("}")) return revert();
-	ctx.consume(); // consume the closing bracket
-	return params;
 }
 
 export function try_param_value(ctx: ParserContext): Value | undefined {

@@ -59,13 +59,31 @@ describe("Value", () => {
 		});
 
 		it("parses a list of values with a trailing comma and whitespace", () => {
-			const ctx = getCtx("[1, 2, 3,]");
+			const ctx = getCtx("[1, 2, 3,\n]");
 			expect(try_param_list(ctx)).toEqual([1, 2, 3]);
+		});
+
+		it("parses a list closed on its own line without a trailing comma", () => {
+			// The closing bracket used to be looked for before whitespace was skipped.
+			const ctx = getCtx("[\n\t1,\n\t2\n]");
+			expect(try_param_list(ctx)).toEqual([1, 2]);
+		});
+
+		it("parses an empty list with whitespace inside", () => {
+			expect(try_param_list(getCtx("[ \n ]"))).toEqual([]);
 		});
 
 		it("bails on an invalid list", () => {
 			const ctx = getCtx("[,]");
 			expect(try_param_list(ctx)).toBeUndefined();
+		});
+
+		it("bails on a missing comma", () => {
+			expect(try_param_list(getCtx("[1 2]"))).toBeUndefined();
+		});
+
+		it("bails on a doubled comma", () => {
+			expect(try_param_list(getCtx("[1,, 2]"))).toBeUndefined();
 		});
 
 		it("bails on an incomplete list", () => {
@@ -103,6 +121,15 @@ describe("Value", () => {
 		it("parses an object with a trailing comma and whitespace", () => {
 			const ctx = getCtx('{\t"a": 1,\n "b": 2, \t "c"\n: 3,}');
 			expect(try_param_object(ctx)).toEqual({ a: 1, b: 2, c: 3 });
+		});
+
+		it("parses an object closed on its own line without a trailing comma", () => {
+			const ctx = getCtx("{\n\ta: 1,\n\tb: 2\n}");
+			expect(try_param_object(ctx)).toEqual({ a: 1, b: 2 });
+		});
+
+		it("parses an empty object with whitespace inside", () => {
+			expect(try_param_object(getCtx("{ \n }"))).toEqual({});
 		});
 
 		it("bails on an invalid object", () => {
