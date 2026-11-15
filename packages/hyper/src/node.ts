@@ -27,6 +27,8 @@ export type HyperChild<T extends Tag> =
 	| HyperNode<T>
 	| HyperHTMLStringNode
 	| HyperTextNode
+	| number
+	| bigint
 	| HyperComment;
 
 export type HyperNodeish =
@@ -44,9 +46,46 @@ export const isHyperChild = (n: any): n is HyperChild<any> =>
 	n instanceof HyperHTMLStringNode ||
 	n instanceof HyperComment ||
 	typeof n === "string" ||
+	// Without these, `h("p", 42)` took 42 for an attributes object and dropped it.
+	typeof n === "number" ||
+	typeof n === "bigint" ||
 	Array.isArray(n) ||
 	ReadonlyState.isState(n) ||
 	List.isList(n);
+
+// `list.length && x` has the type `0 | X`, because TypeScript narrows a falsy number to the literal 0.
+// Numbers render, so that child shows "0" when the list is empty. A `number` or `number | undefined`
+// is a value, not this shape, and stays allowed.
+type Zero<C> =
+	| (0 extends C ? (number extends C ? never : 0) : never)
+	| (0n extends C ? (bigint extends C ? never : 0n) : never);
+
+type RendersZero<C> = [Zero<C>] extends [never]
+	? false
+	: [Exclude<C, number | bigint | Falsy>] extends [never]
+		? false
+		: true;
+
+// The check reaches one level into a state, a list or an array: `count.to(c => c && x)` and
+// `[list.length && x]` have the same shape.
+type Contents<C> =
+	C extends ReadonlyState<infer U>
+		? U
+		: C extends ReadonlyList<infer U>
+			? U
+			: C extends List<infer U>
+				? U
+				: C extends readonly (infer U)[]
+					? U
+					: C;
+
+type Child<C> =
+	RendersZero<Contents<C>> extends true
+		? "`n && x` renders 0 when n is 0; write `n > 0 && x` or `n ? x : null`"
+		: C;
+
+/** The children `C`, with any child that renders "0" from `n && x` rejected. */
+export type Children<C extends readonly unknown[]> = { [K in keyof C]: Child<C[K]> };
 
 export const isHyperNodeish = (x: any): x is HyperNodeish =>
 	isHyperChild(x) || isFalsy(x) || State.isState(x) || Context2.isContext(x);
@@ -67,22 +106,23 @@ export function h<Tag extends NonEmptyElement, Attrs extends Attributes<Tag>>(
 	props?: Attrs | Falsy,
 ): HyperNode<Tag>;
 
-export function h<Tag extends NonEmptyElement>(
+export function h<Tag extends NonEmptyElement, C extends HyperNodeish[]>(
 	elem: Tag,
-	...children: HyperNodeish[]
+	...children: Children<C>
 ): HyperNode<Tag>;
 
-export function h<Tag extends NonEmptyElement, Attrs extends Attributes<Tag>>(
+export function h<Tag extends NonEmptyElement, Attrs extends Attributes<Tag>, C extends HyperNodeish[]>(
 	elem: Tag,
 	props: Attrs,
-	...children: HyperNodeish[]
+	...children: Children<C>
 ): HyperNode<Tag>;
 
-export function h<Tag extends NonEmptyElement, Attrs extends Attributes<Tag>>(
-	elem: Tag,
-	props?: Attrs | HyperNodeish | Falsy,
-	...children: HyperNodeish[]
-): HyperNode<Tag>;
+export function h<
+	Tag extends NonEmptyElement,
+	Attrs extends Attributes<Tag>,
+	P extends Attrs | HyperNodeish,
+	C extends HyperNodeish[],
+>(elem: Tag, props?: Child<P>, ...children: Children<C>): HyperNode<Tag>;
 
 export function h<Tag extends EmptyElements, Attrs extends Attributes<Tag>>(
 	elem: Tag,

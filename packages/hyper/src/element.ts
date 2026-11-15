@@ -1,7 +1,7 @@
 import { h, HyperNode, normaliseParams } from "./node.ts";
 import { parseSelector } from "./parse.ts";
 import { isNonNullable, MaybeString } from "./util.ts";
-import type { HyperNodeish, NonEmptyElement } from "./node.ts";
+import type { Children, HyperNodeish, NonEmptyElement } from "./node.ts";
 import type { Tag } from "./lib/tags.ts";
 import type { EmptyElements } from "./lib/emptyElements.ts";
 import type { Attributes } from "./attributes.ts";
@@ -16,8 +16,8 @@ export namespace Hyper {
 
 	export interface Base<T extends Tag> {
 		(props: Attributes<T>): HyperNode<T>;
-		(...childNodes: HyperNodeish[]): HyperNode<T>;
-		(props: Attributes<T>, ...childNodes: HyperNodeish[]): HyperNode<T>;
+		<C extends HyperNodeish[]>(...childNodes: Children<C>): HyperNode<T>;
+		<C extends HyperNodeish[]>(props: Attributes<T>, ...childNodes: Children<C>): HyperNode<T>;
 		[selector: string]: Hyper.Base<T>;
 	}
 

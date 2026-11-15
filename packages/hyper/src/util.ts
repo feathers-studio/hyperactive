@@ -24,8 +24,9 @@ export const escapeTextNode = (s: string) =>
 
 export type SetContents<T> = T extends Set<infer U> ? U : never;
 
-// no 0n since bigint support is 2020+
-export const Falsy = new Set([false, "", 0, null, undefined] as const);
+// Values that render nothing. `0` is not one of them: numbers are content, so a counter shows "0".
+// `list.length && x` would then render "0", and the types in node.ts reject that shape instead.
+export const Falsy = new Set([false, "", null, undefined] as const);
 export type Falsy = SetContents<typeof Falsy>;
 export type MaybeString = string | Falsy;
 export type MaybeArray<T> = T | T[];
@@ -35,7 +36,6 @@ export type MaybeState<T> = T | ReadonlyState<T>;
 export const isFalsy = (n: any): n is Falsy => {
 	if (n == null) return true;
 	if (n === false) return true;
-	if (n === 0) return true;
 	if (n === "") return true;
 	return false;
 };

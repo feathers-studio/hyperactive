@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
 
-import { renderHTML, trust } from "./index.ts";
+import { renderHTML, State, trust } from "./index.ts";
 import { div, p, h1, br, input } from "./elements.ts";
 
 test("renderHTML simple", () => {
@@ -77,6 +77,26 @@ test("renderHTML ARIA props", () => {
 			}),
 		),
 	).toBe(`<div id="hello" class="world" role="note" aria-disabled="true"></div>`);
+});
+
+test("renderHTML renders numbers and bigints as text", () => {
+	// A number child threw, and in the props position it was taken for an attributes object.
+	expect(renderHTML(p({}, 42))).toBe(`<p>42</p>`);
+	expect(renderHTML(p(42))).toBe(`<p>42</p>`);
+	expect(renderHTML(p({}, 1n))).toBe(`<p>1</p>`);
+});
+
+test("renderHTML renders 0 as text", () => {
+	// A counter at 0 rendered nothing.
+	expect(renderHTML(p(0))).toBe(`<p>0</p>`);
+	expect(renderHTML(p(new State(0)))).toBe(`<p>0</p>`);
+});
+
+test("renderHTML renders `n && x` as 0 when n is 0, and the types reject it", () => {
+	const list: string[] = [];
+	// @ts-expect-error `n && x` renders 0 when n is 0
+	expect(renderHTML(p(list.length && "items"))).toBe(`<p>0</p>`);
+	expect(renderHTML(p(list.length > 0 && "items"))).toBe(`<p></p>`);
 });
 
 test("renderHTML writes an attribute whose value is 0", () => {

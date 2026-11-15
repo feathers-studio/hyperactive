@@ -35,9 +35,9 @@ const ns = {
 
 export type NodeToDOM<N extends HyperNodeish> = N extends Falsy
 	? null
-	: N extends string
+	: N extends string | number | bigint
 	? Text
-	: N extends ReadonlyState<string>
+	: N extends ReadonlyState<string | number | bigint>
 	? Text
 	: Element;
 
@@ -330,6 +330,9 @@ function h_to_dom(node: HyperNodeish, environment: RenderEnvironment): Node | Hy
 	// --- HyperChild ---
 
 	if (typeof node === "string") return dom_op(environment, document.createTextNode(node));
+	if (typeof node === "number" || typeof node === "bigint") {
+		return dom_op(environment, document.createTextNode(String(node)));
+	}
 
 	// Only do falsy check for non-strings because TextNodes are always to be rendered
 	if (isFalsy(node)) return dom_op(environment, comment());
@@ -428,6 +431,7 @@ function toDOM(node: HyperNodeish, environment: RenderEnvironment): Node[] {
 	}
 
 	if (typeof node === "string") return [document.createTextNode(node)];
+	if (typeof node === "number" || typeof node === "bigint") return [document.createTextNode(String(node))];
 
 	if (isFalsy(node)) return [comment()];
 

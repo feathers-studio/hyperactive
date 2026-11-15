@@ -87,6 +87,7 @@ function toHTML(node: HyperNodeish, environment: Environment): string {
 	if (Array.isArray(node)) return comment + node.map(renderHTML).join("") + comment;
 
 	if (typeof node === "string") return escapeTextNode(node);
+	if (typeof node === "number" || typeof node === "bigint") return String(node);
 	if (isFalsy(node)) return "";
 	if (node instanceof HyperComment) return "<!-- " + node.text + " -->";
 
