@@ -127,6 +127,41 @@ describe("Inline", () => {
 			const ast = parse("\\*bold text*");
 			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("*bold text*")]));
 		});
+
+		it("parses a run of asterisks as text, so Markdown's **bold** shows as written", () => {
+			// Was one strong word between two stray asterisks.
+			// `**a*` and `*a**` each need one of the two checks; `**bold**` is caught by either.
+			for (const source of ["**bold**", "***bold***", "a**b**c", "**a*", "*a**"]) {
+				expect(parse(source).blocks[0]).toEqual(new Block.Paragraph([new Inline.Text(source)]));
+			}
+		});
+
+		it("does not open before a space or close after one", () => {
+			// `2 * 3 * 4` made the 3 strong.
+			for (const source of ["2 * 3 * 4", "*bold *", "x * b*"]) {
+				expect(parse(source).blocks[0]).toEqual(new Block.Paragraph([new Inline.Text(source)]));
+			}
+		});
+
+		it("may sit inside a word, as on GitHub", () => {
+			expect(parse("foo*bar*baz").blocks[0]).toEqual(
+				new Block.Paragraph([
+					new Inline.Text("foo"),
+					new Inline.Strong([new Inline.Text("bar")]),
+					new Inline.Text("baz"),
+				]),
+			);
+		});
+
+		it("parses neighbouring strong words separately", () => {
+			expect(parse("*a* *b*").blocks[0]).toEqual(
+				new Block.Paragraph([
+					new Inline.Strong([new Inline.Text("a")]),
+					new Inline.Text(" "),
+					new Inline.Strong([new Inline.Text("b")]),
+				]),
+			);
+		});
 	});
 
 	describe("Strike", () => {

@@ -48,10 +48,31 @@ export function try_matching_inline(ctx: ParserContext, char: string): Inline[] 
 	return content;
 }
 
+/**
+ * Strong, `*like this*`.
+ *
+ * A run of two or more asterisks is never a delimiter, so the `**bold**` of Markdown
+ * habit reads as plain text — visibly not what was meant — rather than one strong word
+ * between two stray asterisks. GitHub shows it bold either way.
+ *
+ * As for underscores, an asterisk opens only before text and closes only after it, so
+ * `2 * 3 * 4` is arithmetic. Unlike an underscore, one may sit inside a word, as it may
+ * on GitHub: `foo*bar*baz`.
+ */
 export function try_strong(ctx: ParserContext): Inline.Strong | undefined {
+	const revert = ctx.checkpoint();
 	const from = ctx.index;
-	const content = try_matching_inline(ctx, "*") as Exclude<Inline, Inline.Strong>[];
-	if (content === undefined) return undefined;
+
+	const before = previous(ctx);
+	const after = ctx.peek(1);
+	if (ctx.not("*") || before === "*" || after === "*" || /^\s?$/.test(after)) return undefined;
+	ctx.consume();
+
+	const content = inline(ctx, "*", "\n") as Exclude<Inline, Inline.Strong>[];
+	if (content.length === 0 || ctx.not("*")) return revert();
+	if (/\s/.test(previous(ctx)) || ctx.peek(1) === "*") return revert();
+	ctx.consume(); // the closing asterisk
+
 	return locate(ctx, from, new Inline.Strong(content));
 }
 

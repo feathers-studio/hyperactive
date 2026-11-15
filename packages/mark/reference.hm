@@ -289,7 +289,7 @@ Hypermark supports various inline text formatting:
 - Links: [Hypermark Docs](https://example.com)
 ```
 
-An underscore inside a word, as in `chat_id`, is text, and so is a doubled `__`.
+An underscore inside a word, as in `chat_id`, is text. So are doubled markers, `__` and `**`: Markdown's `**bold**` shows as written.
 
 ## Footnotes
 
