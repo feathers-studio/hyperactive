@@ -338,7 +338,27 @@ Content can be imported from other files. The resulting content will be treated 
 =import("./partial.hm")
 ```
 
--- TODO: how to import from a file into a codeblock?
+Code can be imported from other files into a code block with `=code()`, either whole or one region of it:
+
+```hypermark
+=code("../examples/bot.ts", region: "launch", twoslash)
+```
+
+A region is marked in the file itself, with the same comments VS Code folds on:
+
+```ts
+// #region launch
+bot.launch();
+// #endregion
+```
+
+The file can also be written as a link, so a Markdown renderer shows a link to the code where Hypermark shows the code itself:
+
+```hypermark
+=code([bot.ts](../examples/bot.ts), region: "launch")
+```
+
+The language comes from the file's extension, and the title from the link's text or the path as written. `lang:` and `title:` override them; any other parameter is kept for the renderer, as on a code block.
 
 ## Comments
 

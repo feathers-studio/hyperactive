@@ -240,9 +240,26 @@ export namespace Block {
 		A fence longer than any line of backticks in the content is how a block shows
 		another block.
 	 */
+	/** Where an expanded `=code()` block came from. */
+	export interface CodeSource {
+		/** The file as written in the call. */
+		url: string;
+		/** The file's path from the project root, which `url` resolved to. */
+		path: string;
+		region?: string;
+		/** The whole file, region markers included: twoslash needs what surrounds a region. */
+		text: string;
+		/** The lines of `text` that `content` came from, 0-based, `end` exclusive. */
+		lines: { start: number; end: number };
+	}
+
 	export class CodeBlock {
 		type: "code-block" = "code-block";
-		constructor(public content: string, public options?: CodeBlockOptions) {}
+		constructor(
+			public content: string,
+			public options?: CodeBlockOptions,
+			public source?: CodeSource,
+		) {}
 		toString(): string {
 			// One backtick longer than the longest line in the content that would close it.
 			const closers = this.content.match(/^ {0,3}`{3,}[ \t]*$/gm) ?? [];
