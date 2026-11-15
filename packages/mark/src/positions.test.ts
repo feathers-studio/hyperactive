@@ -95,6 +95,14 @@ describe("Positions", () => {
 			expect(where(source, image)?.text).toBe("![a bot](bot.png)");
 		});
 
+		it("span the whole of an emphasis's text across an underscore inside a word", () => {
+			const source = "_set chat_id now_";
+			const [paragraph] = blocks(source) as Block.Paragraph[];
+			const emphasis = paragraph!.content[0] as Inline.Emphasis;
+			expect(where(source, emphasis)?.text).toBe(source);
+			expect(where(source, emphasis.content[0])).toEqual({ span: "1:2-1:17", text: "set chat_id now" });
+		});
+
 		it("leave trimmed trailing spaces outside a text's position", () => {
 			const source = "abc   ";
 			const [paragraph] = blocks(source) as Block.Paragraph[];

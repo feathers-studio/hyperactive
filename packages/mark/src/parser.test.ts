@@ -51,6 +51,50 @@ describe("Inline", () => {
 			const ast = parse("\\_italic text_");
 			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("_italic text_")]));
 		});
+
+		it("does not open or close at an underscore inside a word", () => {
+			// Was italic from `id` to `reply`. Telegraf's prose is full of field names.
+			const source = "set chat_id and reply_markup";
+			expect(parse(source).blocks[0]).toEqual(new Block.Paragraph([new Inline.Text(source)]));
+		});
+
+		it("does not open after a letter, even with a closer further on", () => {
+			// The closing rule alone rejects `chat_id … reply_markup`; this one it would not.
+			expect(parse("foo_bar_ baz").blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("foo_bar_ baz")]));
+		});
+
+		it("keeps an underscore inside a word within emphasis, as one text", () => {
+			expect(parse("_set chat_id now_").blocks[0]).toEqual(
+				new Block.Paragraph([new Inline.Emphasis([new Inline.Text("set chat_id now")])]),
+			);
+		});
+
+		it("opens and closes next to punctuation", () => {
+			expect(parse("(_x_).").blocks[0]).toEqual(
+				new Block.Paragraph([
+					new Inline.Text("("),
+					new Inline.Emphasis([new Inline.Text("x")]),
+					new Inline.Text(")."),
+				]),
+			);
+		});
+
+		it("does not open before a space or close after one", () => {
+			expect(parse("_ not emphasis _").blocks[0]).toEqual(
+				new Block.Paragraph([new Inline.Text("_ not emphasis _")]),
+			);
+		});
+
+		it("does not close before a letter", () => {
+			expect(parse("_x_y").blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("_x_y")]));
+		});
+
+		it("treats letters in any script alike", () => {
+			expect(parse("привет_мир").blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("привет_мир")]));
+			expect(parse("_пример_").blocks[0]).toEqual(
+				new Block.Paragraph([new Inline.Emphasis([new Inline.Text("пример")])]),
+			);
+		});
 	});
 
 	describe("Strong", () => {
@@ -104,22 +148,17 @@ describe("Inline", () => {
 		});
 	});
 
-	describe("Underline", () => {
-		it("parses underlined text", () => {
-			const ast = parse("__underlined text__");
-			expect(ast.blocks[0]).toEqual(
-				new Block.Paragraph([new Inline.Underline([new Inline.Text("underlined text")])]),
+	describe("Double underscores", () => {
+		// Underline was dropped. `__x__` meant underline here and strong on GitHub, so the
+		// two disagreed with both looking formatted; as text, the difference is visible.
+		it("parses as text, not underline or emphasis", () => {
+			expect(parse("__not underlined__").blocks[0]).toEqual(
+				new Block.Paragraph([new Inline.Text("__not underlined__")]),
 			);
 		});
 
-		it("parses as text if underline is not closed", () => {
-			const ast = parse("__underlined text");
-			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("__underlined text")]));
-		});
-
-		it("parses as text if underline marker is escaped", () => {
-			const ast = parse("\\_\\_underlined text__");
-			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("__underlined text__")]));
+		it("parses as text when escaped", () => {
+			expect(parse("\\_\\_text__").blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("__text__")]));
 		});
 	});
 

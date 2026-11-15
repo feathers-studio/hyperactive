@@ -62,19 +62,71 @@ export function try_strike(ctx: ParserContext): Inline.Strike | undefined {
 	return locate(ctx, from, new Inline.Strike(content));
 }
 
-/** MUST be tried before try_emphasis */
-export function try_underline(ctx: ParserContext): Inline.Underline | undefined {
-	const from = ctx.index;
-	const content = try_matching_inline(ctx, "__") as Exclude<Inline, Inline.Underline>[];
-	if (content === undefined) return undefined;
-	return locate(ctx, from, new Inline.Underline(content));
+/** A letter or digit, in any script: what an underscore inside a word sits between. */
+const WORD = /[\p{L}\p{N}]/u;
+
+/** The character before the context's position, or "" at the start of its text. */
+function previous(ctx: ParserContext): string {
+	return ctx.index > 0 ? ctx.input[ctx.index - 1]! : "";
 }
 
+/** Adjacent text nodes joined into one, with a position spanning both. */
+function merge_text(nodes: Inline[]): Inline[] {
+	const merged: Inline[] = [];
+	for (const node of nodes) {
+		const last = merged.at(-1);
+		if (node.type !== "text" || last?.type !== "text") {
+			merged.push(node);
+			continue;
+		}
+		const joined = new Inline.Text(last.content + node.content);
+		if (last.position && node.position) joined.position = { start: last.position.start, end: node.position.end };
+		merged[merged.length - 1] = joined;
+	}
+	return merged;
+}
+
+/**
+ * Emphasis, `_like this_`, by GFM's rule for underscores: one opens only where it does
+ * not follow a letter, digit or another underscore, and closes only where it is not
+ * followed by one.
+ *
+ * So an underscore inside a word is text, as it is on GitHub: `set chat_id and
+ * reply_markup` used to be italic from `id` to `reply`. And `__` is never a delimiter,
+ * so `__x__` is text rather than emphasis between two stray underscores.
+ */
 export function try_emphasis(ctx: ParserContext): Inline.Emphasis | undefined {
+	const revert = ctx.checkpoint();
 	const from = ctx.index;
-	const content = try_matching_inline(ctx, "_") as Exclude<Inline, Inline.Emphasis>[];
-	if (content === undefined) return undefined;
-	return locate(ctx, from, new Inline.Emphasis(content));
+
+	const before = previous(ctx);
+	const after = ctx.peek(1);
+	if (ctx.not("_") || WORD.test(before) || before === "_" || after === "_" || /^\s?$/.test(after)) {
+		return undefined;
+	}
+	ctx.consume();
+
+	const content: Inline[] = [];
+	while (true) {
+		content.push(...inline(ctx, "_", "\n"));
+		if (ctx.not("_")) return revert(); // the line ended first
+
+		const closing_before = previous(ctx);
+		const closing_after = ctx.peek(1);
+		if (!/\s/.test(closing_before) && !WORD.test(closing_after) && closing_after !== "_") break;
+
+		// Inside a word, `_like chat_id this_`, an underscore is text and the emphasis goes on.
+		if (!WORD.test(closing_before) || !WORD.test(closing_after)) return revert();
+		const at = ctx.index;
+		ctx.consume();
+		content.push(locate(ctx, at, new Inline.Text("_")));
+	}
+
+	if (content.length === 0) return revert();
+	ctx.consume(); // the closing underscore
+
+	const emphasis = new Inline.Emphasis(merge_text(content) as Exclude<Inline, Inline.Emphasis>[]);
+	return locate(ctx, from, emphasis);
 }
 
 export function try_code(ctx: ParserContext): Inline.Code | undefined {
@@ -163,7 +215,6 @@ export function inline(ctx: ParserContext, ...untilChar: string[]): Inline[] {
 			(chunk =
 				try_strong(ctx) ??
 				try_strike(ctx) ??
-				try_underline(ctx) ??
 				try_emphasis(ctx) ??
 				try_code(ctx) ??
 				try_link(ctx) ??

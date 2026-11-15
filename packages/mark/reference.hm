@@ -285,10 +285,11 @@ Hypermark supports various inline text formatting:
 - Strong emphasis: *bold text*
 - Emphasis: _italic text_
 - Strikethrough: ~~struck text~~
-- Underline: __underlined text__
 - Inline code: `code`
 - Links: [Hypermark Docs](https://example.com)
 ```
+
+An underscore inside a word, as in `chat_id`, is text, and so is a doubled `__`.
 
 ## Footnotes
 

@@ -507,21 +507,6 @@ export namespace Inline {
 	}
 
 	/*
-		Underline is a string of text with underline.
-		Example:
-
-		__Underline__
-	*/
-	export class Underline {
-		type: "underline" = "underline";
-		declare position?: Position;
-		constructor(public content: Exclude<Inline, Underline>[]) {}
-		toString(): string {
-			return `__${this.content.map(c => c.toString()).join("")}__`;
-		}
-	}
-
-	/*
 		Code is a string of code.
 		Example:
 
@@ -610,7 +595,6 @@ export namespace Inline {
 		| Emphasis
 		| Strong
 		| Strike
-		| Underline
 		| Code
 		| Link
 		| FootnoteReference
