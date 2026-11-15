@@ -449,6 +449,194 @@ describe("Blocks", () => {
 		});
 	});
 
+	describe("List", () => {
+		const para = (text: string) => new Block.Paragraph([new Inline.Text(text)]);
+		const item = (...content: Block[]) => new Block.ListItem(content);
+		const task = (checked: boolean, text: string) => new Block.TaskItem([para(text)], checked);
+		const list = (
+			start_marker: string,
+			items: (Block.ListItem | Block.TaskItem)[],
+			ordered = /[0-9]/.test(start_marker),
+		) =>
+			new Block.List(items, {
+				start_marker,
+				ordered,
+				has_tasks: items.some(i => i.type === "task-item"),
+			});
+
+		it("collects consecutive items into one list", () => {
+			expect(parse("- a\n- b\n- c").blocks).toEqual([
+				list("-", [item(para("a")), item(para("b")), item(para("c"))]),
+			]);
+		});
+
+		it("accepts * as a bullet", () => {
+			expect(parse("* a\n* b").blocks).toEqual([list("*", [item(para("a")), item(para("b"))])]);
+		});
+
+		it("parses ordered lists", () => {
+			expect(parse("1. a\n2. b").blocks).toEqual([
+				list("1.", [item(para("a")), item(para("b"))]),
+			]);
+		});
+
+		it("keeps the start number of an ordered list", () => {
+			const [block] = parse("3. a\n4. b").blocks;
+			expect(block).toEqual(list("3.", [item(para("a")), item(para("b"))]));
+		});
+
+		it("parses task items, checked or not", () => {
+			expect(parse("- [ ] todo\n- [x] done\n- [X] also done").blocks).toEqual([
+				list("-", [task(false, "todo"), task(true, "done"), task(true, "also done")]),
+			]);
+		});
+
+		it("marks a list holding any task item", () => {
+			const [block] = parse("- plain\n- [ ] todo").blocks as Block.List[];
+			expect(block.options?.has_tasks).toBe(true);
+			expect(block.items[0]).toEqual(item(para("plain")));
+		});
+
+		it("nests a list indented to the content column", () => {
+			expect(parse("- a\n  - nested\n  - nested too\n- b").blocks).toEqual([
+				list("-", [
+					item(para("a"), list("-", [item(para("nested")), item(para("nested too"))])),
+					item(para("b")),
+				]),
+			]);
+		});
+
+		it("nests an ordered list inside an unordered one", () => {
+			expect(parse("- a\n  1. one\n  2. two").blocks).toEqual([
+				list("-", [item(para("a"), list("1.", [item(para("one")), item(para("two"))]))]),
+			]);
+		});
+
+		it("measures the content column from the marker's own width", () => {
+			// `10. ` is four columns wide, so a nested list needs four spaces, not three.
+			expect(parse("10. a\n    - nested").blocks).toEqual([
+				list("10.", [item(para("a"), list("-", [item(para("nested"))]))]),
+			]);
+		});
+
+		it("keeps an indented paragraph after a blank line in the item", () => {
+			expect(parse("- first\n\n  second\n- next").blocks).toEqual([
+				list("-", [item(para("first"), para("second")), item(para("next"))]),
+			]);
+		});
+
+		it("continues across a blank line between items, as GFM does", () => {
+			expect(parse("- a\n\n- b").blocks).toEqual([list("-", [item(para("a")), item(para("b"))])]);
+		});
+
+		it("ends at a paragraph that is not indented", () => {
+			expect(parse("- a\n- b\n\nAfter.").blocks).toEqual([
+				list("-", [item(para("a")), item(para("b"))]),
+				para("After."),
+			]);
+		});
+
+		it("starts a new list when the bullet changes, as GFM does", () => {
+			expect(parse("- a\n* b").blocks).toEqual([
+				list("-", [item(para("a"))]),
+				list("*", [item(para("b"))]),
+			]);
+		});
+
+		it("starts a new list when switching between ordered and unordered", () => {
+			expect(parse("- a\n1. b").blocks).toEqual([
+				list("-", [item(para("a"))]),
+				list("1.", [item(para("b"))]),
+			]);
+		});
+
+		it("is separated from the next list by a comment", () => {
+			expect(parse("- a\n-- split\n- b").blocks).toEqual([
+				list("-", [item(para("a"))]),
+				new Block.Comment("split"),
+				list("-", [item(para("b"))]),
+			]);
+		});
+
+		it("does not mistake a comment, a rule or strong text for an item", () => {
+			expect(parse("-- note").blocks).toEqual([new Block.Comment("note")]);
+			expect(parse("---\n").blocks).toEqual([new Block.Rule()]);
+			expect(parse("*bold* start").blocks).toEqual([
+				new Block.Paragraph([new Inline.Strong([new Inline.Text("bold")]), new Inline.Text(" start")]),
+			]);
+		});
+
+		it("does not take a number without a space as a marker", () => {
+			expect(parse("1.5 is a number").blocks).toEqual([para("1.5 is a number")]);
+		});
+
+		it("does not take a number of ten digits as a marker", () => {
+			expect(parse("1234567890. text").blocks).toEqual([para("1234567890. text")]);
+		});
+
+		it("parses the reference's own Core Concepts list", () => {
+			// Rendered as three empty lists and three paragraphs before ordered lists worked.
+			const source = "1. *Content* - one\n2. *Decorators* - two\n3. *Extension Calls* - three";
+			const [block, ...rest] = parse(source).blocks as Block.List[];
+			expect(rest).toEqual([]);
+			expect(block.options).toEqual({ start_marker: "1.", ordered: true, has_tasks: false });
+			expect(block.items).toHaveLength(3);
+		});
+
+		it("round-trips through toString", () => {
+			const source = [
+				"- a",
+				"  - nested",
+				"- [x] done",
+				"- b",
+				"",
+				"  more of b",
+				"",
+				"3. three",
+				"4. four",
+				"   1. inner",
+			].join("\n");
+			const blocks = parse(source).blocks;
+			expect(parse(blocks.map(b => b.toString()).join("\n\n")).blocks).toEqual(blocks);
+		});
+	});
+
+	describe("Paragraph interruption", () => {
+		it("keeps a wrapped line that opens with a number in the paragraph", () => {
+			// Any digit at the start of a line used to end the paragraph.
+			expect(parse("The year was\n2024 and all was well.").blocks).toEqual([
+				new Block.Paragraph([
+					new Inline.Text("The year was"),
+					new Inline.Text("\n"),
+					new Inline.Text("2024 and all was well."),
+				]),
+			]);
+		});
+
+		it("keeps a wrapped line that opens with a number and a full stop", () => {
+			// "2024. " looks like an ordered marker, but only a list starting at 1 may
+			// interrupt a paragraph.
+			expect(parse("It ended in\n2024. Then it began again.").blocks).toHaveLength(1);
+		});
+
+		it("is interrupted by an ordered list starting at 1", () => {
+			expect(parse("Steps:\n1. first").blocks.map(b => b.type)).toEqual(["paragraph", "list"]);
+		});
+
+		it("is interrupted by a bulleted list", () => {
+			expect(parse("Items:\n- a").blocks.map(b => b.type)).toEqual(["paragraph", "list"]);
+			expect(parse("Items:\n* a").blocks.map(b => b.type)).toEqual(["paragraph", "list"]);
+		});
+
+		it("keeps a wrapped line that opens with a hyphenated word", () => {
+			expect(parse("Temperatures of\n-5 degrees").blocks).toHaveLength(1);
+		});
+
+		it("is interrupted by a comment", () => {
+			expect(parse("Text\n-- note").blocks.map(b => b.type)).toEqual(["paragraph", "comment"]);
+		});
+	});
+
 	describe("Footnote", () => {
 		it("parses footnotes", () => {
 			const ast = parse("Reference [^1]\n[^1]: Content");

@@ -149,14 +149,21 @@ export function para(ctx: ParserContext) {
 				next === "`" ||
 				next === ">" ||
 				next === "|" ||
-				next === "-" ||
 				next === "=" ||
 				next === "@" ||
-				next === "[" ||
-				/[0-9+\.]/.test(next)
+				next === "["
 			) {
 				break;
 			}
+
+			// `--` opens a comment or a `---` rule.
+			if (ctx.peek(1, 2) === "--") break;
+
+			// A list interrupts a paragraph, but an ordered one only when it starts at 1, as
+			// in CommonMark. Otherwise a wrapped line that happens to open with a number —
+			// "2024. A good year" — would split the paragraph in two.
+			const marker = list_marker(ctx, 1);
+			if (marker && (!marker.ordered || marker.text === "1.")) break;
 
 			// Double newline still breaks
 			if (next === "\n") break;
@@ -314,16 +321,15 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 	return new Block.Table(rows, header, alignment);
 }
 
-export function get_indent(ctx: ParserContext, from_offset: number): number {
-	let indent = 0;
-	let index = from_offset;
-
-	while (ctx.peek(index) === " " || ctx.peek(index) === "\t") {
-		indent += ctx.peek(index) === " " ? 1 : ctx.tab_size;
-		index++;
+/** Width of a line's leading whitespace, counting a tab as `tab_size` columns. */
+export function indent_width(line: string, tab_size: number): number {
+	let width = 0;
+	for (const char of line) {
+		if (char === " ") width += 1;
+		else if (char === "\t") width += tab_size;
+		else break;
 	}
-
-	return indent;
+	return width;
 }
 
 export function trim_indent(ctx: ParserContext, line: string, indent: number): string {
@@ -340,46 +346,124 @@ export function trim_indent(ctx: ParserContext, line: string, indent: number): s
 	return line.slice(index);
 }
 
-export function list_item(ctx: ParserContext, indent_level: number): Block.ListItem | undefined {
-	if (!ctx.consume_if("- ")) return undefined;
+export interface ListMarker {
+	ordered: boolean;
+	/** The marker as written, without its trailing space: `-`, `*`, `1.`, `12.` */
+	text: string;
+}
 
-	indent_level += 2; // for the marker
-	indent_level += get_indent(ctx, ctx.index); // whitespace before content adds to current indent level
-
-	let content = "";
-
-	while (!ctx.eof()) {
-		if (ctx.is("\n") && ctx.peek(1) !== "\n") {
-			// if the next line is indented less than the current indent level, break
-			if (get_indent(ctx, 1) < indent_level) break;
-			content += ctx.consume();
-		}
-		content += ctx.consume();
+/**
+ * The list marker `offset` characters ahead, if there is one.
+ *
+ * A marker is always followed by a space. That is what tells `- item` apart from the
+ * `--` comment and the `---` rule, and `* item` apart from `*strong*`.
+ */
+export function list_marker(ctx: ParserContext, offset = 0): ListMarker | undefined {
+	const char = ctx.peek(offset);
+	if ((char === "-" || char === "*") && ctx.peek(offset + 1) === " ") {
+		return { ordered: false, text: char };
 	}
 
-	const normalised_content = content
-		.split("\n")
-		.map(line => trim_indent(ctx, line, indent_level))
-		.join("\n");
+	// Nine digits at most, as in CommonMark, so a long number opening a line is text.
+	let digits = 0;
+	while (digits < 9 && /[0-9]/.test(ctx.peek(offset + digits))) digits++;
+	if (digits === 0 || ctx.peek(offset + digits, 2) !== ". ") return undefined;
+
+	return { ordered: true, text: ctx.peek(offset, digits + 1) };
+}
+
+/**
+ * Whether `next` continues the list `first` began.
+ *
+ * As in GFM, switching between ordered and unordered, or between `-` and `*`, starts a
+ * new list. Matching GFM here is what makes a list read the same on GitHub as it parses.
+ */
+function continues_list(first: ListMarker, next: ListMarker): boolean {
+	return first.ordered ? next.ordered : !next.ordered && next.text === first.text;
+}
+
+/** Consume the newline ending a line, then every whitespace-only line after it. */
+function skip_blank_lines(ctx: ParserContext): void {
+	ctx.consume_if("\n");
+	while (true) {
+		let n = 0;
+		while (ctx.peek(n) === " " || ctx.peek(n) === "\t") n++;
+		if (ctx.peek(n) !== "\n") return;
+		ctx.consume(n + 1);
+	}
+}
+
+export function list_item(ctx: ParserContext, marker: ListMarker): Block.ListItem | Block.TaskItem {
+	ctx.consume(marker.text.length + 1); // the marker and its space
+
+	// Later lines belong to the item when indented to its content column: past the
+	// marker, its space, and any further spaces before the first word.
+	let spaces = 0;
+	while (ctx.peek(spaces) === " " || ctx.peek(spaces) === "\t") spaces++;
+	const column = marker.text.length + 1 + indent_width(ctx.peek(0, spaces), ctx.tab_size);
+	ctx.nomnom();
+
+	let checked: boolean | undefined;
+	if (ctx.is("[ ]", "[x]", "[X]") && /^[ \n]?$/.test(ctx.peek(3))) {
+		checked = ctx.peek(1) !== " ";
+		ctx.consume(3);
+		ctx.nomnom();
+	}
+
+	// A blank line does not end the item by itself. The next line with text decides:
+	// indented to the content column, it continues the item, so a blank line can sit
+	// between two of its paragraphs; anything less indented ends it, and the blank
+	// lines are left for whatever follows.
+	const lines = ctx.input.slice(ctx.index).split("\n");
+	let taken = 1;
+	for (let i = 1; i < lines.length; ) {
+		let next = i;
+		while (next < lines.length && lines[next]!.trim() === "") next++;
+		if (next === lines.length) break;
+		if (indent_width(lines[next]!, ctx.tab_size) < column) break;
+		taken = next + 1;
+		i = next + 1;
+	}
+
+	const own = lines.slice(0, taken);
+	ctx.consume(own.join("\n").length); // leaves the item's final newline unconsumed
+
+	const content = own.map((line, i) => (i === 0 ? line : trim_indent(ctx, line, column))).join("\n");
 
 	const doc2 = new HypermarkDocument();
 	const opts = { tab_size: ctx.tab_size, filename: ":list:" };
-	const ctx2 = new ParserContext(normalised_content, doc2, opts);
+	const ctx2 = new ParserContext(content, doc2, opts);
 	const blocks = parse_blocks(ctx2, false);
 
-	return new Block.ListItem(blocks);
+	return checked === undefined ? new Block.ListItem(blocks) : new Block.TaskItem(blocks, checked);
 }
 
-export function list(ctx: ParserContext): Block.List {
-	const items: Block.ListItem[] = [];
+export function list(ctx: ParserContext): Block.List | undefined {
+	const first = list_marker(ctx);
+	if (!first) return undefined;
 
-	let item: Block.ListItem | undefined;
+	const items: (Block.ListItem | Block.TaskItem)[] = [];
+	let marker: ListMarker | undefined = first;
 
-	while ((item = list_item(ctx, 0))) {
-		items.push(item);
+	while (marker) {
+		items.push(list_item(ctx, marker));
+
+		// Blank lines between items keep the list going, as in GFM. Anything but another
+		// item of the same list ends it, and the newlines go back to parse_blocks.
+		const revert = ctx.checkpoint();
+		skip_blank_lines(ctx);
+		marker = list_marker(ctx);
+		if (!marker || !continues_list(first, marker)) {
+			revert();
+			marker = undefined;
+		}
 	}
 
-	return new Block.List(items);
+	return new Block.List(items, {
+		start_marker: first.text,
+		ordered: first.ordered,
+		has_tasks: items.some(item => item.type === "task-item"),
+	});
 }
 
 export function parse_blocks<T extends boolean>(
@@ -450,13 +534,14 @@ export function parse_blocks<T extends boolean>(
 			case "-":
 				if (ctx.consume_if("---\n")) blocks.push(new Block.Rule());
 				else if (ctx.consume_if("--")) blocks.push(comment(ctx));
-				else if (ctx.is("- ")) blocks.push(list(ctx));
-				else blocks.push(para(ctx));
+				else blocks.push(list(ctx) ?? para(ctx));
+				continue;
+			case "*":
+				blocks.push(list(ctx) ?? para(ctx));
 				continue;
 			default:
-				// Check for ordered lists
-				if (/^\d+\.\s/.test(ctx.peek(0, 4))) blocks.push(list(ctx));
-				blocks.push(para(ctx));
+				// An ordered list, or a paragraph.
+				blocks.push(list(ctx) ?? para(ctx));
 				continue;
 		}
 	}

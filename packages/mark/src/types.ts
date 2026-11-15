@@ -155,9 +155,18 @@ export namespace Block {
 		type: "list" = "list";
 		constructor(public items: (ListItem | TaskItem)[], public options?: ListOptions) {}
 		toString(): string {
-			return `${this.options?.ordered ? "1." : "-"} ${this.items
-				.map(i => i.toString())
-				.join("\n")}`;
+			const ordered = this.options?.ordered ?? false;
+			const start = ordered ? Number.parseInt(this.options!.start_marker, 10) : 0;
+			return this.items
+				.map((item, i) => {
+					const marker = ordered ? `${start + i}.` : (this.options?.start_marker ?? "-");
+					// Later lines are indented to the content column, or they would fall out of
+					// the item when parsed again.
+					const pad = " ".repeat(marker.length + 1);
+					const [first = "", ...rest] = item.toString().split("\n");
+					return [`${marker} ${first}`, ...rest.map(line => (line ? pad + line : line))].join("\n");
+				})
+				.join("\n");
 		}
 	}
 
@@ -172,9 +181,10 @@ export namespace Block {
 	export class ListItem {
 		type: "list-item" = "list-item";
 		constructor(public content: Block[]) {}
+		/** The item's content without its marker, which belongs to the list. */
 		toString(): string {
-			// TODO: add indentation
-			return this.content.map(c => c.toString()).join("\n");
+			// Blocks are separated by a blank line, or two paragraphs would read back as one.
+			return this.content.map(c => c.toString()).join("\n\n");
 		}
 	}
 
@@ -189,8 +199,9 @@ export namespace Block {
 	export class TaskItem {
 		type: "task-item" = "task-item";
 		constructor(public content: Block[], public checked: boolean) {}
+		/** The item's checkbox and content, without its marker, which belongs to the list. */
 		toString(): string {
-			return `- [${this.checked ? "x" : " "}] ${this.content.map(c => c.toString()).join("\n")}`;
+			return `[${this.checked ? "x" : " "}] ${this.content.map(c => c.toString()).join("\n\n")}`;
 		}
 	}
 
