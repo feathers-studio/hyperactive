@@ -25,18 +25,6 @@ export class DecoratorEndMarker {
 	}
 }
 
-export const count_char = (input: string, char: string, from: number, to: number) => {
-	let count = 0;
-	let last_index = -1;
-	for (let i = from; i < to; i++) {
-		if (input[i] === char) {
-			count++;
-			last_index = i - from;
-		}
-	}
-	return { count, last_index };
-};
-
 export const normal_line_number = (line_number: number) => {
 	let num = line_number.toString();
 	if (num.length > 3) num = "-" + num.slice(-3);

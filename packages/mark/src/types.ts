@@ -12,11 +12,25 @@ export type Value =
 	| Inline.Link
 	| Inline.Image;
 
+/** A place in the source file, as in unist: `line` and `column` from 1, `offset` from 0. */
+export interface Point {
+	line: number;
+	column: number;
+	offset: number;
+}
+
+/** Where a node was written: from `start` up to, not including, `end`. */
+export interface Position {
+	start: Point;
+	end: Point;
+}
+
 /*
 	meta is simply a special call that can only appear at the top of the document.
 */
 export class Meta {
 	type: "meta" = "meta";
+	declare position?: Position;
 	constructor(public parameters: Block.Parameters) {}
 }
 
@@ -63,6 +77,7 @@ export namespace Block {
 		*/
 	export class Call {
 		type: "call" = "call";
+		declare position?: Position;
 		constructor(public name: string, public parameters: Parameters) {}
 		toString(): string {
 			return `=${this.name}(${this.parameters.toString()})`;
@@ -71,6 +86,7 @@ export namespace Block {
 
 	export class Decorator {
 		type: "decorator" = "decorator";
+		declare position?: Position;
 		constructor(public name: string, public parameters: Block.Parameters, public blocks: Block[]) {}
 		toString(): string {
 			const needs_markers = this.blocks.length === 0 || this.blocks.length > 1;
@@ -94,6 +110,7 @@ export namespace Block {
 	 */
 	export class Comment {
 		type: "comment" = "comment";
+		declare position?: Position;
 		constructor(public content: string) {}
 		toString(): string {
 			return `-- ${this.content}`;
@@ -108,6 +125,7 @@ export namespace Block {
 	*/
 	export class Paragraph {
 		type: "paragraph" = "paragraph";
+		declare position?: Position;
 		constructor(public content: Inline[]) {}
 		toString(): string {
 			return this.content.map(c => c.toString()).join("");
@@ -125,6 +143,7 @@ export namespace Block {
 	*/
 	export class Heading {
 		type: "heading" = "heading";
+		declare position?: Position;
 		constructor(public level: HeadingLevel, public content: Inline[]) {}
 		toString(): string {
 			return `${"#".repeat(this.level)} ${this.content.map(c => c.toString()).join("")}`;
@@ -169,6 +188,7 @@ export namespace Block {
 	 */
 	export class List {
 		type: "list" = "list";
+		declare position?: Position;
 		constructor(public items: (ListItem | TaskItem)[], public options?: ListOptions) {}
 		toString(): string {
 			const ordered = this.options?.ordered ?? false;
@@ -196,6 +216,7 @@ export namespace Block {
 	 */
 	export class ListItem {
 		type: "list-item" = "list-item";
+		declare position?: Position;
 		constructor(public content: Block[]) {}
 		/** The item's content without its marker, which belongs to the list. */
 		toString(): string {
@@ -214,6 +235,7 @@ export namespace Block {
 	 */
 	export class TaskItem {
 		type: "task-item" = "task-item";
+		declare position?: Position;
 		constructor(public content: Block[], public checked: boolean) {}
 		/** The item's checkbox and content, without its marker, which belongs to the list. */
 		toString(): string {
@@ -255,6 +277,7 @@ export namespace Block {
 
 	export class CodeBlock {
 		type: "code-block" = "code-block";
+		declare position?: Position;
 		constructor(
 			public content: string,
 			public options?: CodeBlockOptions,
@@ -287,6 +310,7 @@ export namespace Block {
 	*/
 	export class Quote {
 		type: "quote" = "quote";
+		declare position?: Position;
 		constructor(public content: Block[]) {}
 		toString(): string {
 			return this.content
@@ -304,6 +328,7 @@ export namespace Block {
 	*/
 	export class Rule {
 		type: "rule" = "rule";
+		declare position?: Position;
 	}
 
 	export type TableAlignment = "left" | "center" | "right";
@@ -343,6 +368,7 @@ export namespace Block {
 
 	export class TableCell {
 		type: "table-cell" = "table-cell";
+		declare position?: Position;
 		constructor(public content: Inline[]) {}
 		toString(): string {
 			return this.content.map(c => c.toString()).join("");
@@ -351,6 +377,7 @@ export namespace Block {
 
 	export class TableRow {
 		type: "table-row" = "table-row";
+		declare position?: Position;
 		constructor(public cells: TableCell[]) {}
 		toString(): string {
 			return "| " + this.cells.map(c => c.toString()).join(" | ") + " |";
@@ -368,6 +395,7 @@ export namespace Block {
 	*/
 	export class Table {
 		type: "table" = "table";
+		declare position?: Position;
 		constructor(
 			public rows: TableRow[],
 			public header?: TableRow,
@@ -391,6 +419,7 @@ export namespace Block {
 	*/
 	export class Footnote {
 		type: "footnote" = "footnote";
+		declare position?: Position;
 		constructor(public reference: string, public content: Inline[]) {}
 		toString(): string {
 			return `[^${this.reference}]: ${this.content.map(c => c.toString()).join("")}`;
@@ -425,6 +454,7 @@ export namespace Inline {
 	*/
 	export class Text {
 		type: "text" = "text";
+		declare position?: Position;
 		constructor(public content: string) {}
 		toString(): string {
 			return this.content.replaceAll(specialRegExp, match => `\\${match}`);
@@ -439,6 +469,7 @@ export namespace Inline {
 	*/
 	export class Emphasis {
 		type: "emphasis" = "emphasis";
+		declare position?: Position;
 		constructor(public content: Exclude<Inline, Emphasis>[]) {}
 		toString(): string {
 			return `_${this.content.map(c => c.toString()).join("")}_`;
@@ -453,6 +484,7 @@ export namespace Inline {
 	*/
 	export class Strong {
 		type: "strong" = "strong";
+		declare position?: Position;
 		constructor(public content: Exclude<Inline, Strong>[]) {}
 		toString(): string {
 			return `*${this.content.map(c => c.toString()).join("")}*`;
@@ -467,6 +499,7 @@ export namespace Inline {
 	*/
 	export class Strike {
 		type: "strike" = "strike";
+		declare position?: Position;
 		constructor(public content: Exclude<Inline, Strike>[]) {}
 		toString(): string {
 			return `~~${this.content.map(c => c.toString()).join("")}~~`;
@@ -481,6 +514,7 @@ export namespace Inline {
 	*/
 	export class Underline {
 		type: "underline" = "underline";
+		declare position?: Position;
 		constructor(public content: Exclude<Inline, Underline>[]) {}
 		toString(): string {
 			return `__${this.content.map(c => c.toString()).join("")}__`;
@@ -495,6 +529,7 @@ export namespace Inline {
 	*/
 	export class Code {
 		type: "code" = "code";
+		declare position?: Position;
 		constructor(public content: string) {}
 		toString(): string {
 			return "`" + this.content + "`";
@@ -509,6 +544,7 @@ export namespace Inline {
 	*/
 	export class Link {
 		type: "link" = "link";
+		declare position?: Position;
 		constructor(
 			public content: Exclude<Inline, { type: "link" | "image" }>[],
 			/** Named as in mdast, and shared with Image, so code taking either reads one field. */
@@ -527,6 +563,7 @@ export namespace Inline {
 	*/
 	export class FootnoteReference {
 		type: "footnote-reference" = "footnote-reference";
+		declare position?: Position;
 		constructor(public reference: string) {}
 		toString(): string {
 			return `[^${this.reference}]`;
@@ -535,6 +572,7 @@ export namespace Inline {
 
 	export class VariableInterpolation {
 		type: "interpolation" = "interpolation";
+		declare position?: Position;
 		constructor(public name: string) {}
 		toString(): string {
 			return "${" + this.name + "}";
@@ -557,6 +595,7 @@ export namespace Inline {
 	*/
 	export class Image {
 		type: "image" = "image";
+		declare position?: Position;
 		constructor(
 			public content: Exclude<Inline, { type: "link" | "image" }>[],
 			public url: string,

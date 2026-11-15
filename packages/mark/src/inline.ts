@@ -1,8 +1,9 @@
 import { Inline } from "./types.ts";
-import type { ParserContext } from "./Context.ts";
+import { locate, type ParserContext } from "./Context.ts";
 
 export function try_link(ctx: ParserContext): Inline.Link | undefined {
 	const revert = ctx.checkpoint();
+	const from = ctx.index;
 
 	if (!ctx.consume_if("[")) return undefined;
 
@@ -18,18 +19,19 @@ export function try_link(ctx: ParserContext): Inline.Link | undefined {
 
 	if (!ctx.consume_if(")")) return revert();
 
-	return new Inline.Link(content, url);
+	return locate(ctx, from, new Inline.Link(content, url));
 }
 
 export function try_image(ctx: ParserContext): Inline.Image | undefined {
 	const revert = ctx.checkpoint();
+	const from = ctx.index;
 
 	if (!ctx.consume_if("!")) return undefined;
 
 	const link = try_link(ctx);
 	if (link === undefined) return revert();
 
-	return new Inline.Image(link.content, link.url);
+	return locate(ctx, from, new Inline.Image(link.content, link.url));
 }
 
 export function try_matching_inline(ctx: ParserContext, char: string): Inline[] | undefined {
@@ -47,32 +49,37 @@ export function try_matching_inline(ctx: ParserContext, char: string): Inline[] 
 }
 
 export function try_strong(ctx: ParserContext): Inline.Strong | undefined {
+	const from = ctx.index;
 	const content = try_matching_inline(ctx, "*") as Exclude<Inline, Inline.Strong>[];
 	if (content === undefined) return undefined;
-	return new Inline.Strong(content);
+	return locate(ctx, from, new Inline.Strong(content));
 }
 
 export function try_strike(ctx: ParserContext): Inline.Strike | undefined {
+	const from = ctx.index;
 	const content = try_matching_inline(ctx, "~~") as Exclude<Inline, Inline.Strike>[];
 	if (content === undefined) return undefined;
-	return new Inline.Strike(content);
+	return locate(ctx, from, new Inline.Strike(content));
 }
 
 /** MUST be tried before try_emphasis */
 export function try_underline(ctx: ParserContext): Inline.Underline | undefined {
+	const from = ctx.index;
 	const content = try_matching_inline(ctx, "__") as Exclude<Inline, Inline.Underline>[];
 	if (content === undefined) return undefined;
-	return new Inline.Underline(content);
+	return locate(ctx, from, new Inline.Underline(content));
 }
 
 export function try_emphasis(ctx: ParserContext): Inline.Emphasis | undefined {
+	const from = ctx.index;
 	const content = try_matching_inline(ctx, "_") as Exclude<Inline, Inline.Emphasis>[];
 	if (content === undefined) return undefined;
-	return new Inline.Emphasis(content);
+	return locate(ctx, from, new Inline.Emphasis(content));
 }
 
 export function try_code(ctx: ParserContext): Inline.Code | undefined {
 	const revert = ctx.checkpoint();
+	const from = ctx.index;
 
 	if (!ctx.consume_if("`")) return undefined;
 
@@ -86,13 +93,14 @@ export function try_code(ctx: ParserContext): Inline.Code | undefined {
 	if (ctx.not("`") || content.length === 0) return revert();
 
 	ctx.consume(); // consume the closing backtick
-	return new Inline.Code(content);
+	return locate(ctx, from, new Inline.Code(content));
 }
 
 export function try_variable_interpolation(
 	ctx: ParserContext,
 ): Inline.VariableInterpolation | undefined {
 	const revert = ctx.checkpoint();
+	const from = ctx.index;
 
 	if (!ctx.consume_if("${")) return undefined;
 
@@ -106,11 +114,12 @@ export function try_variable_interpolation(
 	if (ctx.not("}")) return revert();
 
 	ctx.consume(); // consume the closing brace
-	return new Inline.VariableInterpolation(name);
+	return locate(ctx, from, new Inline.VariableInterpolation(name));
 }
 
 export function try_footnote_reference(ctx: ParserContext): Inline.FootnoteReference | undefined {
 	const revert = ctx.checkpoint();
+	const from = ctx.index;
 
 	if (!ctx.consume_if("[^")) return undefined;
 
@@ -124,48 +133,64 @@ export function try_footnote_reference(ctx: ParserContext): Inline.FootnoteRefer
 
 	ctx.consume(); // consume the closing bracket
 
-	return new Inline.FootnoteReference(reference);
+	return locate(ctx, from, new Inline.FootnoteReference(reference));
 }
 
 export function inline(ctx: ParserContext, ...untilChar: string[]): Inline[] {
 	const content: Inline[] = [];
 	let buffer = "";
 
-	const add = (chunk: Inline) => {
-		if (buffer.length > 0) content.push(new Inline.Text(buffer));
-		buffer = "";
-		content.push(chunk);
-	};
-
 	// Ignore whitespace at the start of the inline
 	ctx.nomnom();
+
+	// Where the text in `buffer` began.
+	let text_from = ctx.index;
+
+	const flush = (to: number) => {
+		if (buffer.length > 0) content.push(locate(ctx, text_from, new Inline.Text(buffer), to));
+		buffer = "";
+	};
 
 	while (ctx.not(...untilChar, "\n")) {
 		if (ctx.eof()) break;
 
+		const before = ctx.index;
 		let chunk: Inline | undefined;
 
 		// escape character
 		if (ctx.consume_if("\\")) buffer += ctx.consume();
-		else if ((chunk = try_strong(ctx))) add(chunk);
-		else if ((chunk = try_strike(ctx))) add(chunk);
-		else if ((chunk = try_underline(ctx))) add(chunk);
-		else if ((chunk = try_emphasis(ctx))) add(chunk);
-		else if ((chunk = try_code(ctx))) add(chunk);
-		else if ((chunk = try_link(ctx))) add(chunk);
-		else if ((chunk = try_image(ctx))) add(chunk);
-		else if ((chunk = try_footnote_reference(ctx))) add(chunk);
-		else if ((chunk = try_variable_interpolation(ctx))) add(chunk);
-		else buffer += ctx.consume();
+		else if (
+			(chunk =
+				try_strong(ctx) ??
+				try_strike(ctx) ??
+				try_underline(ctx) ??
+				try_emphasis(ctx) ??
+				try_code(ctx) ??
+				try_link(ctx) ??
+				try_image(ctx) ??
+				try_footnote_reference(ctx) ??
+				try_variable_interpolation(ctx))
+		) {
+			flush(before);
+			content.push(chunk);
+			text_from = ctx.index;
+		} else buffer += ctx.consume();
 	}
 
-	if (buffer.length > 0) content.push(new Inline.Text(buffer));
+	flush(ctx.index);
 
 	// Ignore whitespace at the end of the inline
 	const last = content.at(-1);
 	if (last?.type === "text") {
-		last.content = last.content.trimEnd();
-		if (last.content.length === 0) content.pop();
+		const trimmed = last.content.trimEnd();
+		const removed = last.content.length - trimmed.length;
+		last.content = trimmed;
+		if (trimmed.length === 0) content.pop();
+		else if (removed > 0 && last.position) {
+			// Trailing whitespace is never written escaped, so it is as long in the source.
+			const { line, column, offset } = last.position.end;
+			last.position.end = { line, column: column - removed, offset: offset - removed };
+		}
 	}
 
 	return content;

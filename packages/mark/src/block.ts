@@ -1,5 +1,5 @@
 import { DecoratorEndMarker, DecoratorStartMarker } from "./common.ts";
-import { ident, ParserContext } from "./Context.ts";
+import { ident, locate, ParserContext } from "./Context.ts";
 import { Block, HypermarkDocument, Inline, Meta } from "./types.ts";
 import { try_param_string, try_param_value } from "./value.ts";
 import { inline } from "./inline.ts";
@@ -101,8 +101,8 @@ export function fence_length(ctx: ParserContext, offset = 0): number | undefined
  * Run `parse` on a context that ends where the current line does.
  *
  * A fence's opening line is all GitHub reads as its info string, so nothing parsed
- * from it may continue onto the body. Positions are carried in and out, so errors
- * still point at the real line and column.
+ * from it may continue onto the body. The text is a prefix of this context's own, so
+ * the source map carries over and errors still point at the real line and column.
  */
 function on_this_line<T>(ctx: ParserContext, parse: (line: ParserContext) => T): T {
 	let end = ctx.input.indexOf("\n", ctx.index);
@@ -111,16 +111,13 @@ function on_this_line<T>(ctx: ParserContext, parse: (line: ParserContext) => T):
 	const line = new ParserContext(ctx.input.slice(0, end), ctx.doc, {
 		tab_size: ctx.tab_size,
 		filename: ctx.filename,
+		source: ctx.source,
 	});
 	line.index = ctx.index;
-	line.line = ctx.line;
-	line.column = ctx.column;
 
 	const result = parse(line);
 
 	ctx.index = line.index;
-	ctx.line = line.line;
-	ctx.column = line.column;
 	return result;
 }
 
@@ -168,6 +165,7 @@ function fence_info(ctx: ParserContext): Block.CodeBlockOptions {
 export function codeblock(ctx: ParserContext): Block.CodeBlock | undefined {
 	const length = fence_length(ctx);
 	if (length === undefined) return undefined;
+	const from = ctx.index;
 	ctx.consume(length);
 
 	const options = on_this_line(ctx, fence_info);
@@ -196,22 +194,24 @@ export function codeblock(ctx: ParserContext): Block.CodeBlock | undefined {
 	// An unclosed fence runs to the end of the document, as in GFM.
 	ctx.consume(Math.min(position, ctx.input.length) - ctx.index);
 
-	return new Block.CodeBlock(lines.join("\n"), options);
+	return locate(ctx, from, new Block.CodeBlock(lines.join("\n"), options));
 }
 
 export function heading(ctx: ParserContext): Block.Heading | undefined {
 	const revert = ctx.checkpoint();
+	const from = ctx.index;
 
 	let level = 0;
 	while (ctx.consume_if("#")) level++;
 	if (level < 1 || level > 6) return revert();
 	const content = inline(ctx, "\n");
-	return new Block.Heading(level as Block.HeadingLevel, content);
+	return locate(ctx, from, new Block.Heading(level as Block.HeadingLevel, content));
 }
 
 // paragraph parser, typically ends when two newlines are encountered
 // or when a decorator, list, call, or code block is encountered
 export function para(ctx: ParserContext) {
+	const from = ctx.index;
 	let inline_list: Inline[] = [];
 
 	while (!ctx.eof()) {
@@ -246,8 +246,9 @@ export function para(ctx: ParserContext) {
 			if (next === "\n") break;
 
 			// Add single newline as text and continue
-			inline_list.push(new Inline.Text("\n"));
+			const newline = ctx.index;
 			ctx.consume();
+			inline_list.push(locate(ctx, newline, new Inline.Text("\n")));
 			continue;
 		}
 
@@ -255,7 +256,7 @@ export function para(ctx: ParserContext) {
 		inline_list.push(...chunk);
 	}
 
-	return new Block.Paragraph(inline_list);
+	return locate(ctx, from, new Block.Paragraph(inline_list));
 }
 
 export function footnote(ctx: ParserContext) {
@@ -294,23 +295,35 @@ export function comment(ctx: ParserContext) {
 }
 
 export function quote(ctx: ParserContext): Block.Quote | undefined {
+	const from = ctx.index;
+	let to = from;
 	let buffer = "";
+	// Where each line of `buffer` starts in this context's text, past its `> `.
+	const starts: number[] = [];
 
 	outer: while (ctx.consume_if(">")) {
 		ctx.nomnom();
+		starts.push(ctx.index);
 		while (ctx.not("\n")) {
-			if (ctx.eof()) break outer;
+			if (ctx.eof()) {
+				to = ctx.index;
+				break outer;
+			}
 			buffer += ctx.consume();
 		}
+		to = ctx.index;
 		buffer += ctx.consume(); // include the newline
 	}
 
 	const doc2 = new HypermarkDocument();
-	const opts = { tab_size: ctx.tab_size, filename: ":quote:" };
-	const ctx2 = new ParserContext(buffer, doc2, opts);
+	const ctx2 = new ParserContext(buffer, doc2, {
+		tab_size: ctx.tab_size,
+		filename: ctx.filename,
+		source: ctx.source.derive(buffer, starts),
+	});
 	const reparse = parse_blocks(ctx2, false);
 
-	return new Block.Quote(reparse);
+	return locate(ctx, from, new Block.Quote(reparse), to);
 }
 
 export function try_alignment(ctx: ParserContext): Block.TableAlignment | undefined {
@@ -330,6 +343,8 @@ export function try_alignment(ctx: ParserContext): Block.TableAlignment | undefi
 
 export function table(ctx: ParserContext): Block.Table | undefined {
 	const revert = ctx.checkpoint();
+	const from = ctx.index;
+	let to = from;
 
 	let header: Block.TableRow | undefined = undefined;
 	const rows: Block.TableRow[] = [];
@@ -337,6 +352,7 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 
 	// row starts with |
 	while (ctx.is("|")) {
+		const row_from = ctx.index;
 		let row = new Block.TableRow([]);
 		let is_alignment_row = false;
 
@@ -345,13 +361,14 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 			ctx.nomnom();
 			if (ctx.is("\n") || ctx.eof()) break;
 
+			const cell_from = ctx.index;
 			const align = try_alignment(ctx);
 
 			// first cell in this row is an alignment cell
 			// AND this is the second row (rows already has 1 row)
 			if (align && (rows.length === 1 || (rows.length === 0 && header))) {
 				// pop the first row and use it as the header
-				if (!header) header = new Block.TableRow(rows.pop()!.cells);
+				if (!header) header = rows.pop()!;
 
 				if (!alignment) alignment = new Block.TableAlignmentRow([]);
 				alignment.alignment.push(align);
@@ -374,11 +391,12 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 				const content = inline(ctx, "|");
 				if (ctx.not("|")) return revert();
 
-				row.cells.push(new Block.TableCell(content));
+				row.cells.push(locate(ctx, cell_from, new Block.TableCell(content)));
 			}
 		}
 
-		if (!is_alignment_row) rows.push(row);
+		to = ctx.index;
+		if (!is_alignment_row) rows.push(locate(ctx, row_from, row));
 		ctx.consume_if("\n");
 	}
 
@@ -395,7 +413,7 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 		else align.splice(len);
 	}
 
-	return new Block.Table(rows, header, alignment);
+	return locate(ctx, from, new Block.Table(rows, header, alignment), to);
 }
 
 /** Width of a line's leading whitespace, counting a tab as `tab_size` columns. */
@@ -471,6 +489,7 @@ function skip_blank_lines(ctx: ParserContext): void {
 }
 
 export function list_item(ctx: ParserContext, marker: ListMarker): Block.ListItem | Block.TaskItem {
+	const from = ctx.index;
 	ctx.consume(marker.text.length + 1); // the marker and its space
 
 	// Later lines belong to the item when indented to its content column: past the
@@ -503,21 +522,36 @@ export function list_item(ctx: ParserContext, marker: ListMarker): Block.ListIte
 	}
 
 	const own = lines.slice(0, taken);
+
+	// Where each line of the item's copy starts in this context's text, past its indent.
+	const starts: number[] = [];
+	let line_from = ctx.index;
+	const copied = own.map((line, i) => {
+		const kept = i === 0 ? line : trim_indent(ctx, line, column);
+		starts.push(line_from + line.length - kept.length);
+		line_from += line.length + 1;
+		return kept;
+	});
+	const content = copied.join("\n");
+
 	ctx.consume(own.join("\n").length); // leaves the item's final newline unconsumed
 
-	const content = own.map((line, i) => (i === 0 ? line : trim_indent(ctx, line, column))).join("\n");
-
 	const doc2 = new HypermarkDocument();
-	const opts = { tab_size: ctx.tab_size, filename: ":list:" };
-	const ctx2 = new ParserContext(content, doc2, opts);
+	const ctx2 = new ParserContext(content, doc2, {
+		tab_size: ctx.tab_size,
+		filename: ctx.filename,
+		source: ctx.source.derive(content, starts),
+	});
 	const blocks = parse_blocks(ctx2, false);
 
-	return checked === undefined ? new Block.ListItem(blocks) : new Block.TaskItem(blocks, checked);
+	const item = checked === undefined ? new Block.ListItem(blocks) : new Block.TaskItem(blocks, checked);
+	return locate(ctx, from, item);
 }
 
 export function list(ctx: ParserContext): Block.List | undefined {
 	const first = list_marker(ctx);
 	if (!first) return undefined;
+	const from = ctx.index;
 
 	const items: (Block.ListItem | Block.TaskItem)[] = [];
 	let marker: ListMarker | undefined = first;
@@ -536,11 +570,12 @@ export function list(ctx: ParserContext): Block.List | undefined {
 		}
 	}
 
-	return new Block.List(items, {
+	const options = {
 		start_marker: first.text,
 		ordered: first.ordered,
 		has_tasks: items.some(item => item.type === "task-item"),
-	});
+	};
+	return locate(ctx, from, new Block.List(items, options));
 }
 
 export function parse_blocks<T extends boolean>(
@@ -568,22 +603,40 @@ export function parse_blocks<T extends boolean>(
 				blocks.push(para(ctx));
 				continue;
 			case "=": {
+				// Noted before the `=` is consumed, so a call's position includes it, and text
+				// that is not a call keeps it: the paragraph used to start after the `=`.
+				const from = ctx.index;
+				const revert = ctx.checkpoint();
 				ctx.consume();
 				const result = callNotation(ctx, "=");
-				if (is_top_level && result?.type === "call" && result.name === "meta") {
+				if (result === undefined) {
+					revert();
+					blocks.push(para(ctx));
+					continue;
+				}
+				if (is_top_level && result.type === "call" && result.name === "meta") {
 					if (ctx.doc.blocks.length)
 						throw ctx.unexpected(
 							"=meta() call. Meta can only be declared once at the top of a document",
 						);
-					ctx.doc.meta = new Meta(result.parameters);
+					ctx.doc.meta = locate(ctx, from, new Meta(result.parameters));
 					continue;
 				}
-				blocks.push(result ?? para(ctx));
+				blocks.push(locate(ctx, from, result));
 				continue;
 			}
 			case "@": {
+				// As for `=`. A failed decorator used to push `undefined` into the blocks.
+				const from = ctx.index;
+				const revert = ctx.checkpoint();
 				ctx.consume();
-				const result = callNotation(ctx, "@") as Block.Decorator;
+				const result = callNotation(ctx, "@") as Block.Decorator | undefined;
+				if (result === undefined) {
+					revert();
+					blocks.push(para(ctx));
+					continue;
+				}
+				locate(ctx, from, result);
 				if (ctx.consume_if(">")) {
 					ctx.nomnomnom();
 					blocks.push(result);
@@ -605,14 +658,25 @@ export function parse_blocks<T extends boolean>(
 			case "|":
 				blocks.push(table(ctx) ?? para(ctx));
 				continue;
-			case "[":
-				blocks.push(ctx.consume_if("[^") ? footnote(ctx) ?? para(ctx) : para(ctx));
+			case "[": {
+				// As for `=`: text that is not a footnote used to lose its `[^`.
+				const from = ctx.index;
+				const revert = ctx.checkpoint();
+				const note = ctx.consume_if("[^") ? footnote(ctx) : undefined;
+				if (note === undefined) revert();
+				blocks.push(note ? locate(ctx, from, note) : para(ctx));
 				continue;
-			case "-":
-				if (ctx.consume_if("---\n")) blocks.push(new Block.Rule());
-				else if (ctx.consume_if("--")) blocks.push(comment(ctx));
+			}
+			case "-": {
+				const from = ctx.index;
+				if (ctx.is("---\n")) {
+					ctx.consume(3);
+					blocks.push(locate(ctx, from, new Block.Rule()));
+					ctx.consume(); // the newline, outside the rule's position
+				} else if (ctx.consume_if("--")) blocks.push(locate(ctx, from, comment(ctx)));
 				else blocks.push(list(ctx) ?? para(ctx));
 				continue;
+			}
 			case "*":
 				blocks.push(list(ctx) ?? para(ctx));
 				continue;

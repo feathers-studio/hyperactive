@@ -2,6 +2,7 @@ import { describe, it, expect } from "bun:test";
 import { parse } from "./hypermark.ts";
 import { expand, type ExpandOptions, type Macro } from "./expand.ts";
 import { Block, Inline } from "./types.ts";
+import { without_positions } from "./testing.ts";
 
 const BOT = [
 	'import { Telegraf } from "telegraf";',
@@ -22,11 +23,12 @@ function project(files: Record<string, string> = { "examples/first-bot.ts": BOT 
 	return { asked, read };
 }
 
+/** Structure only, as in parser.test.ts; one test below checks where problems point. */
 async function run(source: string, options: Partial<ExpandOptions> = {}) {
 	const { asked, read } = project();
 	const doc = parse(source);
 	const problems = await expand(doc, { read, filename: "guide/intro.hm", ...options });
-	return { doc, problems, asked };
+	return { doc: without_positions(doc), problems: without_positions(problems), asked };
 }
 
 const code = (block: Block | undefined) => block as Block.CodeBlock;
@@ -123,9 +125,7 @@ describe("expand", () => {
 	describe("problems", () => {
 		it("reports a missing file and leaves an empty block", async () => {
 			const { doc, problems } = await run('=code("../examples/missing.ts")');
-			expect(problems).toEqual([
-				{ call: '=code("../examples/missing.ts")', message: "Cannot read examples/missing.ts" },
-			]);
+			expect(problems).toEqual([{ message: "Cannot read examples/missing.ts" }]);
 			expect(doc.blocks[0]?.type).toBe("code-block");
 		});
 
@@ -207,7 +207,7 @@ describe("expand", () => {
 			};
 			const { doc, problems } = await run("=broken", { macros: { broken } });
 			expect(doc.blocks[0]?.type).toBe("call");
-			expect(problems).toEqual([{ call: "=broken()", message: "`broken` failed: no idea" }]);
+			expect(problems).toEqual([{ message: "`broken` failed: no idea" }]);
 		});
 
 		it("does not take an Object.prototype member for a macro", async () => {

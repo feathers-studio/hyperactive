@@ -1,20 +1,45 @@
-import type { HypermarkDocument } from "./types.ts";
-import { ParseError, count_char, get_line_neighbours, squiggly } from "./common.ts";
+import type { HypermarkDocument, Point, Position } from "./types.ts";
+import { ParseError, get_line_neighbours, squiggly } from "./common.ts";
+import { SourceMap } from "./source.ts";
 
 export interface ParseOptions {
 	tab_size?: number;
 	filename?: string;
 }
 
+interface ContextOptions extends ParseOptions {
+	/** Where the context's text sits in the file: given for a quote's or a list item's copy. */
+	source?: SourceMap;
+}
+
 const capture_error_presentation = (ctx: ParserContext, error: string) => {
+	const { line, column } = ctx.point();
 	const file = ctx.filename ?? ":";
 	let message = "\n\n\n";
-	message += get_line_neighbours(ctx.input, ctx.line).join("\n");
-	message += `\n${squiggly(ctx.column)}\n`;
+	message += get_line_neighbours(ctx.source.file, line).join("\n");
+	message += `\n${squiggly(column)}\n`;
 	message += `\n${error}\n`;
-	message += " ".repeat(8) + `at ${file}:${ctx.line}:${ctx.column}\n`;
+	message += " ".repeat(8) + `at ${file}:${line}:${column}\n`;
 	return message;
 };
+
+/**
+ * Give `node` the position of the context's text from `from` to `to`, by default up to
+ * where the context is now.
+ *
+ * Takes indices rather than points so a parser can note where it began at no cost, and
+ * pay for the conversion only when it succeeds: inline parsers are tried at every
+ * character and mostly fail.
+ */
+export function locate<T extends { position?: Position }>(
+	ctx: ParserContext,
+	from: number,
+	node: T,
+	to: number = ctx.index,
+): T {
+	node.position = { start: ctx.source.point(from), end: ctx.source.point(to) };
+	return node;
+}
 
 export function is_newline(ctx: ParserContext) {
 	return ctx.is("\n");
@@ -48,29 +73,34 @@ export function ident(ctx: ParserContext): string | undefined {
 }
 
 export class ParserContext {
-	index: number;
-	line: number;
-	column: number;
+	index = 0;
 	tab_size: number;
 	filename?: string;
+	/** Where this context's text sits in the file being parsed. */
+	source: SourceMap;
 
-	constructor(public input: string, public doc: HypermarkDocument, options?: ParseOptions) {
-		this.index = 0;
-		this.line = 1;
-		this.column = 1;
+	constructor(public input: string, public doc: HypermarkDocument, options?: ContextOptions) {
 		this.tab_size = options?.tab_size ?? 4;
 		this.filename = options?.filename;
+		this.source = options?.source ?? SourceMap.of(input);
+	}
+
+	/** Where the context is now, in the file — not in a quote's or a list item's copy. */
+	point(): Point {
+		return this.source.point(this.index);
 	}
 
 	error(expected: string, found: string) {
+		const { line, column, offset } = this.point();
 		let message = `Expected "${expected}", found "${found.replace(/\n/g, "\\n")}"\n`;
-		return new ParseError(this.index, this.line, this.column, message, this.filename);
+		return new ParseError(offset, line, column, message, this.filename);
 	}
 
 	unexpected(found: string) {
+		const { line, column, offset } = this.point();
 		let message = `Unexpected "${found.replace(/\n/g, "\\n")}"\n`;
 		const presentation = capture_error_presentation(this, message);
-		return new ParseError(this.index, this.line, this.column, presentation, this.filename);
+		return new ParseError(offset, line, column, presentation, this.filename);
 	}
 
 	peek(offset: number = 0, count: number = 1) {
@@ -79,13 +109,9 @@ export class ParserContext {
 
 	checkpoint() {
 		const i = this.index;
-		const l = this.line;
-		const c = this.column;
 
 		return (): undefined => {
 			this.index = i;
-			this.line = l;
-			this.column = c;
 			return undefined;
 		};
 	}
@@ -112,19 +138,7 @@ export class ParserContext {
 		}
 
 		const slice = this.input.slice(this.index, this.index + n);
-		const count = count_char(this.input, "\n", this.index, this.index + n);
 		this.index += n;
-
-		if (count.count > 0) {
-			// If we found newlines, update line and reset column
-			this.line += count.count;
-			// Column should be the number of characters after the last newline + 1
-			this.column = count.last_index === -1 ? 1 : n - count.last_index;
-		} else {
-			// If no newlines, just increment the column
-			this.column += n;
-		}
-
 		return slice;
 	}
 

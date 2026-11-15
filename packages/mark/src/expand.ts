@@ -1,4 +1,4 @@
-import type { Block, HypermarkDocument, Value } from "./types.ts";
+import type { Block, HypermarkDocument, Position, Value } from "./types.ts";
 import { std } from "./std.ts";
 
 /**
@@ -34,10 +34,13 @@ export interface ExpandOptions {
 }
 
 export interface ExpandProblem {
-	/** The call as written. Nodes carry no source positions yet, so this stands in for one. */
-	call: string;
 	message: string;
 	hint?: string;
+	/**
+	 * Where the call was written. A call a macro returned has the position of the call
+	 * that macro expanded, so a problem always points at something in the file.
+	 */
+	position?: Position;
 }
 
 /** How deep a macro's result may itself expand: far beyond any real use, short of a hang. */
@@ -96,7 +99,11 @@ export async function expand(doc: HypermarkDocument, options: ExpandOptions): Pr
 
 		const problems: ExpandProblem[] = [];
 		const report = (message: string, hint?: string) => {
-			problems.push({ call: block.toString(), message, ...(hint ? { hint } : {}) });
+			problems.push({
+				message,
+				...(hint ? { hint } : {}),
+				...(block.position ? { position: block.position } : {}),
+			});
 		};
 
 		if (depth >= DEPTH_LIMIT) {
@@ -128,8 +135,13 @@ export async function expand(doc: HypermarkDocument, options: ExpandOptions): Pr
 			return { blocks: [block], problems };
 		}
 
+		// What a macro made was written nowhere; it stands where the call was written. That
+		// keeps a later problem with it — a twoslash error in an expanded `=code()` — in the file.
+		const produced = Array.isArray(result) ? result : [result];
+		if (block.position) for (const node of produced) node.position ??= block.position;
+
 		// What a macro returns may hold calls of its own.
-		const expanded = await expand_blocks(Array.isArray(result) ? result : [result], depth + 1);
+		const expanded = await expand_blocks(produced, depth + 1);
 		return { blocks: expanded.blocks, problems: [...problems, ...expanded.problems] };
 	}
 

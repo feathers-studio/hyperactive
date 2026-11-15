@@ -1,6 +1,10 @@
 import { describe, it, expect } from "bun:test";
-import { parse } from "./hypermark.ts";
+import { parse as parse_source } from "./hypermark.ts";
 import { Block, Inline, Meta } from "./types.ts";
+import { without_positions } from "./testing.ts";
+
+/** Structure only; positions are tested in positions.test.ts. */
+const parse = (...args: Parameters<typeof parse_source>) => without_positions(parse_source(...args));
 
 describe("Inline", () => {
 	describe("Text", () => {
