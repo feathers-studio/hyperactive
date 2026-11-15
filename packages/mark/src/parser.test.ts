@@ -774,6 +774,75 @@ describe("Blocks", () => {
 			const blocks = parse(source).blocks;
 			expect(parse(blocks.map(b => b.toString()).join("\n\n")).blocks).toEqual(blocks);
 		});
+
+		describe("labels", () => {
+			const text = (value: string) => new Inline.Text(value);
+			const labelled = (label: Inline[], ...content: Block[]) => new Block.ListItem(content, label);
+			// Task items carry no label, so these tests, which are about labels, read list items.
+			const items = (source: string) => (parse(source).blocks[0] as Block.List).items as Block.ListItem[];
+
+			it("takes brackets alone on an item's first line as its label", () => {
+				const code = (value: string) => new Block.CodeBlock(value, { language: "sh" });
+				expect(items("- [npm]\n  ```sh\n  npm install telegraf\n  ```\n- [bun]\n  ```sh\n  bun add telegraf\n  ```")).toEqual([
+					labelled([text("npm")], code("npm install telegraf")),
+					labelled([text("bun")], code("bun add telegraf")),
+				]);
+			});
+
+			it("keeps an item that is only code, its code untouched", () => {
+				// The reason for an explicit label: taking the first line as one would have
+				// taken this item's code.
+				const [item] = items("- [npm]\n  ```sh\n  npm install telegraf\n  ```");
+				expect((item!.content[0] as Block.CodeBlock).content).toBe("npm install telegraf");
+			});
+
+			it("parses a label as inline Hypermark", () => {
+				expect(items("- [Why does `strict` reject it?]\n  Because.")[0]).toEqual(
+					labelled(
+						[text("Why does "), new Inline.Code("strict"), text(" reject it?")],
+						new Block.Paragraph([text("Because.")]),
+					),
+				);
+			});
+
+			it("labels an item with no content, and trims spaces inside the brackets", () => {
+				expect(items("- [npm]")).toEqual([labelled([text("npm")])]);
+				expect(items("- [  spaced  ]   ")).toEqual([labelled([text("spaced")])]);
+			});
+
+			it("labels ordered lists too", () => {
+				expect(items("1. [First]\n   Do this.")[0]?.label).toEqual([text("First")]);
+			});
+
+			it("does not take brackets followed by text as a label", () => {
+				// As on GitHub, which shows both as written.
+				expect(items("- [optional] Add a webhook")[0]).toEqual(
+					new Block.ListItem([new Block.Paragraph([text("[optional] Add a webhook")])]),
+				);
+			});
+
+			it("does not take a link as a label", () => {
+				const [item] = items("- [Telegraf](https://telegraf.js.org) is the framework");
+				expect(item!.label).toBeUndefined();
+				expect((item!.content[0] as Block.Paragraph).content[0]?.type).toBe("link");
+			});
+
+			it("keeps [ ] and [x] as task boxes", () => {
+				const [list] = parse("- [ ] todo\n- [x] done").blocks as Block.List[];
+				expect(list!.items.map(item => item.type)).toEqual(["task-item", "task-item"]);
+			});
+
+			it("does not take empty or unclosed brackets as a label", () => {
+				expect(items("- []")[0]?.label).toBeUndefined();
+				expect(items("- [unclosed\n  text")[0]?.label).toBeUndefined();
+			});
+
+			it("round-trips through toString", () => {
+				const source = "- [npm]\n  ```sh\n  npm install telegraf\n  ```\n- [Why `strict`?]\n  Because.";
+				const blocks = parse(source).blocks;
+				expect(parse(blocks.map(b => b.toString()).join("\n\n")).blocks).toEqual(blocks);
+			});
+		});
 	});
 
 	describe("Paragraph interruption", () => {

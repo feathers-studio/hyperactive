@@ -135,6 +135,21 @@ Use `- [ ]` for task lists:
 - [ ] Another task
 ```
 
+#### Labels
+
+An item can carry a label: brackets alone on its first line. What a label means is up to whatever reads the list, such as a decorator offering alternatives:
+
+````hypermark
+- [npm]
+  ```sh
+  npm install telegraf
+  ```
+- [Why `strict`?]
+  Because `process.env.BOT_TOKEN` may be `undefined`.
+````
+
+The brackets must be alone on the line, so `- [optional] Add a webhook` is text and `- [Telegraf](https://telegraf.js.org)` is a link. `[ ]` and `[x]` are task boxes, so a label cannot be just `x`.
+
 ### Code Blocks
 
 A code block opens with three backticks and a language, optionally followed by a title and parameters:

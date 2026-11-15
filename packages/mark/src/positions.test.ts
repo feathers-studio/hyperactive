@@ -142,6 +142,14 @@ describe("Positions", () => {
 			expect(where(source, paragraph.content[1])).toEqual({ span: "2:12-2:15", text: "*x*" });
 		});
 
+		it("place a list item's label inside its brackets", () => {
+			const source = "- [npm]\n  ```sh\n  npm install\n  ```";
+			const [list] = blocks(source) as Block.List[];
+			const item = list!.items[0] as Block.ListItem;
+			expect(where(source, item.label![0])).toEqual({ span: "1:4-1:7", text: "npm" });
+			expect(where(source, item.content[0])?.span).toBe("2:3-4:6");
+		});
+
 		it("map through a quote inside a list item", () => {
 			const source = "- a\n\n  > quoted";
 			const [list] = blocks(source) as Block.List[];

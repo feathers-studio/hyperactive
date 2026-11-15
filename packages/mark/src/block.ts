@@ -588,6 +588,8 @@ export function list_item(ctx: ParserContext, marker: ListMarker): Block.ListIte
 		ctx.nomnom();
 	}
 
+	const label = checked === undefined ? item_label(ctx) : undefined;
+
 	// A blank line does not end the item by itself. The next line with text decides:
 	// indented to the content column, it continues the item, so a blank line can sit
 	// between two of its paragraphs; anything less indented ends it, and the blank
@@ -626,8 +628,26 @@ export function list_item(ctx: ParserContext, marker: ListMarker): Block.ListIte
 	});
 	const blocks = parse_blocks(ctx2, false);
 
-	const item = checked === undefined ? new Block.ListItem(blocks) : new Block.TaskItem(blocks, checked);
+	const item = checked === undefined ? new Block.ListItem(blocks, label) : new Block.TaskItem(blocks, checked);
 	return locate(ctx, from, item);
+}
+
+/**
+ * A label alone on an item's first line, `- [npm]`, or undefined with nothing consumed.
+ *
+ * Read where the task box is, and like it: metadata on the item, not content. It must be
+ * alone on the line, so `- [optional] Add a webhook` stays text and `- [Telegraf](…)`
+ * stays a link, as they are on GitHub, which shows `[npm]` as written.
+ */
+function item_label(ctx: ParserContext): Inline[] | undefined {
+	const revert = ctx.checkpoint();
+	if (!ctx.consume_if("[")) return undefined;
+
+	const label = inline(ctx, "]");
+	if (label.length === 0 || !ctx.consume_if("]") || !at_line_end(ctx)) return revert();
+
+	ctx.nomnom();
+	return label;
 }
 
 export function list(ctx: ParserContext): Block.List | undefined {

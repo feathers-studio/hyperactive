@@ -210,11 +210,21 @@ export namespace Block {
 	export class ListItem {
 		type: "list-item" = "list-item";
 		declare position?: Position;
-		constructor(public content: Block[]) {}
-		/** The item's content without its marker, which belongs to the list. */
+		constructor(
+			public content: Block[],
+			/**
+			 * `- [npm]`: brackets alone on the item's first line. Lists carry labels; what one
+			 * means is up to whatever reads the list, such as a decorator offering alternatives.
+			 */
+			public label?: Inline[],
+		) {}
+		/** The item's label and content without its marker, which belongs to the list. */
 		toString(): string {
 			// Blocks are separated by a blank line, or two paragraphs would read back as one.
-			return this.content.map(c => c.toString()).join("\n\n");
+			const content = this.content.map(c => c.toString()).join("\n\n");
+			if (!this.label) return content;
+			const label = `[${this.label.map(c => c.toString()).join("")}]`;
+			return content ? `${label}\n${content}` : label;
 		}
 	}
 
