@@ -1,5 +1,6 @@
 import type { Value } from "./types.ts";
 import { ident, type ParserContext } from "./Context.ts";
+import { try_image, try_link } from "./inline.ts";
 
 export function try_param_string(ctx: ParserContext): string | undefined {
 	const revert = ctx.checkpoint();
@@ -128,6 +129,10 @@ export function try_param_value(ctx: ParserContext): Value | undefined {
 	if ((value = try_param_number(ctx)) !== undefined) return value;
 	if ((value = try_param_null(ctx)) !== undefined) return value;
 	if ((value = try_param_boolean(ctx)) !== undefined) return value;
+	// Parsed exactly as in prose. A link before a list, since both open with `[`: only a
+	// link has `](` straight after its closing bracket.
+	if ((value = try_image(ctx)) !== undefined) return value;
+	if ((value = try_link(ctx)) !== undefined) return value;
 	if ((value = try_param_list(ctx)) !== undefined) return value;
 	if ((value = try_param_object(ctx)) !== undefined) return value;
 	return undefined;

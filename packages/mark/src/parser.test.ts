@@ -801,6 +801,82 @@ describe("Blocks", () => {
 			expect(() => parse("=f(options: { sync })")).toThrow('Expected ":"');
 		});
 
+		describe("link and image values", () => {
+			const link = (text: string, url: string) => new Inline.Link([new Inline.Text(text)], url);
+			const image = (alt: string, url: string) => new Inline.Image([new Inline.Text(alt)], url);
+
+			it("parses a link as a value", () => {
+				expect(parse("=code([first-bot.ts](../examples/first-bot.ts))").blocks).toEqual([
+					call("code", { __default: link("first-bot.ts", "../examples/first-bot.ts") }),
+				]);
+			});
+
+			it("parses an image as a value", () => {
+				expect(parse("=figure(image: ![A bot greeting](greeting.png))").blocks).toEqual([
+					call("figure", { image: image("A bot greeting", "greeting.png") }),
+				]);
+			});
+
+			it("keeps formatting in a link's text", () => {
+				const [block] = parse("=code([*first*.ts](first.ts))").blocks as Block.Call[];
+				expect(block.parameters.parameters[0]!.value).toEqual(
+					new Inline.Link([new Inline.Strong([new Inline.Text("first")]), new Inline.Text(".ts")], "first.ts"),
+				);
+			});
+
+			it("parses links and images inside lists and objects", () => {
+				expect(parse("=gallery([![a](1.png), ![b](2.png)])").blocks).toEqual([
+					call("gallery", { __default: [image("a", "1.png"), image("b", "2.png")] }),
+				]);
+				expect(parse("=f(source: { file: [a.ts](a.ts) })").blocks).toEqual([
+					call("f", { source: { file: link("a.ts", "a.ts") } }),
+				]);
+			});
+
+			it("parses a link whose text would also read as a list", () => {
+				// `[1]` alone is a list; only the `](` after it makes this a link.
+				expect(parse("=pages(next: [2](page-2.md))").blocks).toEqual([
+					call("pages", { next: link("2", "page-2.md") }),
+				]);
+			});
+
+			it("still parses a bracketed list as a list", () => {
+				// A link is tried first, since both open with `[`.
+				expect(parse("=f(list: [1, 2])").blocks).toEqual([call("f", { list: [1, 2] })]);
+			});
+
+			it("shares one url field between links and images", () => {
+				const [block] = parse("=f(a: [x](one.ts), b: ![y](two.png))").blocks as Block.Call[];
+				const [a, b] = block.parameters.parameters.map(p => p.value as Inline.Link | Inline.Image);
+				expect([a!.url, b!.url]).toEqual(["one.ts", "two.png"]);
+			});
+
+			it("round-trips through toString as Hypermark, not JSON", () => {
+				const source = "=gallery([![a](1.png), ![b](2.png)], cover: [first.ts](first.ts), lazy)";
+				const blocks = parse(source).blocks;
+				expect(blocks[0]!.toString()).toBe(source);
+				expect(parse(blocks[0]!.toString()).blocks).toEqual(blocks);
+			});
+		});
+
+		it("takes named parameters after an unnamed first one", () => {
+			expect(parse('=code([bot.ts](bot.ts), region: "launch", twoslash)').blocks).toEqual([
+				call("code", {
+					__default: new Inline.Link([new Inline.Text("bot.ts")], "bot.ts"),
+					region: "launch",
+					twoslash: true,
+				}),
+			]);
+			expect(parse('=warning("careful", title: "Watch out")').blocks).toEqual([
+				call("warning", { __default: "careful", title: "Watch out" }),
+			]);
+		});
+
+		it("names a missing comma after the unnamed parameter", () => {
+			// This became a paragraph, when nothing could follow an unnamed value.
+			expect(() => parse('=f("a" b: 1)')).toThrow('Expected ","');
+		});
+
 		it("parses a keyword as a single unnamed value", () => {
 			expect(parse("=f(true)").blocks).toEqual([call("f", { __default: true })]);
 			expect(parse("=f(null)").blocks).toEqual([call("f", { __default: null })]);

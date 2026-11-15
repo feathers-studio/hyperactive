@@ -10,15 +10,15 @@ export function try_link(ctx: ParserContext): Inline.Link | undefined {
 
 	if (!ctx.consume_if("](")) return revert();
 
-	let href = "";
+	let url = "";
 	while (ctx.not(")", "\n")) {
 		if (ctx.eof()) return revert();
-		href += ctx.consume();
+		url += ctx.consume();
 	}
 
 	if (!ctx.consume_if(")")) return revert();
 
-	return new Inline.Link(content, href);
+	return new Inline.Link(content, url);
 }
 
 export function try_image(ctx: ParserContext): Inline.Image | undefined {
@@ -29,7 +29,7 @@ export function try_image(ctx: ParserContext): Inline.Image | undefined {
 	const link = try_link(ctx);
 	if (link === undefined) return revert();
 
-	return new Inline.Image(link.content, link.href);
+	return new Inline.Image(link.content, link.url);
 }
 
 export function try_matching_inline(ctx: ParserContext, char: string): Inline[] | undefined {

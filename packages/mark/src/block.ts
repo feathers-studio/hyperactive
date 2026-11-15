@@ -30,33 +30,30 @@ export function parameters(ctx: ParserContext): Block.Parameters | undefined {
 	const params = new Block.Parameters([]);
 	ctx.nomnomnom();
 
-	// A single unnamed value: =warning("careful")
+	// The first parameter may be unnamed: =warning("careful"), or
+	// =code([bot.ts](bot.ts), region: "launch").
 	const value = try_param_value(ctx);
-	if (value !== undefined) {
-		params.parameters.push(new Block.Parameter("__default", value));
+	if (value !== undefined) params.parameters.push(new Block.Parameter("__default", value));
+
+	// Named parameters. Whitespace is skipped before looking for `)`, so a call can close
+	// on its own line with or without a trailing comma. Checked the other way round, a
+	// multi-line call without one threw `Expected ","`.
+	while (true) {
 		ctx.nomnomnom();
-		if (ctx.consume_if(",")) ctx.nomnomnom();
-	} else {
-		// Named parameters. Whitespace is skipped before looking for `)`, so a call can
-		// close on its own line with or without a trailing comma. Checked the other way
-		// round, a multi-line call without one threw `Expected ","`.
-		while (true) {
+		if (ctx.is(")")) break;
+		if (ctx.eof()) return revert();
+
+		if (params.parameters.length > 0) {
+			// Thrown rather than reverted: two parameters with no comma between them are a
+			// mistake worth naming, not text that happens to begin with `=`.
+			ctx.expect(",");
 			ctx.nomnomnom();
-			if (ctx.is(")")) break;
-			if (ctx.eof()) return revert();
-
-			if (params.parameters.length > 0) {
-				// Thrown rather than reverted: two parameters with no comma between them
-				// are a mistake worth naming, not text that happens to begin with `=`.
-				ctx.expect(",");
-				ctx.nomnomnom();
-				if (ctx.is(")")) break; // a trailing comma
-			}
-
-			const parameter = param(ctx);
-			if (parameter === undefined) break;
-			params.parameters.push(parameter);
+			if (ctx.is(")")) break; // a trailing comma
 		}
+
+		const parameter = param(ctx);
+		if (parameter === undefined) break;
+		params.parameters.push(parameter);
 	}
 
 	if (!ctx.consume_if(")")) return revert();

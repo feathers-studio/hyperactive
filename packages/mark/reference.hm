@@ -251,6 +251,12 @@ A parameter without a value is a flag, and means `true`:
 =figure(src: "example.jpg", lazy)
 ```
 
+The first parameter may be given without a name. A link or an image can be a value, and a Markdown renderer still shows it as a working link or image:
+
+```hypermark
+=figure(![An example figure](example.jpg), width: 500)
+```
+
 ## Styling
 
 The `@style` decorator accepts a safe subset of CSS properties:

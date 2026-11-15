@@ -7,7 +7,10 @@ export type Value =
 	// arrays
 	| Value[]
 	// objects
-	| { [key: string]: Value };
+	| { [key: string]: Value }
+	// `[text](url)` and `![alt](url)`, so a call still shows a working link or image on GitHub
+	| Inline.Link
+	| Inline.Image;
 
 /*
 	meta is simply a special call that can only appear at the top of the document.
@@ -18,14 +21,26 @@ export class Meta {
 }
 
 export namespace Block {
+	/** A value as Hypermark source: JSON, except for the nodes JSON would print field by field. */
+	function value_to_string(value: Value | Call): string {
+		if (value instanceof Inline.Link || value instanceof Inline.Image || value instanceof Call) {
+			return value.toString();
+		}
+		if (Array.isArray(value)) return `[${value.map(value_to_string).join(", ")}]`;
+		if (value !== null && typeof value === "object") {
+			const entries = Object.entries(value).map(([key, v]) => `${JSON.stringify(key)}: ${value_to_string(v)}`);
+			return entries.length ? `{ ${entries.join(", ")} }` : "{}";
+		}
+		return JSON.stringify(value);
+	}
+
 	export class Parameter {
 		type: "parameter" = "parameter";
 		constructor(public name: string, public value: Value | Call) {}
 		toString(): string {
-			if (this.name === "__default") return JSON.stringify(this.value);
+			if (this.name === "__default") return value_to_string(this.value);
 			if (this.value === true) return this.name; // a flag
-			const value = JSON.stringify(this.value);
-			return `${this.name}: ${value}`;
+			return `${this.name}: ${value_to_string(this.value)}`;
 		}
 	}
 
@@ -479,10 +494,11 @@ export namespace Inline {
 		type: "link" = "link";
 		constructor(
 			public content: Exclude<Inline, { type: "link" | "image" }>[],
-			public href: string,
+			/** Named as in mdast, and shared with Image, so code taking either reads one field. */
+			public url: string,
 		) {}
 		toString(): string {
-			return `[${this.content.map(c => c.toString()).join("")}](${this.href})`;
+			return `[${this.content.map(c => c.toString()).join("")}](${this.url})`;
 		}
 	}
 
@@ -526,10 +542,10 @@ export namespace Inline {
 		type: "image" = "image";
 		constructor(
 			public content: Exclude<Inline, { type: "link" | "image" }>[],
-			public src: string,
+			public url: string,
 		) {}
 		toString(): string {
-			return `![${this.content.map(c => c.toString()).join("")}](${this.src})`;
+			return `![${this.content.map(c => c.toString()).join("")}](${this.url})`;
 		}
 	}
 
