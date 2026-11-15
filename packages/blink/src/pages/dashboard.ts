@@ -74,7 +74,7 @@ export async function dashboard(request: Request, { user, url }: { user: User; u
 								),
 				),
 			),
-			listLinks.length &&
+			listLinks.length > 0 &&
 				table(
 					thead(tr(th("Title"), th("Short URL"), th("Target URL"), th("Visits"))),
 					tbody(
