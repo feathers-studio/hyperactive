@@ -284,12 +284,12 @@ Hypermark supports various inline text formatting:
 ```hypermark
 - Strong emphasis: *bold text*
 - Emphasis: _italic text_
-- Strikethrough: ~~struck text~~
+- Strikethrough: ~struck text~
 - Inline code: `code`
 - Links: [Hypermark Docs](https://example.com)
 ```
 
-An underscore inside a word, as in `chat_id`, is text. So are doubled markers, `__` and `**`: Markdown's `**bold**` shows as written.
+An underscore inside a word, as in `chat_id`, is text. So are doubled markers, `**`, `__` and `~~`: Markdown's `**bold**` shows as written.
 
 ## Footnotes
 

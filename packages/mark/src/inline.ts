@@ -34,53 +34,25 @@ export function try_image(ctx: ParserContext): Inline.Image | undefined {
 	return locate(ctx, from, new Inline.Image(link.content, link.url));
 }
 
-export function try_matching_inline(ctx: ParserContext, char: string): Inline[] | undefined {
-	const revert = ctx.checkpoint();
-
-	if (!ctx.consume_if(char)) return undefined;
-
-	const content = inline(ctx, char, "\n");
-
-	if (content.length === 0 || ctx.not(char)) return revert();
-
-	ctx.consume(char); // consume the closing char
-
-	return content;
-}
-
-/**
- * Strong, `*like this*`.
- *
- * A run of two or more asterisks is never a delimiter, so the `**bold**` of Markdown
- * habit reads as plain text — visibly not what was meant — rather than one strong word
- * between two stray asterisks. GitHub shows it bold either way.
- *
- * As for underscores, an asterisk opens only before text and closes only after it, so
- * `2 * 3 * 4` is arithmetic. Unlike an underscore, one may sit inside a word, as it may
- * on GitHub: `foo*bar*baz`.
- */
+/** `*strong*`. As on GitHub, an asterisk may sit inside a word: `foo*bar*baz`. */
 export function try_strong(ctx: ParserContext): Inline.Strong | undefined {
-	const revert = ctx.checkpoint();
 	const from = ctx.index;
-
-	const before = previous(ctx);
-	const after = ctx.peek(1);
-	if (ctx.not("*") || before === "*" || after === "*" || /^\s?$/.test(after)) return undefined;
-	ctx.consume();
-
-	const content = inline(ctx, "*", "\n") as Exclude<Inline, Inline.Strong>[];
-	if (content.length === 0 || ctx.not("*")) return revert();
-	if (/\s/.test(previous(ctx)) || ctx.peek(1) === "*") return revert();
-	ctx.consume(); // the closing asterisk
-
-	return locate(ctx, from, new Inline.Strong(content));
+	const content = try_delimited(ctx, "*", true) as Exclude<Inline, Inline.Strong>[] | undefined;
+	return content && locate(ctx, from, new Inline.Strong(content));
 }
 
+/** `~strike~`, with one tilde: `~~struck~~` reads as text, as `**bold**` does. */
 export function try_strike(ctx: ParserContext): Inline.Strike | undefined {
 	const from = ctx.index;
-	const content = try_matching_inline(ctx, "~~") as Exclude<Inline, Inline.Strike>[];
-	if (content === undefined) return undefined;
-	return locate(ctx, from, new Inline.Strike(content));
+	const content = try_delimited(ctx, "~", true) as Exclude<Inline, Inline.Strike>[] | undefined;
+	return content && locate(ctx, from, new Inline.Strike(content));
+}
+
+/** `_emphasis_`. An underscore inside a word, as in `chat_id`, is text. */
+export function try_emphasis(ctx: ParserContext): Inline.Emphasis | undefined {
+	const from = ctx.index;
+	const content = try_delimited(ctx, "_", false) as Exclude<Inline, Inline.Emphasis>[] | undefined;
+	return content && locate(ctx, from, new Inline.Emphasis(content));
 }
 
 /** A letter or digit, in any script: what an underscore inside a word sits between. */
@@ -108,46 +80,49 @@ function merge_text(nodes: Inline[]): Inline[] {
 }
 
 /**
- * Emphasis, `_like this_`, by GFM's rule for underscores: one opens only where it does
- * not follow a letter, digit or another underscore, and closes only where it is not
- * followed by one.
+ * The content between two of `marker`: strong, emphasis and strike share these rules,
+ * which are GFM's.
  *
- * So an underscore inside a word is text, as it is on GitHub: `set chat_id and
- * reply_markup` used to be italic from `id` to `reply`. And `__` is never a delimiter,
- * so `__x__` is text rather than emphasis between two stray underscores.
+ * - A marker is one character, never part of a run of it. So Markdown's `**bold**`,
+ *   `__bold__` and `~~struck~~` read as text, visibly not what was meant, where GitHub
+ *   formats them; before, runs made one formatted word between stray markers.
+ * - It opens only before text and closes only after it, so `2 * 3 * 4` is arithmetic.
+ * - Unless `inside_words`, a marker after a letter or digit does not open and one before
+ *   a letter or digit does not close, so `chat_id` is text. One between two letters
+ *   inside the run is text too, and the run carries on past it.
  */
-export function try_emphasis(ctx: ParserContext): Inline.Emphasis | undefined {
+function try_delimited(ctx: ParserContext, marker: string, inside_words: boolean): Inline[] | undefined {
 	const revert = ctx.checkpoint();
-	const from = ctx.index;
 
 	const before = previous(ctx);
 	const after = ctx.peek(1);
-	if (ctx.not("_") || WORD.test(before) || before === "_" || after === "_" || /^\s?$/.test(after)) {
-		return undefined;
-	}
+	if (ctx.not(marker) || before === marker || after === marker || /^\s?$/.test(after)) return undefined;
+	if (!inside_words && WORD.test(before)) return undefined;
 	ctx.consume();
 
 	const content: Inline[] = [];
 	while (true) {
-		content.push(...inline(ctx, "_", "\n"));
-		if (ctx.not("_")) return revert(); // the line ended first
+		content.push(...inline(ctx, marker, "\n"));
+		if (ctx.not(marker)) return revert(); // the line ended first
 
 		const closing_before = previous(ctx);
 		const closing_after = ctx.peek(1);
-		if (!/\s/.test(closing_before) && !WORD.test(closing_after) && closing_after !== "_") break;
+		const closes =
+			!/\s/.test(closing_before) &&
+			closing_after !== marker &&
+			(inside_words || !WORD.test(closing_after));
+		if (closes) break;
 
-		// Inside a word, `_like chat_id this_`, an underscore is text and the emphasis goes on.
-		if (!WORD.test(closing_before) || !WORD.test(closing_after)) return revert();
+		// `_like chat_id this_`: a marker that may not sit inside a word is text there.
+		if (inside_words || !WORD.test(closing_before) || !WORD.test(closing_after)) return revert();
 		const at = ctx.index;
 		ctx.consume();
-		content.push(locate(ctx, at, new Inline.Text("_")));
+		content.push(locate(ctx, at, new Inline.Text(marker)));
 	}
 
 	if (content.length === 0) return revert();
-	ctx.consume(); // the closing underscore
-
-	const emphasis = new Inline.Emphasis(merge_text(content) as Exclude<Inline, Inline.Emphasis>[]);
-	return locate(ctx, from, emphasis);
+	ctx.consume(); // the closing marker
+	return merge_text(content);
 }
 
 export function try_code(ctx: ParserContext): Inline.Code | undefined {

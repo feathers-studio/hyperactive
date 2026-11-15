@@ -166,20 +166,46 @@ describe("Inline", () => {
 
 	describe("Strike", () => {
 		it("parses strikethrough text", () => {
-			const ast = parse("~~struck text~~");
+			const ast = parse("~struck text~");
 			expect(ast.blocks[0]).toEqual(
 				new Block.Paragraph([new Inline.Strike([new Inline.Text("struck text")])]),
 			);
 		});
 
 		it("parses as text if strike is not closed", () => {
-			const ast = parse("~~struck text");
-			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("~~struck text")]));
+			const ast = parse("~struck text");
+			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("~struck text")]));
 		});
 
 		it("parses as text if strike marker is escaped", () => {
-			const ast = parse("\\~~struck text~~");
-			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("~~struck text~~")]));
+			const ast = parse("\\~struck text~");
+			expect(ast.blocks[0]).toEqual(new Block.Paragraph([new Inline.Text("~struck text~")]));
+		});
+
+		it("parses a run of tildes as text, so Markdown's ~~struck~~ shows as written", () => {
+			// `~~~three~~~` used to come out as struck `~three` between stray tildes.
+			for (const source of ["~~struck~~", "~~~three~~~"]) {
+				expect(parse(source).blocks[0]).toEqual(new Block.Paragraph([new Inline.Text(source)]));
+			}
+		});
+
+		it("does not open before a space or close after one", () => {
+			// `~ spaced ~` was struck; a tilde meaning "about" must stay text.
+			for (const source of ["x ~ spaced ~ y", "takes ~5 min and ~10 s"]) {
+				expect(parse(source).blocks[0]).toEqual(new Block.Paragraph([new Inline.Text(source)]));
+			}
+		});
+
+		it("may sit inside a word, as on GitHub", () => {
+			expect(parse("a~b~c").blocks[0]).toEqual(
+				new Block.Paragraph([new Inline.Text("a"), new Inline.Strike([new Inline.Text("b")]), new Inline.Text("c")]),
+			);
+		});
+
+		it("round-trips text holding a tilde through toString", () => {
+			// `~` was not escaped on the way out, so `~x~` in text read back struck.
+			const [paragraph] = parse("\\~x\\~").blocks as Block.Paragraph[];
+			expect(parse(paragraph!.toString()).blocks).toEqual([paragraph]);
 		});
 	});
 
@@ -290,7 +316,7 @@ describe("Inline", () => {
 
 	describe("Complex Nesting", () => {
 		it("handles complex nested formatting", () => {
-			const ast = parse("*bold _italic ~~struck `code`~~_*");
+			const ast = parse("*bold _italic ~struck `code`~_*");
 			expect(ast.blocks[0]).toEqual(
 				new Block.Paragraph([
 					new Inline.Strong([

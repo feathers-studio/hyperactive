@@ -442,7 +442,8 @@ export namespace Block {
 
 export type Block = Block.Block;
 
-const special = ["\\", "*", "_", "@", "=", "[", "`", "#", "-", "|", "<"];
+// `~` opens strike, so text holding one must be escaped or it reads back struck.
+const special = ["\\", "*", "_", "~", "@", "=", "[", "`", "#", "-", "|", "<"];
 const specialRegExp = new RegExp(`[${special.map(c => "\\" + c).join("")}]`, "g");
 
 export namespace Inline {
@@ -502,7 +503,7 @@ export namespace Inline {
 		declare position?: Position;
 		constructor(public content: Exclude<Inline, Strike>[]) {}
 		toString(): string {
-			return `~~${this.content.map(c => c.toString()).join("")}~~`;
+			return `~${this.content.map(c => c.toString()).join("")}~`;
 		}
 	}
 
