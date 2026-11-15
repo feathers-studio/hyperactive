@@ -66,17 +66,76 @@ export function callNotation(
 ): Block.Call | Block.Decorator | undefined {
 	const revert = ctx.checkpoint();
 
-	ctx.nomnom();
-
+	// No space after the `=` or `@`, nor before the `(`: with one allowed, `= not a call`
+	// was a call named `not`.
 	const name = ident(ctx);
 	if (!name) return revert();
-	ctx.nomnom();
 
 	const params = ctx.is("(") ? parameters(ctx) : new Block.Parameters([]);
 	if (params === undefined) return revert();
 
 	if (type === "@") return new Block.Decorator(name, params, []);
 	else return new Block.Call(name, params);
+}
+
+/** Nothing but spaces before the end of the line. */
+function at_line_end(ctx: ParserContext): boolean {
+	const revert = ctx.checkpoint();
+	ctx.nomnom();
+	const end = ctx.eof() || ctx.is("\n");
+	revert();
+	return end;
+}
+
+/**
+ * A call alone on its line, or undefined with nothing consumed.
+ *
+ * Anything else on the line makes the whole line text. Before, the call was taken and
+ * the rest became a paragraph of its own, so `=figure("a.png") A caption` split in two.
+ */
+export function call_line(ctx: ParserContext): Block.Call | undefined {
+	const revert = ctx.checkpoint();
+	const from = ctx.index;
+
+	if (!ctx.consume_if("=")) return undefined;
+	const call = callNotation(ctx, "=") as Block.Call | undefined;
+	if (call === undefined || !at_line_end(ctx)) return revert();
+
+	locate(ctx, from, call);
+	ctx.nomnom(); // trailing spaces, outside the call's position: left, they became an empty paragraph
+	return call;
+}
+
+/**
+ * A line of decorators, alone on it, or undefined with nothing consumed.
+ *
+ * Decorators compose, `@style(…) @align(…)`, and the last may open a container with `>`.
+ * As for calls, anything else on the line makes it text, which is what keeps a mention
+ * opening a wrapped line — "@BotFather replies" — from becoming a decorator.
+ */
+export function decorator_line(ctx: ParserContext): (Block.Decorator | DecoratorStartMarker)[] | undefined {
+	const revert = ctx.checkpoint();
+	const line: (Block.Decorator | DecoratorStartMarker)[] = [];
+
+	while (ctx.is("@")) {
+		const from = ctx.index;
+		ctx.consume();
+		const decorator = callNotation(ctx, "@") as Block.Decorator | undefined;
+		if (decorator === undefined) return revert();
+		line.push(locate(ctx, from, decorator));
+
+		if (ctx.consume_if(">")) {
+			line.push(new DecoratorStartMarker());
+			break;
+		}
+		ctx.nomnom();
+	}
+
+	if (line.length === 0 || !at_line_end(ctx)) return revert();
+
+	if (line.at(-1) instanceof DecoratorStartMarker) ctx.nomnomnom();
+	else ctx.nomnom();
+	return line;
 }
 
 /**
@@ -219,15 +278,19 @@ export function para(ctx: ParserContext) {
 		if (ctx.is("\n")) {
 			const next = ctx.peek(1);
 
-			if (
-				next === "#" ||
-				next === ">" ||
-				next === "|" ||
-				next === "=" ||
-				next === "@" ||
-				next === "["
-			) {
-				break;
+			if (next === "#" || next === ">" || next === "|" || next === "[") break;
+
+			// A container's closer. Without this it was read as the paragraph's last line.
+			if (ctx.peek(1, 2) === "<@") break;
+
+			// A call or decorators alone on the next line. A line that merely starts with
+			// `=` or `@` — "@BotFather replies" — stays in this paragraph.
+			if (next === "=" || next === "@") {
+				const revert = ctx.checkpoint();
+				ctx.consume(); // the newline
+				const ahead = next === "=" ? call_line(ctx) : decorator_line(ctx);
+				revert();
+				if (ahead) break;
 			}
 
 			// `--` opens a comment or a `---` rule.
@@ -603,47 +666,30 @@ export function parse_blocks<T extends boolean>(
 				blocks.push(para(ctx));
 				continue;
 			case "=": {
-				// Noted before the `=` is consumed, so a call's position includes it, and text
-				// that is not a call keeps it: the paragraph used to start after the `=`.
-				const from = ctx.index;
-				const revert = ctx.checkpoint();
-				ctx.consume();
-				const result = callNotation(ctx, "=");
-				if (result === undefined) {
-					revert();
+				// Text that is not a call keeps its `=`: call_line consumes nothing when it fails.
+				const call = call_line(ctx);
+				if (call === undefined) {
 					blocks.push(para(ctx));
 					continue;
 				}
-				if (is_top_level && result.type === "call" && result.name === "meta") {
+				if (is_top_level && call.name === "meta") {
 					if (ctx.doc.blocks.length)
 						throw ctx.unexpected(
 							"=meta() call. Meta can only be declared once at the top of a document",
 						);
-					ctx.doc.meta = locate(ctx, from, new Meta(result.parameters));
+					const meta = new Meta(call.parameters);
+					meta.position = call.position;
+					ctx.doc.meta = meta;
 					continue;
 				}
-				blocks.push(locate(ctx, from, result));
+				blocks.push(call);
 				continue;
 			}
 			case "@": {
 				// As for `=`. A failed decorator used to push `undefined` into the blocks.
-				const from = ctx.index;
-				const revert = ctx.checkpoint();
-				ctx.consume();
-				const result = callNotation(ctx, "@") as Block.Decorator | undefined;
-				if (result === undefined) {
-					revert();
-					blocks.push(para(ctx));
-					continue;
-				}
-				locate(ctx, from, result);
-				if (ctx.consume_if(">")) {
-					ctx.nomnomnom();
-					blocks.push(result);
-					blocks.push(new DecoratorStartMarker());
-					continue;
-				}
-				blocks.push(result);
+				const line = decorator_line(ctx);
+				if (line === undefined) blocks.push(para(ctx));
+				else blocks.push(...line);
 				continue;
 			}
 			case "#":

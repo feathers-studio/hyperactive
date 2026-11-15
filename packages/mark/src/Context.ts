@@ -64,12 +64,17 @@ const IDENT_START = /^[A-Za-z_]$/;
  */
 const IDENT_CHAR = /^[A-Za-z0-9_-]$/;
 
-/** A name: a call, a decorator, a parameter, an object key. */
+/**
+ * A name: a call, a decorator, a parameter, an object key.
+ *
+ * It must start with a letter or `_`. This used to go on reading digits and `-` after a
+ * first character that failed the check, so `=5 is the answer` was a call named `5`.
+ */
 export function ident(ctx: ParserContext): string | undefined {
-	let buffer = "";
-	if (ctx.is(IDENT_START)) buffer += ctx.consume();
+	if (ctx.not(IDENT_START)) return undefined;
+	let buffer = ctx.consume();
 	while (ctx.is(IDENT_CHAR)) buffer += ctx.consume();
-	return buffer.length > 0 ? buffer : undefined;
+	return buffer;
 }
 
 export class ParserContext {

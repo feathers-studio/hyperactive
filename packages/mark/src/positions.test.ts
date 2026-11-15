@@ -42,6 +42,18 @@ describe("Positions", () => {
 			expect(where(source, decorator)?.text).toBe('@style(color: "red")');
 		});
 
+		it("end a call before spaces trailing it", () => {
+			const source = '=code("a.ts")   ';
+			expect(where(source, blocks(source)[0])?.text).toBe('=code("a.ts")');
+		});
+
+		it("place each of composed decorators", () => {
+			const source = '@style(size: 2) @align("center")\nText';
+			const [style, align] = blocks(source);
+			expect(where(source, style)?.text).toBe("@style(size: 2)");
+			expect(where(source, align)?.text).toBe('@align("center")');
+		});
+
 		it("place =meta, though it leaves the blocks", () => {
 			const source = '=meta(title: "x")\n\n# Body';
 			expect(where(source, parse(source).meta)?.text).toBe('=meta(title: "x")');

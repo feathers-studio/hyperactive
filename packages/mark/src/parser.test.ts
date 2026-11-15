@@ -907,6 +907,82 @@ describe("Blocks", () => {
 		});
 	});
 
+	describe("Call grammar", () => {
+		const types = (source: string) =>
+			parse(source).blocks.map(b => ("name" in b ? `${b.type}:${b.name}` : b.type));
+		const text = (source: string) => {
+			const [block] = parse(source).blocks as Block.Paragraph[];
+			return block!.content.map(c => (c as Inline.Text).content).join("");
+		};
+
+		it("does not start a name with a digit or a hyphen", () => {
+			// `ident` used to read on after a first character that failed its check.
+			expect(text("=5 is the answer")).toBe("=5 is the answer");
+			expect(types("=-x()")).toEqual(["paragraph"]);
+		});
+
+		it("allows digits and hyphens after a name's first character", () => {
+			expect(types("=my-call2()")).toEqual(["call:my-call2"]);
+		});
+
+		it("allows no space after = or @, nor before (", () => {
+			expect(text("= not a call")).toBe("= not a call");
+			expect(text("@ not a decorator")).toBe("@ not a decorator");
+			expect(text('=figure ("a.png")')).toBe('=figure ("a.png")');
+		});
+
+		it("is text when anything else is on its line", () => {
+			// The call was taken and the rest of the line split off into a paragraph.
+			expect(text('=figure("a.png") A caption')).toBe('=figure("a.png") A caption');
+			expect(types('@style(color: "red") and more\nText')).toEqual(["paragraph"]);
+		});
+
+		it("ignores spaces after a call, adding no empty paragraph", () => {
+			expect(types('=figure("a.png")   ')).toEqual(["call:figure"]);
+			expect(types('@style(color: "red")   \nText')).toEqual(["decorator:style", "paragraph"]);
+		});
+
+		it("composes decorators on one line", () => {
+			// Documented in the reference; the second decorator and the block it decorated
+			// used to become one paragraph.
+			expect(types('@style(font-size: "20px") @align("center")\nText')).toEqual([
+				"decorator:style",
+				"decorator:align",
+				"paragraph",
+			]);
+		});
+
+		it("lets the last of composed decorators open a container", () => {
+			expect(types("@tabs(sync) @wide>\nx\n<@")).toEqual([
+				"decorator:tabs",
+				"decorator:wide",
+				"decorator-start",
+				"paragraph",
+				"decorator-end",
+			]);
+		});
+
+		it("keeps a wrapped line that opens with @ or = in the paragraph", () => {
+			// `Contact\n@support` made a decorator named `support`.
+			expect(types("Contact\n@support for help.")).toEqual(["paragraph"]);
+			expect(types("Talk to\n=5 for help.")).toEqual(["paragraph"]);
+		});
+
+		it("still lets a call or decorator alone on the next line interrupt a paragraph", () => {
+			expect(types("Text\n=toc()")).toEqual(["paragraph", "call:toc"]);
+			expect(types('Text\n@style(color: "red")\nMore')).toEqual([
+				"paragraph",
+				"decorator:style",
+				"paragraph",
+			]);
+		});
+
+		it("ends a paragraph at a container's closer", () => {
+			// `x\n<@` used to read the closer as the paragraph's last line.
+			expect(types("@tabs>\nx\n<@")).toEqual(["decorator:tabs", "decorator-start", "paragraph", "decorator-end"]);
+		});
+	});
+
 	describe("Decorator", () => {
 		it("parses a decorator spanning lines without a trailing comma", () => {
 			const [decorator, block] = parse('@style(\n\tcolor: "blue"\n)\nBlue text.').blocks;

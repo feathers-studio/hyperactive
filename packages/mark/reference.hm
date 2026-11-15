@@ -257,6 +257,8 @@ The first parameter may be given without a name. A link or an image can be a val
 =figure(![An example figure](example.jpg), width: 500)
 ```
 
+A call stands alone on its line, and so does a line of decorators. With anything else on the line, the whole line is ordinary text.
+
 ## Styling
 
 The `@style` decorator accepts a safe subset of CSS properties:
