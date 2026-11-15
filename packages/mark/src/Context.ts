@@ -28,6 +28,25 @@ export function is_whitespace(ctx: ParserContext) {
 	return is_inline_whitespace(ctx) || is_newline(ctx);
 }
 
+/** A character that can start a name. */
+const IDENT_START = /^[A-Za-z_]$/;
+
+/**
+ * A character that can continue a name.
+ *
+ * Shared by `ident` and `consume_keyword`, so that what counts as a name and where a
+ * keyword ends cannot disagree.
+ */
+const IDENT_CHAR = /^[A-Za-z0-9_-]$/;
+
+/** A name: a call, a decorator, a parameter, an object key. */
+export function ident(ctx: ParserContext): string | undefined {
+	let buffer = "";
+	if (ctx.is(IDENT_START)) buffer += ctx.consume();
+	while (ctx.is(IDENT_CHAR)) buffer += ctx.consume();
+	return buffer.length > 0 ? buffer : undefined;
+}
+
 export class ParserContext {
 	index: number;
 	line: number;
@@ -112,6 +131,18 @@ export class ParserContext {
 	consume_if(str: string): string | undefined {
 		if (this.is(str)) return this.consume(str.length);
 		return undefined;
+	}
+
+	/**
+	 * `consume_if` for a word that must stand alone.
+	 *
+	 * `consume_if("null")` reads `null` off the front of `nullable`, which made
+	 * `=f(nullable: true)` a single unnamed `null` followed by garbage — and the whole
+	 * call fell back to a paragraph, printed as text.
+	 */
+	consume_keyword(word: string): string | undefined {
+		if (this.not(word) || IDENT_CHAR.test(this.peek(word.length))) return undefined;
+		return this.consume(word.length);
 	}
 
 	expect(str: string) {

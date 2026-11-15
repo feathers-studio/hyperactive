@@ -682,6 +682,19 @@ describe("Blocks", () => {
 			expect(parse('=warning(\n\t"careful",\n)').blocks).toEqual(expected);
 		});
 
+		it("parses parameter names that begin with a keyword", () => {
+			// Each became a paragraph before: `null`, `true` or `false` was read off the
+			// front of the name as a value, and the rest of the call failed to parse.
+			expect(parse("=f(nullable: true)").blocks).toEqual([call("f", { nullable: true })]);
+			expect(parse("=f(trueColor: 1)").blocks).toEqual([call("f", { trueColor: 1 })]);
+			expect(parse("=f(falsey: null)").blocks).toEqual([call("f", { falsey: null })]);
+		});
+
+		it("parses a keyword as a single unnamed value", () => {
+			expect(parse("=f(true)").blocks).toEqual([call("f", { __default: true })]);
+			expect(parse("=f(null)").blocks).toEqual([call("f", { __default: null })]);
+		});
+
 		it("parses a call with no parameters, with or without parentheses", () => {
 			expect(parse("=toc").blocks).toEqual([call("toc")]);
 			expect(parse("=toc()").blocks).toEqual([call("toc")]);

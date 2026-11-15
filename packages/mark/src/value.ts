@@ -1,12 +1,5 @@
 import type { Value } from "./types.ts";
-import type { ParserContext } from "./Context.ts";
-
-export function ident(ctx: ParserContext): string | undefined {
-	let buffer = "";
-	if (ctx.is(/^[A-Za-z_]$/)) buffer += ctx.consume();
-	while (ctx.is(/^[A-Za-z0-9_-]$/)) buffer += ctx.consume();
-	return buffer.length > 0 ? buffer : undefined;
-}
+import { ident, type ParserContext } from "./Context.ts";
 
 export function try_param_string(ctx: ParserContext): string | undefined {
 	const revert = ctx.checkpoint();
@@ -58,13 +51,12 @@ export function try_param_number(ctx: ParserContext): number | undefined {
 }
 
 export function try_param_null(ctx: ParserContext): null | undefined {
-	if (ctx.consume_if("null")) return null;
-	return undefined;
+	return ctx.consume_keyword("null") ? null : undefined;
 }
 
 export function try_param_boolean(ctx: ParserContext): boolean | undefined {
-	if (ctx.consume_if("true")) return true;
-	if (ctx.consume_if("false")) return false;
+	if (ctx.consume_keyword("true")) return true;
+	if (ctx.consume_keyword("false")) return false;
 	return undefined;
 }
 

@@ -1,5 +1,11 @@
 import { describe, it, expect } from "bun:test";
-import { try_param_list, try_param_object, try_param_string } from "./value.ts";
+import {
+	try_param_boolean,
+	try_param_list,
+	try_param_null,
+	try_param_object,
+	try_param_string,
+} from "./value.ts";
 import { ParserContext } from "./Context.ts";
 import { HypermarkDocument } from "./types.ts";
 
@@ -39,6 +45,36 @@ describe("Value", () => {
 		it("parses a string with a newline", () => {
 			const ctx = getCtx("'Hello\nworld'");
 			expect(try_param_string(ctx)).toBeUndefined();
+		});
+	});
+
+	describe("keywords", () => {
+		it("parses null, true and false", () => {
+			expect(try_param_null(getCtx("null"))).toBeNull();
+			expect(try_param_boolean(getCtx("true"))).toBe(true);
+			expect(try_param_boolean(getCtx("false"))).toBe(false);
+		});
+
+		it("parses a keyword followed by punctuation or whitespace", () => {
+			expect(try_param_boolean(getCtx("true,"))).toBe(true);
+			expect(try_param_boolean(getCtx("false)"))).toBe(false);
+			expect(try_param_null(getCtx("null\n"))).toBeNull();
+		});
+
+		it("does not read a keyword off the front of a longer name", () => {
+			for (const [input, parse] of [
+				["nullable", try_param_null],
+				["null_ok", try_param_null],
+				["trueColor", try_param_boolean],
+				["true-ish", try_param_boolean],
+				["falsey", try_param_boolean],
+				["false2", try_param_boolean],
+			] as const) {
+				const ctx = getCtx(input);
+				expect(parse(ctx)).toBeUndefined();
+				// Nothing consumed, so the name is still there for whatever tries next.
+				expect(ctx.index).toBe(0);
+			}
 		});
 	});
 
