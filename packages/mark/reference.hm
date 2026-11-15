@@ -88,7 +88,7 @@ Blocks must be separated by an empty line.
 
 ### Headings
 
-Hypermark supports six levels of headings:
+Hypermark supports six levels of headings. The `#` are followed by a space, so a `#hashtag` opening a line is text:
 
 ```hypermark
 # Heading 1
@@ -181,7 +181,7 @@ Tables support alignment options:
 
 ### Single-Block Decorators
 
-Decorators modify the next block:
+Decorators modify the next block. A decorator always takes parentheses, even empty ones, or opens a container with `>`, so a bare `@name` is text:
 
 ```hypermark
 @style(color: "blue")

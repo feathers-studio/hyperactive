@@ -287,6 +287,12 @@ describe("Blocks", () => {
 		it("falls back to paragraph on invalid heading levels", () => {
 			expect(parse("#######").blocks).toEqual([new Block.Paragraph([new Inline.Text("#######")])]);
 		});
+
+		it("requires a space or tab after the hashes", () => {
+			expect(parse("#hashtag").blocks).toEqual([new Block.Paragraph([new Inline.Text("#hashtag")])]);
+			expect(parse("#").blocks.map(b => b.type)).toEqual(["paragraph"]);
+			expect(parse("#\tTitle").blocks).toEqual([new Block.Heading(1, [new Inline.Text("Title")])]);
+		});
 	});
 
 	describe("Quote", () => {
@@ -704,6 +710,27 @@ describe("Blocks", () => {
 		it("is interrupted by a comment", () => {
 			expect(parse("Text\n-- note").blocks.map(b => b.type)).toEqual(["paragraph", "comment"]);
 		});
+
+		it("keeps a wrapped line that opens with a link", () => {
+			// Any `[` opening a line ended the paragraph; it was meant for footnote definitions.
+			expect(parse("See\n[the guide](guide.hm) for more.").blocks).toHaveLength(1);
+		});
+
+		it("keeps a wrapped line that opens with a footnote reference", () => {
+			expect(parse("Text\n[^1] is referenced here.").blocks).toHaveLength(1);
+		});
+
+		it("is interrupted by a footnote definition", () => {
+			expect(parse("Text\n[^1]: A note.").blocks.map(b => b.type)).toEqual(["paragraph", "footnote"]);
+		});
+
+		it("keeps a wrapped line that opens with a #hashtag", () => {
+			expect(parse("Tagged\n#hashtag here.").blocks).toHaveLength(1);
+		});
+
+		it("is interrupted by a heading", () => {
+			expect(parse("Text\n## Heading").blocks.map(b => b.type)).toEqual(["paragraph", "heading"]);
+		});
 	});
 
 	describe("Call", () => {
@@ -975,6 +1002,19 @@ describe("Blocks", () => {
 				"decorator:style",
 				"paragraph",
 			]);
+		});
+
+		it("requires (…) or > on a decorator, so a bare @name is text", () => {
+			// Telegraf's docs mention @BotFather constantly; a list of usernames was a list of decorators.
+			expect(types("@BotFather")).toEqual(["paragraph"]);
+			expect(text("@BotFather")).toBe("@BotFather");
+			const [list] = parse("- @BotFather\n- @userinfobot").blocks as Block.List[];
+			expect(list!.items.map(item => item.content[0]?.type)).toEqual(["paragraph", "paragraph"]);
+		});
+
+		it("still takes a decorator with empty parentheses, or one opening a container", () => {
+			expect(types("@centered()\nText")).toEqual(["decorator:centered", "paragraph"]);
+			expect(types("@tabs>\nx\n<@")[0]).toBe("decorator:tabs");
 		});
 
 		it("ends a paragraph at a container's closer", () => {

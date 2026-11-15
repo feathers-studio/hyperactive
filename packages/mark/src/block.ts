@@ -71,6 +71,10 @@ export function callNotation(
 	const name = ident(ctx);
 	if (!name) return revert();
 
+	// A decorator takes `(…)` or opens a container with `>`. A bare `@name` is text, so a
+	// username alone on its line — `- @BotFather` — is not a decorator.
+	if (type === "@" && ctx.not("(", ">")) return revert();
+
 	const params = ctx.is("(") ? parameters(ctx) : new Block.Parameters([]);
 	if (params === undefined) return revert();
 
@@ -256,15 +260,37 @@ export function codeblock(ctx: ParserContext): Block.CodeBlock | undefined {
 	return locate(ctx, from, new Block.CodeBlock(lines.join("\n"), options));
 }
 
-export function heading(ctx: ParserContext): Block.Heading | undefined {
-	const revert = ctx.checkpoint();
-	const from = ctx.index;
-
+/**
+ * The level of a heading `offset` characters ahead: one to six `#`, then a space or tab.
+ *
+ * Without the space, a `#hashtag` opening a line was a heading.
+ */
+export function heading_level(ctx: ParserContext, offset = 0): Block.HeadingLevel | undefined {
 	let level = 0;
-	while (ctx.consume_if("#")) level++;
-	if (level < 1 || level > 6) return revert();
+	while (ctx.peek(offset + level) === "#") level++;
+	if (level < 1 || level > 6) return undefined;
+	const after = ctx.peek(offset + level);
+	return after === " " || after === "\t" ? (level as Block.HeadingLevel) : undefined;
+}
+
+export function heading(ctx: ParserContext): Block.Heading | undefined {
+	const level = heading_level(ctx);
+	if (level === undefined) return undefined;
+
+	const from = ctx.index;
+	ctx.consume(level);
 	const content = inline(ctx, "\n");
-	return locate(ctx, from, new Block.Heading(level as Block.HeadingLevel, content));
+	return locate(ctx, from, new Block.Heading(level, content));
+}
+
+/** Whether a footnote definition, `[^ref]: …`, starts `offset` characters ahead. */
+function is_footnote_definition(ctx: ParserContext, offset = 0): boolean {
+	if (ctx.peek(offset, 2) !== "[^") return false;
+	for (let i = offset + 2; ; i++) {
+		const char = ctx.peek(i);
+		if (char === "" || char === "\n") return false;
+		if (char === "]") return ctx.peek(i + 1) === ":";
+	}
 }
 
 // paragraph parser, typically ends when two newlines are encountered
@@ -278,7 +304,11 @@ export function para(ctx: ParserContext) {
 		if (ctx.is("\n")) {
 			const next = ctx.peek(1);
 
-			if (next === "#" || next === ">" || next === "|" || next === "[") break;
+			if (next === ">" || next === "|") break;
+
+			// A heading or a footnote definition, checked in full: on the first character
+			// alone, `#hashtag` or a link opening a wrapped line split the paragraph.
+			if (heading_level(ctx, 1) !== undefined || is_footnote_definition(ctx, 1)) break;
 
 			// A container's closer. Without this it was read as the paragraph's last line.
 			if (ctx.peek(1, 2) === "<@") break;
