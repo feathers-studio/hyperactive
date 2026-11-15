@@ -16,8 +16,11 @@ function aria(attrs: Attributes<Tag>["aria"]) {
 			let value = ReadonlyState.isState(v) ? v.value : v;
 			// @ts-expect-error TODO: some aria properties will allow booleans in the future
 			if (value === true) value = "";
-			if (!value) return "";
-			return `${key}="${value}"`;
+			// `0` is a value: `aria-valuenow="0"` is a slider at its start, not one without a value.
+			// `false` is not in the types, but a state may still hold one.
+			if (value == null || value === "" || (value as unknown) === false) return "";
+			// Escaped like every other attribute: a quote in a label used to end the attribute.
+			return `${key}="${escapeAttr(String(value))}"`;
 		})
 		.join(" ");
 }
@@ -39,10 +42,15 @@ function attrifyHTML(attrs: Attributes<Tag>): string {
 			let value = v as Attributes<Tag>[typeof attr];
 			if (ReadonlyState.isState(value)) value = value.value;
 
+			// Behaviour, not markup: `ref` and other callbacks were written out as their source.
+			if (typeof value === "function") return false;
 			if (value === true) return attr;
 			if (value === "") return attr;
 			if (Array.isArray(value)) return `${attr}="${escapeAttr(value.filter(Boolean).join(" "))}"`;
-			if (value) return `${attr}="${escapeAttr(String(value))}"`;
+			// Absent is null, undefined or false. `0` is a value: `tabindex="0"` makes an element
+			// focusable, and dropping it left scrollable code blocks out of reach of the keyboard.
+			if (value == null || value === false) return false;
+			return `${attr}="${escapeAttr(String(value))}"`;
 		})
 		.filter(Boolean)
 		.join(" ");

@@ -52,8 +52,11 @@ function eventListeners(el: Element, listeners: Attributes<Tag>["on"]) {
 
 function attrifyDOM(el: Element, attrs: Attributes<Tag>): LifecycleCallbacks<Tag> {
 	const set = (key: string, value: unknown) => {
+		// Behaviour, not markup: `init`, `attach` and `ref` reach here, and were written out as source.
+		if (typeof value === "function") return;
 		if (value === true || value === "") return el.setAttribute(key, "");
-		if (isFalsy(value)) return el.removeAttribute(key);
+		// Absent is null, undefined or false. `0` is a value, as in renderHTML: `tabindex="0"`.
+		if (value == null || value === false) return el.removeAttribute(key);
 		if (Array.isArray(value)) return el.setAttribute(key, value.filter(x => x).join(" "));
 		return el.setAttribute(key, String(value));
 	};
@@ -62,7 +65,7 @@ function attrifyDOM(el: Element, attrs: Attributes<Tag>): LifecycleCallbacks<Tag
 		if (typeof value === "boolean") {
 			if (value) el.setAttribute("aria-" + member, "");
 			else el.removeAttribute("aria-" + member);
-		} else if (value) el.setAttribute("aria-" + member, String(value));
+		} else if (value != null && value !== "") el.setAttribute("aria-" + member, String(value));
 		else el.removeAttribute("aria-" + member);
 	};
 

@@ -79,6 +79,23 @@ test("renderHTML ARIA props", () => {
 	).toBe(`<div id="hello" class="world" role="note" aria-disabled="true"></div>`);
 });
 
+test("renderHTML writes an attribute whose value is 0", () => {
+	// `tabindex="0"` was dropped, leaving a scrollable element out of reach of the keyboard.
+	expect(renderHTML(div({ tabindex: 0 }, "x"))).toBe(`<div tabindex="0">x</div>`);
+	expect(renderHTML(div({ aria: { valuenow: 0 } }))).toBe(`<div aria-valuenow="0"></div>`);
+});
+
+test("renderHTML leaves out null, undefined and false attributes", () => {
+	expect(renderHTML(input({ title: null, value: undefined, disabled: false } as never))).toBe(`<input />`);
+});
+
+test("renderHTML escapes ARIA values", () => {
+	// They were written unescaped, so a quote in a label ended the attribute.
+	expect(renderHTML(div({ aria: { label: `"><script>` } }))).toBe(
+		`<div aria-label="&quot;&gt;&lt;script&gt;"></div>`,
+	);
+});
+
 test("renderHTML with HTML characters", () => {
 	expect(renderHTML(p("<test />"))).toBe(`<p>&lt;test /&gt;</p>`);
 });
