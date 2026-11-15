@@ -182,10 +182,13 @@ describe("expand", () => {
 		});
 
 		it("expands calls inside lists, quotes and decorators", async () => {
-			const { doc } = await run('- =note("in a list")\n\n> =note("in a quote")', { macros: { note } });
-			const [list, quote] = doc.blocks as [Block.List, Block.Quote];
+			// The decorator case could not be written before: no decorator held its block.
+			const source = '- =note("in a list")\n\n> =note("in a quote")\n\n@style()\n=note("decorated")';
+			const { doc } = await run(source, { macros: { note } });
+			const [list, quote, decorator] = doc.blocks as [Block.List, Block.Quote, Block.Decorator];
 			expect(list.items[0]!.content).toEqual([new Block.Paragraph([new Inline.Text("Note: in a list")])]);
 			expect(quote.content).toEqual([new Block.Paragraph([new Inline.Text("Note: in a quote")])]);
+			expect(decorator.blocks).toEqual([new Block.Paragraph([new Inline.Text("Note: decorated")])]);
 		});
 
 		it("expands what a macro returns", async () => {

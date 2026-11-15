@@ -35,11 +35,11 @@ describe("Positions", () => {
 			expect(where(source, blocks(source)[0])).toEqual({ span: "1:1-3:4", text: "```js\nx\n```" });
 		});
 
-		it("include a call's = and a decorator's @", () => {
+		it("include a call's =, and run a decorator from its @ through what it decorates", () => {
 			const source = '=code("a.ts")\n\n@style(color: "red")\nText';
 			const [call, decorator] = blocks(source);
 			expect(where(source, call)?.text).toBe('=code("a.ts")');
-			expect(where(source, decorator)?.text).toBe('@style(color: "red")');
+			expect(where(source, decorator)?.text).toBe('@style(color: "red")\nText');
 		});
 
 		it("end a call before spaces trailing it", () => {
@@ -47,11 +47,12 @@ describe("Positions", () => {
 			expect(where(source, blocks(source)[0])?.text).toBe('=code("a.ts")');
 		});
 
-		it("place each of composed decorators", () => {
+		it("place each of composed decorators from its own @", () => {
 			const source = '@style(size: 2) @align("center")\nText';
-			const [style, align] = blocks(source);
-			expect(where(source, style)?.text).toBe("@style(size: 2)");
-			expect(where(source, align)?.text).toBe('@align("center")');
+			const [style] = blocks(source) as Block.Decorator[];
+			const align = style!.blocks[0];
+			expect(where(source, style)?.text).toBe(source);
+			expect(where(source, align)?.text).toBe('@align("center")\nText');
 		});
 
 		it("place =meta, though it leaves the blocks", () => {

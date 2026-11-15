@@ -10,7 +10,6 @@ export interface ParseOptions {
 export function parse(input: string, options?: ParseOptions) {
 	const doc = new HypermarkDocument([]);
 	const ctx = new ParserContext(input, doc, options);
-	// @ts-expect-error normalise decorators after parsing
 	doc.blocks = parse_blocks(ctx, true);
 	return doc;
 }

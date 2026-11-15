@@ -11,20 +11,6 @@ export class ParseError extends Error {
 	}
 }
 
-export class DecoratorStartMarker {
-	type: "decorator-start" = "decorator-start";
-	toString(): string {
-		return ">";
-	}
-}
-
-export class DecoratorEndMarker {
-	type: "decorator-end" = "decorator-end";
-	toString(): string {
-		return "<@";
-	}
-}
-
 export const normal_line_number = (line_number: number) => {
 	let num = line_number.toString();
 	if (num.length > 3) num = "-" + num.slice(-3);

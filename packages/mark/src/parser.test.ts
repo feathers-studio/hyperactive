@@ -1066,27 +1066,7 @@ describe("Blocks", () => {
 
 		it("ignores spaces after a call, adding no empty paragraph", () => {
 			expect(types('=figure("a.png")   ')).toEqual(["call:figure"]);
-			expect(types('@style(color: "red")   \nText')).toEqual(["decorator:style", "paragraph"]);
-		});
-
-		it("composes decorators on one line", () => {
-			// Documented in the reference; the second decorator and the block it decorated
-			// used to become one paragraph.
-			expect(types('@style(font-size: "20px") @align("center")\nText')).toEqual([
-				"decorator:style",
-				"decorator:align",
-				"paragraph",
-			]);
-		});
-
-		it("lets the last of composed decorators open a container", () => {
-			expect(types("@tabs(sync) @wide>\nx\n<@")).toEqual([
-				"decorator:tabs",
-				"decorator:wide",
-				"decorator-start",
-				"paragraph",
-				"decorator-end",
-			]);
+			expect(types('@style(color: "red")   \nText')).toEqual(["decorator:style"]);
 		});
 
 		it("keeps a wrapped line that opens with @ or = in the paragraph", () => {
@@ -1097,14 +1077,10 @@ describe("Blocks", () => {
 
 		it("still lets a call or decorator alone on the next line interrupt a paragraph", () => {
 			expect(types("Text\n=toc()")).toEqual(["paragraph", "call:toc"]);
-			expect(types('Text\n@style(color: "red")\nMore')).toEqual([
-				"paragraph",
-				"decorator:style",
-				"paragraph",
-			]);
+			expect(types('Text\n@style(color: "red")\nMore')).toEqual(["paragraph", "decorator:style"]);
 		});
 
-		it("requires (…) or > on a decorator, so a bare @name is text", () => {
+		it("requires parentheses on a decorator, so a bare @name is text", () => {
 			// Telegraf's docs mention @BotFather constantly; a list of usernames was a list of decorators.
 			expect(types("@BotFather")).toEqual(["paragraph"]);
 			expect(text("@BotFather")).toBe("@BotFather");
@@ -1112,31 +1088,80 @@ describe("Blocks", () => {
 			expect(list!.items.map(item => item.content[0]?.type)).toEqual(["paragraph", "paragraph"]);
 		});
 
-		it("still takes a decorator with empty parentheses, or one opening a container", () => {
-			expect(types("@centered()\nText")).toEqual(["decorator:centered", "paragraph"]);
-			expect(types("@tabs>\nx\n<@")[0]).toBe("decorator:tabs");
+		it("still takes a decorator with empty parentheses", () => {
+			expect(types("@centered()\nText")).toEqual(["decorator:centered"]);
 		});
 
-		it("ends a paragraph at a container's closer", () => {
-			// `x\n<@` used to read the closer as the paragraph's last line.
-			expect(types("@tabs>\nx\n<@")).toEqual(["decorator:tabs", "decorator-start", "paragraph", "decorator-end"]);
+		it("has no container form, so @name> and <@ are text", () => {
+			expect(types("@tabs>\nx\n<@")).toEqual(["paragraph"]);
 		});
 	});
 
 	describe("Decorator", () => {
+		const para = (text: string) => new Block.Paragraph([new Inline.Text(text)]);
+		const params = (...entries: [string, unknown][]) =>
+			new Block.Parameters(entries.map(([name, value]) => new Block.Parameter(name, value as never)));
+		/** The tree as `name(child)`, to compare nesting at a glance. */
+		const tree = (block: Block): string =>
+			block.type === "decorator" ? `${block.name}(${block.blocks.map(tree).join(", ")})` : block.type;
+
+		it("decorates exactly the block after it", () => {
+			// Decorators were never attached: `blocks` was always empty, and the decorated
+			// block followed as a sibling.
+			expect(parse('@style(color: "blue")\nBlue text.\n\nPlain.').blocks).toEqual([
+				new Block.Decorator("style", params(["color", "blue"]), [para("Blue text.")]),
+				para("Plain."),
+			]);
+		});
+
 		it("parses a decorator spanning lines without a trailing comma", () => {
-			const [decorator, block] = parse('@style(\n\tcolor: "blue"\n)\nBlue text.').blocks;
-			expect(decorator).toEqual(
-				new Block.Decorator("style", new Block.Parameters([new Block.Parameter("color", "blue")]), []),
-			);
-			expect(block).toEqual(new Block.Paragraph([new Inline.Text("Blue text.")]));
+			expect(parse('@style(\n\tcolor: "blue"\n)\nBlue text.').blocks).toEqual([
+				new Block.Decorator("style", params(["color", "blue"]), [para("Blue text.")]),
+			]);
 		});
 
 		it("takes flags", () => {
-			const [decorator] = parse("@tabs(sync)>\n@named(\"a\")\nText\n<@").blocks;
-			expect(decorator).toEqual(
-				new Block.Decorator("tabs", new Block.Parameters([new Block.Parameter("sync", true)]), []),
-			);
+			expect(parse("@tabs(sync)\nText").blocks).toEqual([
+				new Block.Decorator("tabs", params(["sync", true]), [para("Text")]),
+			]);
+		});
+
+		it("nests composed decorators, outermost first", () => {
+			expect(parse('@style(size: 2) @align("center")\nText').blocks.map(tree)).toEqual([
+				"style(align(paragraph))",
+			]);
+		});
+
+		it("nests decorators on consecutive lines the same way", () => {
+			expect(parse("@a()\n@b()\nText").blocks.map(tree)).toEqual(["a(b(paragraph))"]);
+		});
+
+		it("skips blank lines to reach the block it decorates", () => {
+			expect(parse("@style()\n\n\nText").blocks.map(tree)).toEqual(["style(paragraph)"]);
+		});
+
+		it("decorates several blocks by decorating a list or a quote", () => {
+			expect(parse('@variants("Package manager")\n- npm\n- bun').blocks.map(tree)).toEqual(["variants(list)"]);
+			expect(parse("@details()\n> one\n>\n> two").blocks.map(tree)).toEqual(["details(quote)"]);
+		});
+
+		it("reports a decorator with nothing after it, at the decorator", () => {
+			expect(() => parse("Intro.\n\n@style()")).toThrow("a block for the decorator to decorate");
+			try {
+				parse("Intro.\n\n@style()");
+			} catch (error) {
+				expect(error).toMatchObject({ line: 3, column: 1 });
+			}
+		});
+
+		it("does not reach past the end of a list item for the block it decorates", () => {
+			// A decorator decorates within its own container, not whatever follows it.
+			expect(() => parse("- @style()\n- next")).toThrow("a block for the decorator to decorate");
+		});
+
+		it("round-trips through toString", () => {
+			const [block] = parse('@style(size: 2) @align("center")\nText').blocks;
+			expect(parse(block!.toString()).blocks).toEqual([block]);
 		});
 	});
 

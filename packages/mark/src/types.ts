@@ -88,17 +88,10 @@ export namespace Block {
 		type: "decorator" = "decorator";
 		declare position?: Position;
 		constructor(public name: string, public parameters: Block.Parameters, public blocks: Block[]) {}
+		/** `@name(…)` above the block it decorates. Parentheses always: a bare `@name` is text. */
 		toString(): string {
-			const needs_markers = this.blocks.length === 0 || this.blocks.length > 1;
-
-			let result = `@${this.name}`;
-			if (this.parameters.parameters.length > 0) {
-				result += `(${this.parameters.toString()})`;
-			}
-			if (needs_markers) result += ">";
-			if (this.blocks.length > 0) result += "\n" + this.blocks.map(b => b.toString()).join("\n");
-			if (needs_markers) result += "\n<@";
-			return result;
+			const decorated = this.blocks.map(b => b.toString()).join("\n\n");
+			return `@${this.name}(${this.parameters.toString()})\n${decorated}`;
 		}
 	}
 

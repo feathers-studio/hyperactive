@@ -1,4 +1,3 @@
-import { DecoratorEndMarker, DecoratorStartMarker } from "./common.ts";
 import { ident, locate, ParserContext } from "./Context.ts";
 import { Block, HypermarkDocument, Inline, Meta } from "./types.ts";
 import { try_param_string, try_param_value } from "./value.ts";
@@ -71,9 +70,9 @@ export function callNotation(
 	const name = ident(ctx);
 	if (!name) return revert();
 
-	// A decorator takes `(…)` or opens a container with `>`. A bare `@name` is text, so a
-	// username alone on its line — `- @BotFather` — is not a decorator.
-	if (type === "@" && ctx.not("(", ">")) return revert();
+	// A decorator takes `(…)`. A bare `@name` is text, so a username alone on its line —
+	// `- @BotFather` — is not a decorator.
+	if (type === "@" && ctx.not("(")) return revert();
 
 	const params = ctx.is("(") ? parameters(ctx) : new Block.Parameters([]);
 	if (params === undefined) return revert();
@@ -113,13 +112,14 @@ export function call_line(ctx: ParserContext): Block.Call | undefined {
 /**
  * A line of decorators, alone on it, or undefined with nothing consumed.
  *
- * Decorators compose, `@style(…) @align(…)`, and the last may open a container with `>`.
- * As for calls, anything else on the line makes it text, which is what keeps a mention
- * opening a wrapped line — "@BotFather replies" — from becoming a decorator.
+ * Decorators compose, `@style(…) @align(…)`. As for calls, anything else on the line makes
+ * it text, which is what keeps a mention opening a wrapped line — "@BotFather replies" —
+ * from becoming a decorator. Each decorator's position covers only itself here; it grows
+ * to cover what it decorates once that is parsed.
  */
-export function decorator_line(ctx: ParserContext): (Block.Decorator | DecoratorStartMarker)[] | undefined {
+export function decorator_line(ctx: ParserContext): Block.Decorator[] | undefined {
 	const revert = ctx.checkpoint();
-	const line: (Block.Decorator | DecoratorStartMarker)[] = [];
+	const line: Block.Decorator[] = [];
 
 	while (ctx.is("@")) {
 		const from = ctx.index;
@@ -127,18 +127,10 @@ export function decorator_line(ctx: ParserContext): (Block.Decorator | Decorator
 		const decorator = callNotation(ctx, "@") as Block.Decorator | undefined;
 		if (decorator === undefined) return revert();
 		line.push(locate(ctx, from, decorator));
-
-		if (ctx.consume_if(">")) {
-			line.push(new DecoratorStartMarker());
-			break;
-		}
 		ctx.nomnom();
 	}
 
 	if (line.length === 0 || !at_line_end(ctx)) return revert();
-
-	if (line.at(-1) instanceof DecoratorStartMarker) ctx.nomnomnom();
-	else ctx.nomnom();
 	return line;
 }
 
@@ -309,9 +301,6 @@ export function para(ctx: ParserContext) {
 			// A heading or a footnote definition, checked in full: on the first character
 			// alone, `#hashtag` or a link opening a wrapped line split the paragraph.
 			if (heading_level(ctx, 1) !== undefined || is_footnote_definition(ctx, 1)) break;
-
-			// A container's closer. Without this it was read as the paragraph's last line.
-			if (ctx.peek(1, 2) === "<@") break;
 
 			// A call or decorators alone on the next line. A line that merely starts with
 			// `=` or `@` — "@BotFather replies" — stays in this paragraph.
@@ -671,37 +660,48 @@ export function list(ctx: ParserContext): Block.List | undefined {
 	return locate(ctx, from, new Block.List(items, options));
 }
 
-export function parse_blocks<T extends boolean>(
-	ctx: ParserContext,
-	is_top_level: T,
-): T extends true ? (Block | DecoratorEndMarker | DecoratorStartMarker)[] : Block[] {
-	const blocks: (Block | DecoratorEndMarker | DecoratorStartMarker)[] = [];
+export function parse_blocks(ctx: ParserContext, is_top_level: boolean): Block[] {
+	const blocks: Block[] = [];
+	for (let block; (block = next_block(ctx, is_top_level)); ) blocks.push(block);
+	return blocks;
+}
 
-	// Replace the main loop with the new version that handles arrays
+/**
+ * The block a line of decorators decorates, wrapped by them: `@a() @b()` over `X` is
+ * `a(b(X))`, each decorator's position growing to cover what it decorates.
+ *
+ * To decorate several blocks, a document decorates a block that holds several: a list or
+ * a quote. There is no container form, so nothing has to be closed or counted.
+ */
+function decorate(ctx: ParserContext, from: number, line: Block.Decorator[]): Block {
+	const target = next_block(ctx, false);
+	if (target === undefined) {
+		ctx.index = from; // report the decorator, not the end of the text
+		throw ctx.error("a block for the decorator to decorate", "the end of the document");
+	}
+
+	let block: Block = target;
+	for (const decorator of line.toReversed()) {
+		decorator.blocks = [block];
+		if (decorator.position && target.position) {
+			decorator.position = { start: decorator.position.start, end: target.position.end };
+		}
+		block = decorator;
+	}
+	return block;
+}
+
+/** The next block past any blank lines, or undefined at the end of the text. */
+function next_block(ctx: ParserContext, is_top_level: boolean): Block | undefined {
 	while (!ctx.eof()) {
-		const char = ctx.peek();
-
-		switch (char) {
+		switch (ctx.peek()) {
 			case "\n":
 				ctx.consume();
-				continue;
-			case "<":
-				if (ctx.consume_if("<@")) {
-					blocks.push(new DecoratorEndMarker());
-					continue;
-				}
-				blocks.push(para(ctx));
-				continue;
-			case "\\":
-				blocks.push(para(ctx));
 				continue;
 			case "=": {
 				// Text that is not a call keeps its `=`: call_line consumes nothing when it fails.
 				const call = call_line(ctx);
-				if (call === undefined) {
-					blocks.push(para(ctx));
-					continue;
-				}
+				if (call === undefined) return para(ctx);
 				if (is_top_level && call.name === "meta") {
 					if (ctx.doc.blocks.length)
 						throw ctx.unexpected(
@@ -712,56 +712,45 @@ export function parse_blocks<T extends boolean>(
 					ctx.doc.meta = meta;
 					continue;
 				}
-				blocks.push(call);
-				continue;
+				return call;
 			}
 			case "@": {
 				// As for `=`. A failed decorator used to push `undefined` into the blocks.
+				const from = ctx.index;
 				const line = decorator_line(ctx);
-				if (line === undefined) blocks.push(para(ctx));
-				else blocks.push(...line);
-				continue;
+				return line === undefined ? para(ctx) : decorate(ctx, from, line);
 			}
 			case "#":
-				blocks.push(heading(ctx) ?? para(ctx));
-				continue;
+				return heading(ctx) ?? para(ctx);
 			case "`":
-				blocks.push(codeblock(ctx) ?? para(ctx));
-				continue;
+				return codeblock(ctx) ?? para(ctx);
 			case ">":
-				blocks.push(quote(ctx) ?? para(ctx));
-				continue;
+				return quote(ctx) ?? para(ctx);
 			case "|":
-				blocks.push(table(ctx) ?? para(ctx));
-				continue;
+				return table(ctx) ?? para(ctx);
 			case "[": {
 				// As for `=`: text that is not a footnote used to lose its `[^`.
 				const from = ctx.index;
 				const revert = ctx.checkpoint();
 				const note = ctx.consume_if("[^") ? footnote(ctx) : undefined;
 				if (note === undefined) revert();
-				blocks.push(note ? locate(ctx, from, note) : para(ctx));
-				continue;
+				return note ? locate(ctx, from, note) : para(ctx);
 			}
 			case "-": {
 				const from = ctx.index;
 				if (ctx.is("---\n")) {
 					ctx.consume(3);
-					blocks.push(locate(ctx, from, new Block.Rule()));
+					const rule = locate(ctx, from, new Block.Rule());
 					ctx.consume(); // the newline, outside the rule's position
-				} else if (ctx.consume_if("--")) blocks.push(locate(ctx, from, comment(ctx)));
-				else blocks.push(list(ctx) ?? para(ctx));
-				continue;
+					return rule;
+				}
+				if (ctx.consume_if("--")) return locate(ctx, from, comment(ctx));
+				return list(ctx) ?? para(ctx);
 			}
-			case "*":
-				blocks.push(list(ctx) ?? para(ctx));
-				continue;
 			default:
-				// An ordered list, or a paragraph.
-				blocks.push(list(ctx) ?? para(ctx));
-				continue;
+				// `*` or digits for a list; anything else a paragraph.
+				return list(ctx) ?? para(ctx);
 		}
 	}
-
-	return blocks as T extends true ? (Block | DecoratorEndMarker | DecoratorStartMarker)[] : Block[];
+	return undefined;
 }

@@ -101,8 +101,8 @@ Hypermark supports six levels of headings. The `#` are followed by a space, so a
 
 ### Lists
 
-@tabs>
-@named("Unordered")>
+#### Unordered
+
 Use `-` or `*` for unordered lists:
 
 ```hypermark
@@ -112,9 +112,9 @@ Use `-` or `*` for unordered lists:
   * Another nested item
 - Item 3
 ```
-<@
 
-@named("Ordered")>
+#### Ordered
+
 Use numbers for ordered lists:
 
 ```hypermark
@@ -124,9 +124,9 @@ Use numbers for ordered lists:
    2. Another nested item
 3. Third item
 ```
-<@
 
-@named("Tasks")>
+#### Tasks
+
 Use `- [ ]` for task lists:
 
 ```hypermark
@@ -134,8 +134,6 @@ Use `- [ ]` for task lists:
 - [x] Completed task
 - [ ] Another task
 ```
-<@
-<@
 
 ### Code Blocks
 
@@ -179,59 +177,38 @@ Tables support alignment options:
 
 ## Decorators
 
-### Single-Block Decorators
-
-Decorators modify the next block. A decorator always takes parentheses, even empty ones, or opens a container with `>`, so a bare `@name` is text:
+A decorator modifies the block after it. It always takes parentheses, even empty ones, so a bare `@name` is text:
 
 ```hypermark
 @style(color: "blue")
 This text will be blue.
 ```
 
-Multiple decorators can be composed:
+Multiple decorators can be composed, and apply outermost first:
 
 ```hypermark
 @style(font-size: "20px") @align("center")
 This text will be large and centered.
 ```
 
-### Container Decorators
+### Decorating Several Blocks
 
-Some decorators can wrap multiple blocks:
+To decorate several blocks, decorate a block that holds several: a list, or a quote. Alternatives, for example, are a list with one item for each:
 
 ````hypermark
-@tabs>
-@named("Python")
-```python example.py
-def hello():
-    print("Hello")
-```
-
-@named("JavaScript")
-```javascript example.js
-function hello() {
-    console.log("Hello");
-}
-```
-<@
+@variants("Language")
+- [Python]
+  ```python example.py
+  def hello():
+      print("Hello")
+  ```
+- [JavaScript]
+  ```javascript example.js
+  function hello() {
+      console.log("Hello");
+  }
+  ```
 ````
-
-Output:
-
-@tabs>
-@named("Python")
-```python example.py
-def hello():
-    print("Hello")
-```
-
-@named("JavaScript")
-```javascript example.js
-function hello() {
-    console.log("Hello");
-}
-```
-<@
 
 ## Extension Calls
 
@@ -331,7 +308,6 @@ Common escape sequences:
 | \# | Heading | \\\# |
 | \- | List | \\\- |
 | \| | Table | \\\| |
-| \< | Container | \\\< |
 
 ## File Imports
 
