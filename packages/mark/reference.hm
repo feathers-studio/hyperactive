@@ -241,6 +241,12 @@ Extension calls add new functionality:
 )
 ```
 
+A parameter without a value is a flag, and means `true`:
+
+```hypermark
+=figure(src: "example.jpg", lazy)
+```
+
 ## Styling
 
 The `@style` decorator accepts a safe subset of CSS properties:

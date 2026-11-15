@@ -11,7 +11,9 @@ export function param(ctx: ParserContext): Block.Parameter | undefined {
 	if (!name) return undefined;
 
 	ctx.nomnomnom();
-	ctx.expect(":");
+
+	// A name without a value is a flag: `=code(…, twoslash)` means `twoslash: true`.
+	if (!ctx.consume_if(":")) return new Block.Parameter(name, true);
 	ctx.nomnomnom();
 
 	const value = try_param_value(ctx);

@@ -690,6 +690,52 @@ describe("Blocks", () => {
 			expect(parse("=f(falsey: null)").blocks).toEqual([call("f", { falsey: null })]);
 		});
 
+		it("reads a name without a value as a flag", () => {
+			expect(parse("=code(twoslash)").blocks).toEqual([call("code", { twoslash: true })]);
+		});
+
+		it("reads a flag exactly as the same name set to true", () => {
+			expect(parse("=f(a)").blocks).toEqual(parse("=f(a: true)").blocks);
+		});
+
+		it("mixes flags and named parameters in any order", () => {
+			expect(parse('=f(line-numbers, title: "x", twoslash)').blocks).toEqual([
+				call("f", { "line-numbers": true, "title": "x", "twoslash": true }),
+			]);
+		});
+
+		it("reads flags spanning lines without a trailing comma", () => {
+			expect(parse("=f(\n\tline-numbers,\n\ttwoslash\n)").blocks).toEqual([
+				call("f", { "line-numbers": true, "twoslash": true }),
+			]);
+		});
+
+		it("allows whitespace before commas and colons", () => {
+			const expected = [call("f", { twoslash: true, n: 5 })];
+			expect(parse("=f(twoslash , n :5)").blocks).toEqual(expected);
+			expect(parse("=f( twoslash , n : 5 , )").blocks).toEqual(expected);
+			expect(parse("=f(\n\ttwoslash ,\n\tn\n\t: 5\n)").blocks).toEqual(expected);
+		});
+
+		it("still reads true, false and null as values, not flags", () => {
+			expect(parse("=f(true)").blocks).toEqual([call("f", { __default: true })]);
+			expect(parse("=f(null)").blocks).toEqual([call("f", { __default: null })]);
+		});
+
+		it("reads a name that begins with a keyword as a flag", () => {
+			expect(parse("=f(nullable)").blocks).toEqual([call("f", { nullable: true })]);
+		});
+
+		it("names a missing comma between flags", () => {
+			expect(() => parse("=f(twoslash line-numbers)")).toThrow('Expected ","');
+		});
+
+		it("does not read a bare key in an object as a flag", () => {
+			// Flags belong to call parameters. In an object, `{ sync }` would read to anyone
+			// who knows JavaScript as shorthand for `{ sync: sync }`, not `{ sync: true }`.
+			expect(() => parse("=f(options: { sync })")).toThrow('Expected ":"');
+		});
+
 		it("parses a keyword as a single unnamed value", () => {
 			expect(parse("=f(true)").blocks).toEqual([call("f", { __default: true })]);
 			expect(parse("=f(null)").blocks).toEqual([call("f", { __default: null })]);
@@ -723,6 +769,13 @@ describe("Blocks", () => {
 				new Block.Decorator("style", new Block.Parameters([new Block.Parameter("color", "blue")]), []),
 			);
 			expect(block).toEqual(new Block.Paragraph([new Inline.Text("Blue text.")]));
+		});
+
+		it("takes flags", () => {
+			const [decorator] = parse("@tabs(sync)>\n@named(\"a\")\nText\n<@").blocks;
+			expect(decorator).toEqual(
+				new Block.Decorator("tabs", new Block.Parameters([new Block.Parameter("sync", true)]), []),
+			);
 		});
 	});
 
