@@ -46,6 +46,8 @@ Every Hypermark document can begin with metadata using the `=meta()` call:
 
 ## Variables and Interpolation
 
+`=let` and `${}` are not implemented yet.
+
 ### Variable Declaration
 
 Variables can be declared using the `=let` call:
@@ -226,6 +228,21 @@ To decorate several blocks, decorate a block that holds several: a list, or a qu
   ```
 ````
 
+Output:
+
+@variants("Language")
+- [Python]
+  ```python example.py
+  def hello():
+      print("Hello")
+  ```
+- [JavaScript]
+  ```javascript example.js
+  function hello() {
+      console.log("Hello");
+  }
+  ```
+
 ### Standard Decorators
 
 `@variants(title)` presents alternatives, one for each labelled item, as in the example above. The title names the group, such as `"Package manager"`. A site may show the variants as tabs and remember the reader's choice.
@@ -239,6 +256,14 @@ To decorate several blocks, decorate a block that holds several: a list, or a qu
 - [Does it run on Deno?]
   Yes.
 ```
+
+Output:
+
+@details()
+- [Why `strict`?]
+  Because `process.env.BOT_TOKEN` may be `undefined`.
+- [Does it run on Deno?]
+  Yes.
 
 ## Extension Calls
 
@@ -268,6 +293,8 @@ A call stands alone on its line, and so does a line of decorators. With anything
 
 ## Styling
 
+`@style` is not implemented yet.
+
 The `@style` decorator accepts a safe subset of CSS properties:
 
 ```hypermark
@@ -281,8 +308,8 @@ The `@style` decorator accepts a safe subset of CSS properties:
     border: "1px solid #dddddd",
     border-radius: "4px"
 )
-```
 This block demonstrates various supported style properties.
+```
 
 ## Inline Formatting
 
@@ -300,15 +327,15 @@ An underscore inside a word, as in `chat_id`, is text. So are doubled markers, `
 
 ## Footnotes
 
-Hypermark supports footnotes [^1] with references:
-
-[^1]: Here's an example:
+A footnote is a reference in the text and a definition on a line of its own[^1]:
 
 ```hypermark
 Here's some text with a footnote[^1].
 
 [^1]: This is a footnote with _formatting_ support.
 ```
+
+[^1]: Footnotes are numbered in the order they are first referenced, and listed at the end of the page.
 
 ## Escaping Characters
 
@@ -331,9 +358,10 @@ Common escape sequences:
 | \\ | Backslash | \\\\ |
 | \* | Strong | \\\* |
 | \_ | Emphasis | \\\_ |
+| \~ | Strike | \\\~ |
 | \@ | Decorator | \\\@ |
 | \= | Call | \\\= |
-| \[ | Link/Tab | \\\[ |
+| \[ | Link | \\\[ |
 | \` | Code | \\\` |
 | \# | Heading | \\\# |
 | \- | List | \\\- |
@@ -346,6 +374,8 @@ Content can be imported from other files. The resulting content will be treated 
 ```hypermark
 =import("./partial.hm")
 ```
+
+`=import` is not implemented yet.
 
 Code can be imported from other files into a code block with `=code()`, either whole or one region of it:
 
