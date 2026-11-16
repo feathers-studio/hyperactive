@@ -423,6 +423,29 @@ describe("Blocks", () => {
 			);
 		});
 
+		it("keeps the indentation of code in a quote", () => {
+			// Every space after `>` was dropped, so `    y();` lost its indentation.
+			const [quote] = parse("> ```js\n> if (x) {\n>     y();\n> }\n> ```").blocks as Block.Quote[];
+			expect(quote!.content).toEqual([
+				new Block.CodeBlock("if (x) {\n    y();\n}", { language: "js" }),
+			]);
+		});
+
+		it("keeps a list item's indented lines in the item", () => {
+			const [quote] = parse("> - a\n>   > b").blocks as Block.Quote[];
+			expect(quote!.content).toEqual([
+				new Block.List(
+					[
+						new Block.ListItem([
+							new Block.Paragraph([new Inline.Text("a")]),
+							new Block.Quote([new Block.Paragraph([new Inline.Text("b")])]),
+						]),
+					],
+					{ start_marker: "-", ordered: false, has_tasks: false },
+				),
+			]);
+		});
+
 		it("parses a simple quote", () => {
 			const ast = parse("> Hello world");
 			expect(ast.blocks).toEqual([

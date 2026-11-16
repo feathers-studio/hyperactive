@@ -385,7 +385,9 @@ export function quote(ctx: ParserContext): Block.Quote | undefined {
 	const starts: number[] = [];
 
 	outer: while (ctx.consume_if(">")) {
-		ctx.nomnom();
+		// One space, as in GFM. All of them went before, and with them the indentation of
+		// code in a quote, and of a list item's continued lines.
+		ctx.consume_if(" ") ?? ctx.consume_if("\t");
 		starts.push(ctx.index);
 		while (ctx.not("\n")) {
 			if (ctx.eof()) {
