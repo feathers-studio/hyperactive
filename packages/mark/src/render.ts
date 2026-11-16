@@ -1,6 +1,8 @@
 import { h, type HyperNodeish } from "@hyperactive/hyper";
 import type { Problem } from "./expand.ts";
 import { slugger } from "./slug.ts";
+import { std } from "./std.ts";
+import { text } from "./text.ts";
 import type { Block, HypermarkDocument, Inline, Point, Position, Value } from "./types.ts";
 
 /**
@@ -26,7 +28,7 @@ export interface RenderContext {
 }
 
 export interface RenderOptions {
-	/** Looked up by a call's or decorator's name. */
+	/** Added to `std.components`, replacing any of the same name. */
 	components?: Record<string, Component>;
 }
 
@@ -46,7 +48,7 @@ export interface RenderResult {
  * decorator with no component is reported and rendered without one, never left out silently.
  */
 export function render(doc: HypermarkDocument, options: RenderOptions = {}): RenderResult {
-	const components = options.components ?? {};
+	const components = { ...std.components, ...options.components };
 	const problems: Problem[] = [];
 	const slug = slugger();
 
@@ -287,30 +289,6 @@ function arguments_of(parameters: Block.Parameters) {
 
 // Spread into the parent instead: Hyperactive writes an array's ends as `<!---->` in HTML.
 const flatten = (node: HyperNodeish): HyperNodeish[] => (Array.isArray(node) ? node.flatMap(flatten) : [node]);
-
-/** The text of inline nodes, as a heading's id and an image's alt text read it. */
-function text(nodes: readonly Inline[]): string {
-	return nodes
-		.map(node => {
-			switch (node.type) {
-				case "text":
-				case "code":
-					return node.content;
-				case "emphasis":
-				case "strong":
-				case "strike":
-				case "link":
-					return text(node.content);
-				// Neither is text in the rendered heading GitHub's ids are read from.
-				case "image":
-				case "footnote-reference":
-					return "";
-				case "interpolation":
-					return node.toString();
-			}
-		})
-		.join("");
-}
 
 /**
  * Whether GitHub would render a list loose, its paragraphs in `<p>`: a blank line between two

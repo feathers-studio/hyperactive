@@ -1,6 +1,8 @@
 import { Block, Inline } from "./types.ts";
 import type { Macro } from "./expand.ts";
+import { details, variants } from "./components.ts";
 import { is_marker, read_region } from "./region.ts";
+import type { Component } from "./render.ts";
 
 /** Language per extension, where the extension is not the language's own name. */
 const LANGUAGES: Record<string, string> = {
@@ -112,5 +114,8 @@ export const code: Macro = async (first, named, context) => {
 	return new Block.CodeBlock(found.region.text, options, { url, path, region, text, lines: { start, end } });
 };
 
-/** The macros every document has. A site's own macros of the same name replace them. */
-export const std: Record<string, Macro> = { code };
+/** The macros and components every document has. A site's own of the same name replace them. */
+export const std: { macros: Record<string, Macro>; components: Record<string, Component> } = {
+	macros: { code },
+	components: { details, variants },
+};

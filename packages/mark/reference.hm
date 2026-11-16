@@ -226,6 +226,20 @@ To decorate several blocks, decorate a block that holds several: a list, or a qu
   ```
 ````
 
+### Standard Decorators
+
+`@variants(title)` presents alternatives, one for each labelled item, as in the example above. The title names the group, such as `"Package manager"`. A site may show the variants as tabs and remember the reader's choice.
+
+`@details()` makes each labelled item collapsible, with its label as the summary:
+
+```hypermark
+@details()
+- [Why `strict`?]
+  Because `process.env.BOT_TOKEN` may be `undefined`.
+- [Does it run on Deno?]
+  Yes.
+```
+
 ## Extension Calls
 
 Extension calls add new functionality:

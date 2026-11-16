@@ -29,7 +29,7 @@ export interface ExpandOptions {
 	read(path: string): Promise<string | undefined>;
 	/** This document's path from the project root, which relative URLs resolve against. */
 	filename?: string;
-	/** Added to `std`, replacing any of the same name. */
+	/** Added to `std.macros`, replacing any of the same name. */
 	macros?: Record<string, Macro>;
 }
 
@@ -54,7 +54,7 @@ const DEPTH_LIMIT = 16;
  * problem and its call stays, so one broken call does not cost the whole document.
  */
 export async function expand(doc: HypermarkDocument, options: ExpandOptions): Promise<Problem[]> {
-	const macros = { ...std, ...options.macros };
+	const macros = { ...std.macros, ...options.macros };
 	const filename = (options.filename ?? "").replaceAll("\\", "/");
 
 	// A page quoting five regions of one example reads it once.
