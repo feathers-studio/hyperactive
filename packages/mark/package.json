@@ -2,6 +2,9 @@
   "name": "@hyperactive/mark",
   "module": "src/index.ts",
   "type": "module",
+  "dependencies": {
+    "@hyperactive/hyper": "workspace:*"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

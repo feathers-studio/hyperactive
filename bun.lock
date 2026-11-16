@@ -41,6 +41,9 @@
     },
     "packages/mark": {
       "name": "@hyperactive/mark",
+      "dependencies": {
+        "@hyperactive/hyper": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "latest",
       },

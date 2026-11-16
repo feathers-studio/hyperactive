@@ -33,11 +33,12 @@ export interface ExpandOptions {
 	macros?: Record<string, Macro>;
 }
 
-export interface ExpandProblem {
+/** Something wrong with a document, found while expanding or rendering it. */
+export interface Problem {
 	message: string;
 	hint?: string;
 	/**
-	 * Where the call was written. A call a macro returned has the position of the call
+	 * Where the node was written. A node a macro returned has the position of the call
 	 * that macro expanded, so a problem always points at something in the file.
 	 */
 	position?: Position;
@@ -52,7 +53,7 @@ const DEPTH_LIMIT = 16;
  * Calls naming no macro are left for the renderer. A macro that throws becomes a
  * problem and its call stays, so one broken call does not cost the whole document.
  */
-export async function expand(doc: HypermarkDocument, options: ExpandOptions): Promise<ExpandProblem[]> {
+export async function expand(doc: HypermarkDocument, options: ExpandOptions): Promise<Problem[]> {
 	const macros = { ...std, ...options.macros };
 	const filename = (options.filename ?? "").replaceAll("\\", "/");
 
@@ -64,7 +65,7 @@ export async function expand(doc: HypermarkDocument, options: ExpandOptions): Pr
 		return text;
 	};
 
-	type Expanded = { blocks: Block[]; problems: ExpandProblem[] };
+	type Expanded = { blocks: Block[]; problems: Problem[] };
 
 	async function expand_blocks(blocks: Block[], depth: number): Promise<Expanded> {
 		// In parallel, since a reader may fetch over the network; problems keep document order.
@@ -75,8 +76,8 @@ export async function expand(doc: HypermarkDocument, options: ExpandOptions): Pr
 		};
 	}
 
-	async function expand_inside(block: Block, depth: number): Promise<ExpandProblem[]> {
-		const problems: ExpandProblem[] = [];
+	async function expand_inside(block: Block, depth: number): Promise<Problem[]> {
+		const problems: Problem[] = [];
 		const inner = async (blocks: Block[]) => {
 			const result = await expand_blocks(blocks, depth);
 			problems.push(...result.problems);
@@ -97,7 +98,7 @@ export async function expand(doc: HypermarkDocument, options: ExpandOptions): Pr
 		const macro = Object.hasOwn(macros, block.name) ? macros[block.name] : undefined;
 		if (macro === undefined) return { blocks: [block], problems: [] };
 
-		const problems: ExpandProblem[] = [];
+		const problems: Problem[] = [];
 		const report = (message: string, hint?: string) => {
 			problems.push({
 				message,

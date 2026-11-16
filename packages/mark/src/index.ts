@@ -4,7 +4,8 @@ export {
 	expand,
 	type ExpandContext,
 	type ExpandOptions,
-	type ExpandProblem,
 	type Macro,
+	type Problem,
 } from "./expand.ts";
+export { render, type Component, type RenderContext, type RenderOptions, type RenderResult } from "./render.ts";
 export { std } from "./std.ts";
