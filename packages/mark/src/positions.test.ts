@@ -25,6 +25,11 @@ describe("Positions", () => {
 			expect(where(source, heading!.content[0])).toEqual({ span: "1:3-1:8", text: "Title" });
 		});
 
+		it("end a file's last paragraph before its final newline", () => {
+			const source = "Text\n";
+			expect(where(source, blocks(source)[0])).toEqual({ span: "1:1-1:5", text: "Text" });
+		});
+
 		it("count lines through the file", () => {
 			const source = "# One\n\nTwo\n\n# Three";
 			expect(blocks(source).map(b => where(source, b)?.span)).toEqual(["1:1-1:6", "3:1-3:4", "5:1-5:8"]);

@@ -1,5 +1,5 @@
 import { ident, locate, ParserContext } from "./Context.ts";
-import { Block, HypermarkDocument, Inline, Meta } from "./types.ts";
+import { Block, Inline, Meta } from "./types.ts";
 import { try_param_string, try_param_value } from "./value.ts";
 import { inline } from "./inline.ts";
 
@@ -324,8 +324,9 @@ export function para(ctx: ParserContext) {
 			const marker = list_marker(ctx, 1);
 			if (marker && (!marker.ordered || marker.text === "1.")) break;
 
-			// Double newline still breaks
-			if (next === "\n") break;
+			// A blank line ends the paragraph, and so does the end of the input: a file's last
+			// newline, or the one every quote's lines end with, is not text.
+			if (next === "\n" || next === "") break;
 
 			// Add single newline as text and continue
 			const newline = ctx.index;
@@ -397,8 +398,8 @@ export function quote(ctx: ParserContext): Block.Quote | undefined {
 		buffer += ctx.consume(); // include the newline
 	}
 
-	const doc2 = new HypermarkDocument();
-	const ctx2 = new ParserContext(buffer, doc2, {
+	// The same document: a footnote defined in a quote belongs to the whole page.
+	const ctx2 = new ParserContext(buffer, ctx.doc, {
 		tab_size: ctx.tab_size,
 		filename: ctx.filename,
 		source: ctx.source.derive(buffer, starts),
@@ -408,7 +409,8 @@ export function quote(ctx: ParserContext): Block.Quote | undefined {
 	return locate(ctx, from, new Block.Quote(reparse), to);
 }
 
-export function try_alignment(ctx: ParserContext): Block.TableAlignment | undefined {
+/** A cell of a table's alignment row: `null` for `---`, no alignment; undefined if not one. */
+export function try_alignment(ctx: ParserContext): Block.TableAlignment | null | undefined {
 	const revert = ctx.checkpoint();
 
 	let buffer = "";
@@ -416,7 +418,8 @@ export function try_alignment(ctx: ParserContext): Block.TableAlignment | undefi
 
 	if (buffer.length === 0) return revert();
 
-	if (/^:?-+$/.test(buffer)) return "left";
+	if (/^-+$/.test(buffer)) return null;
+	if (/^:-+$/.test(buffer)) return "left";
 	if (/^-+:$/.test(buffer)) return "right";
 	if (/^:-+:$/.test(buffer)) return "center";
 
@@ -448,7 +451,7 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 
 			// first cell in this row is an alignment cell
 			// AND this is the second row (rows already has 1 row)
-			if (align && (rows.length === 1 || (rows.length === 0 && header))) {
+			if (align !== undefined && (rows.length === 1 || (rows.length === 0 && header))) {
 				// pop the first row and use it as the header
 				if (!header) header = rows.pop()!;
 
@@ -491,7 +494,7 @@ export function table(ctx: ParserContext): Block.Table | undefined {
 	if (alignment && alignment.alignment.length !== len) {
 		const align = alignment.alignment;
 		const aLen = align.length;
-		if (aLen < len) align.push(...Array(len - aLen).fill("left"));
+		if (aLen < len) align.push(...Array<null>(len - aLen).fill(null));
 		else align.splice(len);
 	}
 
@@ -620,8 +623,8 @@ export function list_item(ctx: ParserContext, marker: ListMarker): Block.ListIte
 
 	ctx.consume(own.join("\n").length); // leaves the item's final newline unconsumed
 
-	const doc2 = new HypermarkDocument();
-	const ctx2 = new ParserContext(content, doc2, {
+	// The same document: a footnote defined in a list item belongs to the whole page.
+	const ctx2 = new ParserContext(content, ctx.doc, {
 		tab_size: ctx.tab_size,
 		filename: ctx.filename,
 		source: ctx.source.derive(content, starts),
@@ -758,10 +761,12 @@ function next_block(ctx: ParserContext, is_top_level: boolean): Block | undefine
 			}
 			case "-": {
 				const from = ctx.index;
-				if (ctx.is("---\n")) {
+				// At the end of the input as well: a list item's text has no final newline, and a
+				// file may not.
+				if (ctx.is("---") && (ctx.peek(3) === "\n" || ctx.peek(3) === "")) {
 					ctx.consume(3);
 					const rule = locate(ctx, from, new Block.Rule());
-					ctx.consume(); // the newline, outside the rule's position
+					ctx.consume_if("\n"); // outside the rule's position
 					return rule;
 				}
 				if (ctx.consume_if("--")) return locate(ctx, from, comment(ctx));

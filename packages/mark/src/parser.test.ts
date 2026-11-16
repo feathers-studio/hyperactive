@@ -357,6 +357,25 @@ describe("Blocks", () => {
 				new Block.Paragraph([new Inline.Text("world")]),
 			]);
 		});
+
+		it("does not keep the input's final newline as text", () => {
+			// It did, so a file's last paragraph rendered as `<p>world\n</p>`.
+			expect(parse("Hello\nworld\n").blocks).toEqual([
+				new Block.Paragraph([new Inline.Text("Hello"), new Inline.Text("\n"), new Inline.Text("world")]),
+			]);
+		});
+	});
+
+	describe("Rule", () => {
+		it("parses a rule at the end of the input, with no newline after it", () => {
+			// It parsed as the comment `-`, and the rule was lost.
+			expect(parse("Text\n\n---").blocks).toEqual([new Block.Paragraph([new Inline.Text("Text")]), new Block.Rule()]);
+		});
+
+		it("parses a rule at the end of a list item", () => {
+			const [list] = parse("- a\n\n  ---").blocks as Block.List[];
+			expect(list!.items[0]!.content).toEqual([new Block.Paragraph([new Inline.Text("a")]), new Block.Rule()]);
+		});
 	});
 
 	describe("Heading", () => {
@@ -396,6 +415,14 @@ describe("Blocks", () => {
 	});
 
 	describe("Quote", () => {
+		it("does not keep the newline its last line ends with as text", () => {
+			expect(parse("> Hello\n> world\n\nAfter").blocks[0]).toEqual(
+				new Block.Quote([
+					new Block.Paragraph([new Inline.Text("Hello"), new Inline.Text("\n"), new Inline.Text("world")]),
+				]),
+			);
+		});
+
 		it("parses a simple quote", () => {
 			const ast = parse("> Hello world");
 			expect(ast.blocks).toEqual([
@@ -603,6 +630,24 @@ describe("Blocks", () => {
 					new Block.TableAlignmentRow(["left", "right"]),
 				),
 			]);
+		});
+
+		it("reads `---` as no alignment, and `:--` as left", () => {
+			// Both read as left, so a column without alignment could not be told from a left one.
+			const [table] = parse("|A|B|C|D|\n|---|:--|:-:|--:|\n|1|2|3|4|").blocks as Block.Table[];
+			expect(table!.alignments).toEqual(new Block.TableAlignmentRow([null, "left", "center", "right"]));
+		});
+
+		it("pads a short alignment row with no alignment", () => {
+			const [table] = parse("|A|B|\n|:-:|\n|1|2|").blocks as Block.Table[];
+			expect(table!.alignments).toEqual(new Block.TableAlignmentRow(["center", null]));
+		});
+
+		it("round-trips alignment through toString", () => {
+			// The alignment row was written with a second closing `|`, which read back as a row.
+			const [table] = parse("|A|B|C|D|\n|---|:--|:-:|--:|\n|1|2|3|4|").blocks;
+			expect(table!.toString().split("\n")[1]).toBe("| --- | :-- | :-: | --: |");
+			expect(parse(table!.toString()).blocks).toEqual([table]);
 		});
 
 		it("normalizes table cell counts", () => {
@@ -1245,6 +1290,21 @@ describe("Blocks", () => {
 				]),
 				new Block.Footnote("1", [new Inline.Text("Content")]),
 			]);
+		});
+
+		it("collects footnotes defined in quotes and list items with the document's", () => {
+			// Both were parsed into a document of their own, and their footnotes were lost.
+			const quoted = parse_source("> Text[^q].\n>\n> [^q]: In a quote.");
+			expect(Object.keys(quoted.footnote_collection)).toEqual(["q"]);
+			const listed = parse_source("- Text[^l].\n\n  [^l]: In an item.\n\n[^top]: At the top.");
+			expect(Object.keys(listed.footnote_collection)).toEqual(["l", "top"]);
+		});
+
+		it("stores a footnote named __proto__ like any other", () => {
+			// It replaced the collection's prototype instead.
+			const doc = parse_source("[^__proto__]: A note.");
+			expect(Object.keys(doc.footnote_collection)).toEqual(["__proto__"]);
+			expect(Object.getPrototypeOf(doc.footnote_collection)).toBeNull();
 		});
 	});
 });

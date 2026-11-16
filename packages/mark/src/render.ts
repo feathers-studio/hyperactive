@@ -156,9 +156,8 @@ export function render(doc: HypermarkDocument, options: RenderOptions = {}): Ren
 
 	function table(n: Block.Table): HyperNodeish {
 		const cell = (tag: "th" | "td", content: Block.TableCell, column: number) => {
-			// The parser reads `---` as `left` too, so `left` can't be told from no alignment.
 			const align = n.alignments?.alignment[column];
-			const attrs = align === "center" || align === "right" ? { style: `text-align: ${align}` } : {};
+			const attrs = align ? { style: `text-align: ${align}` } : {};
 			return h(tag, attrs, ...nodes(content.content));
 		};
 		const row = (tag: "th" | "td", row: Block.TableRow) =>

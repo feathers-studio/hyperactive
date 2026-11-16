@@ -163,18 +163,18 @@ describe("render", () => {
 		});
 
 		it("renders quotes and rules", () => {
-			// Newlines aside: the parser keeps the last newline of a quote's paragraph as text.
-			expect(html("> a\n> > b\n\n---\n\nc").html.replaceAll("\n", "")).toBe(
+			expect(html("> a\n> > b\n\n---\n\nc").html).toBe(
 				"<blockquote><p>a</p><blockquote><p>b</p></blockquote></blockquote><hr /><p>c</p>",
 			);
 		});
 
-		it("renders a table, aligning the centred and right-aligned columns", () => {
-			expect(html("| a | b | c |\n| --- | :-: | --: |\n| 1 | 2 | 3 |").html).toBe(
+		it("renders a table, aligning only the columns given an alignment", () => {
+			const align = (value: string) => ` style="text-align: ${value}"`;
+			expect(html("| a | b | c | d |\n| --- | :-- | :-: | --: |\n| 1 | 2 | 3 | 4 |").html).toBe(
 				[
 					"<table>",
-					'<thead><tr><th>a</th><th style="text-align: center">b</th><th style="text-align: right">c</th></tr></thead>',
-					'<tbody><tr><td>1</td><td style="text-align: center">2</td><td style="text-align: right">3</td></tr></tbody>',
+					`<thead><tr><th>a</th><th${align("left")}>b</th><th${align("center")}>c</th><th${align("right")}>d</th></tr></thead>`,
+					`<tbody><tr><td>1</td><td${align("left")}>2</td><td${align("center")}>3</td><td${align("right")}>4</td></tr></tbody>`,
 					"</table>",
 				].join(""),
 			);
@@ -214,6 +214,12 @@ describe("render", () => {
 					"</section>",
 				].join(""),
 			);
+		});
+
+		it("renders a footnote defined in a quote", () => {
+			const result = html("> Text[^q].\n>\n> [^q]: In a quote.");
+			expect(result.problems).toEqual([]);
+			expect(result.html).toContain('<li id="fn-q"><p>In a quote. ');
 		});
 
 		it("leaves out a footnote that is never referenced", () => {

@@ -338,26 +338,23 @@ export namespace Block {
 
 	export class TableAlignmentRow {
 		type: "table-alignment-row" = "table-alignment-row";
-		constructor(public alignment: TableAlignment[]) {}
+		/** One per column, `null` for `---`: a column without alignment, as in mdast. */
+		constructor(public alignment: (TableAlignment | null)[]) {}
 		toString(): string {
-			let result = "|";
-			for (const alignment of this.alignment) {
+			const cells = this.alignment.map(alignment => {
 				switch (alignment) {
+					case null:
+						return "---";
 					case "left":
-						result += " ----";
-						break;
+						return ":--";
 					case "center":
-						result += " :--:";
-						break;
+						return ":-:";
 					case "right":
-						result += " ---:";
-						break;
+						return "--:";
 				}
-
-				result += " |";
-			}
-
-			return result + " |";
+			});
+			// One closing `|`: a second one read back as an extra, empty row.
+			return `| ${cells.join(" | ")} |`;
 		}
 	}
 
@@ -614,7 +611,9 @@ export interface FootnoteCollection {
 
 export class HypermarkDocument {
 	public meta?: Meta;
-	public footnote_collection: FootnoteCollection = {};
+	// Without a prototype, a footnote named `__proto__` is stored like any other instead of
+	// replacing the prototype, and `constructor` is not found unless defined.
+	public footnote_collection: FootnoteCollection = Object.create(null);
 
 	constructor(public blocks: Block[] = []) {}
 }

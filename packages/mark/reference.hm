@@ -185,6 +185,7 @@ Tables support alignment options:
 ```hypermark
 | Syntax    | Alignment | Example  |
 | :-------- | :-------: | -------: |
+| `---`     | None      | Default  |
 | `:--`     | Left      | Left     |
 | `:--:`    | Center    | Center   |
 | `--:`     | Right     | Right    |
